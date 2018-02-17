@@ -3,7 +3,7 @@
 """
 Created on Fri Feb 16 21:14:44 2018
 
-@author: saveliyyusufov
+@author: Saveliy Yusufov, Columbia University, sy2685@columbia.edu
 """
 
 def isDataConsistent(python_DS, MATLAB_DS):
