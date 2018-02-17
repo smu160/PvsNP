@@ -104,9 +104,14 @@ def detect_ca_transients_mossy(data, thresh, baseline, t_half, frame_rate):
                 found = False
 
             # Specify stop index of transient from offset vector
-            if offset[m + 1] - offset[m] > 1: 
+            if offset[m + 1] - offset[m] > 1 or m == len(offset) - 2: 
 
-                finish = offset[m];
+                # Deals with the last index in the vector
+                if (m == len(offset) - 2):
+                    finish = offset[m + 1]
+                    # print("dealing with the last index in the vector, same as above")
+                else:
+                    finish = offset[m]
 
                 # Find the peak value in that start-stop range
                 MAX = max(cell_data[column][start:finish+1].tolist())
