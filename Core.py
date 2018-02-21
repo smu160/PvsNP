@@ -14,7 +14,6 @@ import math
 import numpy as np
 import pandas as pd
 import peakutils.peak
-from itertools import cycle
 from scipy import integrate
 
 def detect_ca_transients_mossy(data, thresh, baseline, t_half, frame_rate):
@@ -65,8 +64,7 @@ def detect_ca_transients_mossy(data, thresh, baseline, t_half, frame_rate):
     # Define minimum duration of calcium transient based on gcamp type used
     
     # Simplified from (-ln(A / Ao) / t_half), [A / Ao] = 0.5 at t half-life, [-ln(A / Ao)] = 0.693
-    # TODO: No magic numbers!!!
-    decayrate = 0.693 / t_half 
+    decayrate = np.log(2) / t_half 
 
     # Minimum (s) duration for ca transient of minimum specified s.d. amplitude threshold
     minimum_duration = -(math.log(baseline / thresh)) / decayrate 
