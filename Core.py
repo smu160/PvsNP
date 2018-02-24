@@ -15,7 +15,9 @@ import numpy as np
 import pandas as pd
 import peakutils.peak
 from scipy import integrate
+from numba import jit
 
+# @jit
 def detect_ca_transients_mossy(data, thresh, baseline, t_half, frame_rate):
     """
     Args:
