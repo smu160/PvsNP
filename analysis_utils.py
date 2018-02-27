@@ -35,16 +35,15 @@ def activity_by_neurons(dataframe, neuron, **behaviors):
     return 10 * sum(new_df[neuron]) / len(new_df[behavior])
 
 def neuron_scatter_plot_with_reg(neuron1, neuron2, dataframe):
-   #if pd.isnull(corr_df[neuron1]).all():
-        #return
+    if pd.isnull(dataframe[neuron1]).all():
+        return False
     
     slope, intercept, r_value, p_value, std_err = stats.linregress(dataframe[neuron1], dataframe[neuron2])
     regression_line = slope * dataframe[neuron1] + intercept
 
     # Only continue to plot the data if the correlation coefficient indicates a moderate - strong correlation
-    if abs(r_value) < 0.3:
-        # print("For ({}, {}), the r_value is less than 0.3\n".format(neuron1, neuron2))
-        return False
+    # if abs(r_value) < 0.3:
+    #    return False
     
     fig = {
         'data': [
@@ -65,8 +64,7 @@ def neuron_scatter_plot_with_reg(neuron1, neuron2, dataframe):
         }
     }
     
-    print("({}, {}): r-value = {}, r^2-value = {}".format(neuron1, neuron2, r_value, r_value**2))    
-    return plotly.offline.iplot(fig)
+    return fig, r_value
 
 def neuron_line_plot(neuron1, neuron2, dataframe):
     trace1 = go.Scatter(
@@ -84,16 +82,16 @@ def neuron_line_plot(neuron1, neuron2, dataframe):
     data = [trace1, trace2]
     return plotly.offline.iplot(data)
 
-def load_Activities_DataFrame(dataframe):
+def load_Activities_DataFrame(dataframe, dataframe2):
     
     activities_dict = {}
     behaviors = {'Arena_centerpoint':1, 'Open1_centerpoint':1, 'Open2_centerpoint':1, 'Closed1_centerpoint':1, 
                  'Closed2_centerpoint':1, 'OpenArms_centerpoint':1, 'ClosedArms_centerpoint':1}
 
-    activities_dataframe = pd.DataFrame(index=AUC_dataframe.columns)
+    activities_dataframe = pd.DataFrame(index=dataframe2.columns)
 
     for behavior in behaviors:
-        for neuron in AUC_dataframe:
+        for neuron in dataframe2:
             activities_dict[neuron] = activity_by_neurons(dataframe, neuron, **{behavior:behaviors[behavior]})
 
         activities_dataframe[behavior] = pd.Series(activities_dict)
