@@ -13,11 +13,8 @@ was written by Jessica Jimenez, Columbia University, jcj2123@columbia.edu
 import math
 import numpy as np
 import pandas as pd
-import peakutils.peak
-from scipy import integrate
-from numba import jit
 
-# @jit
+
 def detect_ca_transients_mossy(data, thresh, baseline, t_half, frame_rate):
     """
     Args:
@@ -75,12 +72,11 @@ def detect_ca_transients_mossy(data, thresh, baseline, t_half, frame_rate):
     minimum_frames = round(minimum_duration * frame_rate) 
     
     # Identify qualified ca transients and generate outputs
-    onset = list()
-    offset = list()
     for column in data:
         
         # Find all timepoints where flourescence greater than threshold
         onset = cell_data.index[cell_data[column] > thresh].tolist()
+        onset_dict = {onset[i]: i for i in range(0, len(onset))}
         
         # Find all timepoints where floursecence greater than baseline (transient offset)
         offset = cell_data.index[cell_data[column] > baseline].tolist()
@@ -113,11 +109,11 @@ def detect_ca_transients_mossy(data, thresh, baseline, t_half, frame_rate):
                 max_amp_index = transient_vector[I]
 
                 peak_to_offset_vector = list(range(max_amp_index, finish + 1))
-                found = True;
+                found = True
 
                 # If the peak value index from start-stop in offset is also found in onset vector, 
                 # then the transient exceeded the 2SD threshold
-                if (max_amp_index in onset) and len(peak_to_offset_vector) >= minimum_frames: 
+                if (max_amp_index in onset_dict) and len(peak_to_offset_vector) >= minimum_frames: 
 
                     # Retrieve "cell" values for all the timepoints of that transient
                     cell_transients[column][start:finish+1] = cell_data[column][start:finish+1] 
@@ -133,4 +129,4 @@ def detect_ca_transients_mossy(data, thresh, baseline, t_half, frame_rate):
                     # (all zeros except for the AOC value assigned to the peak timepoint)
                     cell_AUC_df[column][max_amp_index] = transient_area   
 
-    return [cell_data, cell_AUC_df, cell_transients]
+    return cell_data, cell_AUC_df, cell_transients
