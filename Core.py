@@ -15,6 +15,13 @@ import numpy as np
 import pandas as pd
 
 
+def z_score_data(data):
+    pop_offset = np.percentile(data.values, 50)
+    sigma = np.std(data.values, axis=0)
+    mu = np.mean((data.values)[data.values < pop_offset])
+    return pd.DataFrame(data=((data.values - mu) / sigma))
+
+
 def detect_ca_transients_mossy(data, thresh, baseline, t_half, frame_rate):
     """
     Args:
@@ -32,33 +39,12 @@ def detect_ca_transients_mossy(data, thresh, baseline, t_half, frame_rate):
     """
     
     # zscore all data
-    
-    # Generate single vector with all cell fluorescence values
-    pophist = list()
-    for column in data:
-        pophist += data[column].tolist()
-
-    # Find the 50% quantile value (for "silent" time points)
-    pop_offset = np.percentile(pophist, 50)
-    
-    # Find timepoints without ca transients based on threshold above
-    silent = [1 if pophist[i] < pop_offset else 0 for i in range(0, len(pophist))]
-    
-    # Specify mu from the silent timepoints
-    mu = np.mean([pophist[i] for i in range(0, len(silent)) if silent[i] == 1])
-
-    # Specify sigma from the entire time series
-    sigma = [np.std(data[column].tolist()) for column in data]
-
-    # Convert transients into zscores using mu from silent timepoints and sigma from all timepoints
-    zscored_cell = (data - mu) / sigma
-
-    cell_data = zscored_cell
+    cell_data = z_score_data(data)
 
     # Preallocate outputs
     # cell_events = zeros(cell_data_size)
-    cell_transients = pd.DataFrame(np.zeros(shape=(data.shape[0], data.shape[1])))
-    cell_AUC_df = pd.DataFrame(np.zeros(shape=(data.shape[0], data.shape[1])))
+    cell_transients = pd.DataFrame(np.zeros((len(data.index), len(data.columns))))
+    cell_AUC_df = pd.DataFrame(np.zeros((len(data.index), len(data.columns))))
     
     # Define minimum duration of calcium transient based on gcamp type used
     
@@ -75,11 +61,10 @@ def detect_ca_transients_mossy(data, thresh, baseline, t_half, frame_rate):
     for column in data:
         
         # Find all timepoints where flourescence greater than threshold
-        onset = cell_data.index[cell_data[column] > thresh].tolist()
-        onset_dict = {onset[i]: i for i in range(0, len(onset))}
+        onset = cell_data.loc[cell_data[column] > thresh].index
         
         # Find all timepoints where floursecence greater than baseline (transient offset)
-        offset = cell_data.index[cell_data[column] > baseline].tolist()
+        offset = cell_data.loc[cell_data[column] > baseline].index
 
         found = True
 
@@ -101,32 +86,36 @@ def detect_ca_transients_mossy(data, thresh, baseline, t_half, frame_rate):
                     finish = offset[m]
 
                 # Find the peak value in that start-stop range
-                MAX = max(cell_data[column][start:finish+1].tolist())
-                I = cell_data[column][start:finish+1].tolist().index(max(cell_data[column][start:finish+1].tolist()))
-                transient_vector = list(range(start, finish+1))
-            
+                MAX = cell_data.loc[start:finish+1, column].max()
+                I = cell_data.loc[start:finish+1, column].values.argmax()
+                transient_vector = np.arange(start, finish+1)
+
                 # Retrieve "cell" index of that peak value
                 max_amp_index = transient_vector[I]
 
-                peak_to_offset_vector = list(range(max_amp_index, finish + 1))
+                # peak_to_offset_vector = list(range(max_amp_index, finish + 1))
                 found = True
 
                 # If the peak value index from start-stop in offset is also found in onset vector, 
                 # then the transient exceeded the 2SD threshold
-                if (max_amp_index in onset_dict) and len(peak_to_offset_vector) >= minimum_frames: 
+                if (max_amp_index in onset) and ((finish+1) - max_amp_index) >= minimum_frames: 
 
                     # Retrieve "cell" values for all the timepoints of that transient
-                    cell_transients[column][start:finish+1] = cell_data[column][start:finish+1] 
+                    cell_transients.loc[start:finish+1, column] = cell_data.loc[start:finish+1, column] 
 
                     # Create a matrix with all the calcium transient peak events  
                     # (all zeros except for the amplitude value at the peak timepoint)
                     # cell_events(maxamp_ind, k) = M     
 
                     # Integrate the area under the curve of the transient from start-stop
-                    transient_area = np.trapz(cell_data[column][start:finish+1].tolist())
+                    transient_area = np.trapz(cell_data.loc[start:finish+1, column])
                     
                     # Create a matrix with all the calcium transient AOC values 
                     # (all zeros except for the AOC value assigned to the peak timepoint)
-                    cell_AUC_df[column][max_amp_index] = transient_area   
+                    cell_AUC_df.loc[max_amp_index, column] = transient_area   
+                    
+    cell_data.columns = ['neuron' + str(i) for i in range(1, len(cell_data.columns)+1)]
+    cell_AUC_df.columns = ['neuron' + str(i) for i in range(1, len(cell_AUC_df.columns)+1)]
+    cell_transients.columns = ['neuron' + str(i) for i in range(1, len(cell_transients.columns)+1)]
 
     return cell_data, cell_AUC_df, cell_transients
