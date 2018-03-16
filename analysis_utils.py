@@ -11,9 +11,6 @@ import Core
 
 from scipy import stats
 from plotly import tools
-from IPython.core.interactiveshell import InteractiveShell
-
-plotly.offline.init_notebook_mode(connected=True);
 
 
 def bin_dataframe(dataframe, amount_of_bins):
@@ -29,14 +26,12 @@ def bin_dataframe(dataframe, amount_of_bins):
         
     return binned_dataframes
 
-
 def activity_by_neurons(dataframe, neuron, **behaviors):
     new_df = dataframe
     for behavior in behaviors:
         new_df = new_df[(new_df[behavior] == behaviors[behavior])]
 
     return 10 * sum(new_df[neuron]) / len(new_df[behavior])
-
 
 def neuron_scatter_plot_with_reg(neuron1, neuron2, dataframe):
     if pd.isnull(dataframe[neuron1]).all():
@@ -70,7 +65,6 @@ def neuron_scatter_plot_with_reg(neuron1, neuron2, dataframe):
     
     return fig, r_value
 
-
 def neuron_line_plot(neuron1, neuron2, dataframe):
     trace1 = go.Scatter(
         x = list(range(0, len(dataframe))),
@@ -87,7 +81,6 @@ def neuron_line_plot(neuron1, neuron2, dataframe):
     data = [trace1, trace2]
     return plotly.offline.iplot(data)
 
-
 def load_Activities_DataFrame(dataframe, dataframe2):
     
     activities_dict = {}
@@ -103,7 +96,6 @@ def load_Activities_DataFrame(dataframe, dataframe2):
         activities_dataframe[behavior] = pd.Series(activities_dict)
 
     return activities_dataframe
-
 
 def plot_correlation_heatmap(dataframe, size=16):
     """ Seaborn correlation heatmap wrapper function
@@ -130,7 +122,6 @@ def plot_correlation_heatmap(dataframe, size=16):
     # Draw the heatmap with the mask and correct aspect ratio
     sns.heatmap(dataframe.corr(), mask=mask, cmap=cmap, vmax=1.0, center=0, square=True, linewidths=.5, cbar_kws={"shrink": .5})
     
-    
 def plot_clustermap(dataframe, size=15):
     """ Seaborn clustermap wrapper function
 
@@ -146,8 +137,7 @@ def plot_clustermap(dataframe, size=15):
     cm = sns.clustermap(dataframe.corr(), center=0, linewidths=.75, figsize=(size, size), method="centroid", cmap="vlag");
     cm.ax_row_dendrogram.set_visible(False)
     cm.ax_col_dendrogram.set_visible(False)
-    
-    
+        
 def q(dataframe, neuron_x, neuron_y):
     """ A different way to compute the correlation between 2 neurons
 
@@ -177,11 +167,6 @@ def run_EPM_analysis(raw_files):
     
     for raw_file in raw_files:
         data = pd.read_csv(raw_file, header=None)
-
         z_scored_dataframe, AUC_dataframe, cell_transients_dataframe = Core.detect_ca_transients_mossy(data, 2, 0.5, 0.2, 10)
-        z_scored_dataframe.columns = ['neuron' + str(i) for i in range(1, len(z_scored_dataframe.columns)+1)]
-        AUC_dataframe.columns = ['neuron' + str(i) for i in range(1, len(AUC_dataframe.columns)+1)]
-        cell_transients_dataframe.columns = ['neuron' + str(i) for i in range(1, len(cell_transients_dataframe.columns)+1)]
-        
         plot_correlation_heatmap(cell_transients_dataframe)
         plot_clustermap(cell_transients_dataframe)
