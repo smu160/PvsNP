@@ -157,7 +157,6 @@ def q(dataframe, neuron_x, neuron_y):
     mag_of_neuron_x_or_neuron_y = len(dataframe[(dataframe[neuron_x] != 0) | (dataframe[neuron_y] != 0)])
     return mag_of_neuron_x_and_neuron_y / mag_of_neuron_x_or_neuron_y
 
-
 def run_EPM_analysis(raw_files):
     """ Carry out EPM analysis functions on all available raw datasets
 
@@ -170,3 +169,27 @@ def run_EPM_analysis(raw_files):
         z_scored_dataframe, AUC_dataframe, cell_transients_dataframe = Core.detect_ca_transients_mossy(data, 2, 0.5, 0.2, 10)
         plot_correlation_heatmap(cell_transients_dataframe)
         plot_clustermap(cell_transients_dataframe)
+        
+def find_correlated_pairs(dataframe, correlation_coeff=0.3):
+    """ This function finds a returns a dictionary of all the correlated pairs in a 
+        given dataframe of the neuron time series data collected in an experiment
+    Args: 
+        dataframe: a pandas dataframe, where the columns are individual neurons, and 
+        the rows represent neuronal acitivty over time
+        correlation_coeff: the cutoff correlation coefficient to use in order to consider
+        a given pair of neurons to be correlated. default is 0.3
+    Returns:
+        a dictionary of <tuple, correlation value> where the tuple is a unique correlated 
+        pair and the corresponding value is correlation coefficient of that tuple
+        
+    """
+    corr_pairs_dict = {}
+    corr_dataframe = dataframe.corr()
+
+    for i in corr_dataframe.columns:
+        for j in corr_dataframe.index:
+            if abs(corr_dataframe.at[i, j]) >= correlation_coeff and i != j:
+                if (i, j) not in corr_pairs_dict and (j, i) not in corr_pairs_dict:
+                    corr_pairs_dict[(i, j)] = corr_dataframe.at[i, j]
+
+    return corr_pairs_dict
