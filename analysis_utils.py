@@ -194,3 +194,22 @@ def find_correlated_pairs(dataframe, correlation_coeff=0.3):
                     corr_pairs_dict[(i, j)] = corr_dataframe.at[i, j]
 
     return corr_pairs_dict
+
+def plot_neurons_as_function_of_beh(dataframe, neuron_x, neuron_y, behavior, size_of_plot=8):
+    """ This function plots two neurons as a function of a third variable (behavior)
+    
+    Scatter plots allow one to explore the relationship between a pair of variables. 
+    Often, however, a more interesting question is “how does the relationship between 
+    these two variables change as a function of a third variable?” 
+    The best way to separate out a relationship is to plot both levels on the same axes 
+    and to use color to distinguish them. 
+    Source: http://seaborn.pydata.org/tutorial/regression.html
+    
+    Args:
+        dataframe: a pandas dataframe that has both, neuron activity and corresponding behavior
+        neuron_x: the neuron to be plotted along the x-axis 
+        neuron_y: the neuron to be plotted along the y-axis 
+        behavior: the behavior over time (represented in the form of booleans)
+        size_of_plot: the size of the scatter plot. default is 8
+    """
+    sns.lmplot(x=neuron_x, y=neuron_y, hue=behavior, data=dataframe[[neuron_x, neuron_y, behavior]], size=size_of_plot)
