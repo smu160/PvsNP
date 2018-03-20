@@ -9,7 +9,7 @@ Signal processing and data analysis code to be used for the analysis of data col
 
 ### TODO
 #### Elevated Plus Maze Analysis: 
-- [ ] Finish implementation `is_neuron_selective()`
+- [ ] Finish implementation of `is_neuron_selective()`
 - [ ] Add functionality to run `is_neuron_selective()` based on different periods of time
 - [ ] Write up documentation for all "cell selectivity" functions
 - [ ] Move all functions from EPM Analysis notebook to `analysis_utils.py` once they are complete and sound
@@ -64,13 +64,11 @@ For any issues, feel free to email Saveliy Yusufov at sy2685@columbia.edu
 
 ## Contributing
 
-TODO
-
 Please read [...] for details on our code of conduct, and the process for submitting pull requests to us.
 
 ## Versioning
 
-TODO
+...
 
 ## Authors
 
@@ -79,10 +77,8 @@ TODO
 
 ## License
 
-TODO
+...
 
 ## Acknowledgments
-
-TODO
 
 * Jessica Jimenez 
