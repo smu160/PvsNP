@@ -7,6 +7,23 @@ Signal processing and data analysis code to be used for the analysis of data col
 - [Interactive notebooks: Sharing the code](https://www.nature.com/news/interactive-notebooks-sharing-the-code-1.16261)
 - [A gallery of interesting Jupyter Notebooks](https://github.com/jupyter/jupyter/wiki/A-gallery-of-interesting-Jupyter-Notebooks)
 
+### TODO
+#### Elevated Plus Maze Analysis: 
+- [ ] Finish implementation `is_neuron_selective()`
+- [ ] Add functionality to run `is_neuron_selective()` based on different periods of time
+- [ ] Write up documentation for all "cell selectivity" functions
+- [ ] Move all functions from EPM Analysis notebook to `analysis_utils.py` once they are complete and sound
+- [ ] *Significantly* improve the run-time of `shuffle()` (By parallelizing or coming up with better implementation)
+#### Graph Theoretical Analysis: 
+- [ ] Color nodes by their selectivity in all graphs
+- [ ] Implement a function that will find all time periods of (continuous) behavior 
+- [ ] Plot assortativity of networks
+- [ ] Plot the networks for different activities, e.g. What did a network of neurons look like when the mouse was doing a certain behavior
+- [ ] Generate network plots of the data over time, e.g. the network looked like *that* during first 2 minute interval, like *this* during second 2 minute interval, and etc.
+- [ ] Plot the network, but preserve the positions of the nodes (neurons) as they looked in the video
+
+For any other feature requests, feel free to email Saveliy Yusufov at sy2685@columbia.edu
+
 ## Getting Started
 
 The best way to start using this code is by cloning the repository as follows:
@@ -35,7 +52,7 @@ If, for some reason, plotly graphs/charts used to render and they no longer rend
 
 This is only a band-aid solution, and the underlying issue will be explored (and hopefully fixed) in the near future.
 
-For any issues or feature requests, feel free to email Saveliy Yusufov at sy2685@columbia.edu
+For any issues, feel free to email Saveliy Yusufov at sy2685@columbia.edu
 
 ## Built With
 
