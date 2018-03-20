@@ -6,7 +6,7 @@ Signal processing and data analysis code to be used for the analysis of data col
 
 The best way to start using this code is by cloning the repository as follows:
 
-1. Open a terminal in your machine
+1. Open a terminal on your machine
 2. On the [main page](https://github.com/jaberry/Hen_Lab) of this repo, hit `Clone or download`
 3. Copy the link in the small pop-up windows that says `Clone with HTTPS`
 4. In your terminal, enter the following line: `git clone <Web-URL>` (not including the `< >`)
@@ -14,6 +14,7 @@ The best way to start using this code is by cloning the repository as follows:
 ### Prerequisites
 
 In order to avoid dependency hell, it is highly reccomended that you install and use [Anaconda](https://www.anaconda.com/download/)
+
 After installation, be sure to run `conda update --all` in your terminal.
 
 If you already have Anaconda installed, then simply run `conda update --all` in your terminal.
@@ -29,11 +30,12 @@ If, for some reason, plotly graphs/charts used to render and they no longer rend
 
 This is only a band-aid solution, and the underlying issue will be explored (and hopefully fixed) in the near future.
 
-For any issues, feel free to email Saveliy Yusufov at sy2685@columbia.edu
+For any issues or feature requests, feel free to email Saveliy Yusufov at sy2685@columbia.edu
 
 ## Built With
 
 * [Python](https://www.python.org)
+* [pandas](http://pandas.pydata.org)
 * [NetworkX](https://networkx.github.io)
 * [seaborn](http://seaborn.pydata.org)
 * [plotly](https://plot.ly)
