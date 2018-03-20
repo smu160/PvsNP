@@ -178,6 +178,7 @@ def find_correlated_pairs(dataframe, correlation_coeff=0.3):
         the rows represent neuronal acitivty over time
         correlation_coeff: the cutoff correlation coefficient to use in order to consider
         a given pair of neurons to be correlated. default is 0.3
+        
     Returns:
         a dictionary of <tuple, correlation value> where the tuple is a unique correlated 
         pair and the corresponding value is correlation coefficient of that tuple
