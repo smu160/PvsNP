@@ -7,7 +7,7 @@ import matplotlib.style as style
 import plotly
 import plotly.figure_factory as ff
 import plotly.graph_objs as go
-import Core
+import SigProc
 
 from scipy import stats
 from plotly import tools
