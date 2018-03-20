@@ -2,13 +2,18 @@
 
 Signal processing and data analysis code to be used for the analysis of data collected during *in vivo* calcium imaging
 
+### Why Python?
+- [Eight Advantages of Python Over Matlab](http://phillipmfeldman.org/Python/Advantages_of_Python_Over_Matlab.html)
+- [Interactive notebooks: Sharing the code](https://www.nature.com/news/interactive-notebooks-sharing-the-code-1.16261)
+- [A gallery of interesting Jupyter Notebooks](https://github.com/jupyter/jupyter/wiki/A-gallery-of-interesting-Jupyter-Notebooks)
+
 ## Getting Started
 
 The best way to start using this code is by cloning the repository as follows:
 
 1. Open a terminal on your machine
 2. On the [main page](https://github.com/jaberry/Hen_Lab) of this repo, hit `Clone or download`
-3. Copy the link in the small pop-up windows that says `Clone with HTTPS`
+3. Copy the link in the small pop-up window that says `Clone with HTTPS`
 4. In your terminal, enter the following line: `git clone <Web-URL>` (not including the `< >`)
 
 ### Prerequisites
@@ -44,7 +49,7 @@ For any issues or feature requests, feel free to email Saveliy Yusufov at sy2685
 
 TODO
 
-Please read [CONTRIBUTING.md] for details on our code of conduct, and the process for submitting pull requests to us.
+Please read [...] for details on our code of conduct, and the process for submitting pull requests to us.
 
 ## Versioning
 
