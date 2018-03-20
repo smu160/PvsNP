@@ -14,7 +14,14 @@ from plotly import tools
 
 
 def bin_dataframe(dataframe, amount_of_bins):
-    'This function returns a list of equally-sized sub-dataframes made from the passed-in dataframe'
+    """
+    This function returns a list of equally-sized 
+    sub-dataframes made from the passed-in dataframe
+    
+    Args:
+    
+    Returns:
+    """
     binned_dataframes = list()
     begin = 0
     multiple = math.floor(len(dataframe.index) / amount_of_bins)
@@ -26,14 +33,14 @@ def bin_dataframe(dataframe, amount_of_bins):
         
     return binned_dataframes
 
-def activity_by_neurons(dataframe, neuron, **behaviors):
-    new_df = dataframe
-    for behavior in behaviors:
-        new_df = new_df[(new_df[behavior] == behaviors[behavior])]
-
-    return 10 * sum(new_df[neuron]) / len(new_df[behavior])
-
 def neuron_scatter_plot_with_reg(neuron1, neuron2, dataframe):
+    """ What function does...
+    
+    Args:
+    
+    Returns:
+    """
+        
     if pd.isnull(dataframe[neuron1]).all():
         return False
     
@@ -66,6 +73,12 @@ def neuron_scatter_plot_with_reg(neuron1, neuron2, dataframe):
     return fig, r_value
 
 def neuron_line_plot(neuron1, neuron2, dataframe):
+    """ What function does...
+    
+    Args:
+    
+    Returns:
+    """
     trace1 = go.Scatter(
         x = list(range(0, len(dataframe))),
         y = dataframe[neuron1],
@@ -81,7 +94,26 @@ def neuron_line_plot(neuron1, neuron2, dataframe):
     data = [trace1, trace2]
     return plotly.offline.iplot(data)
 
+def activity_by_neurons(dataframe, neuron, **behaviors):
+    """ What function does...
+    
+    Args:
+    
+    Returns:
+    """
+    new_df = dataframe
+    for behavior in behaviors:
+        new_df = new_df[(new_df[behavior] == behaviors[behavior])]
+
+    return 10 * sum(new_df[neuron]) / len(new_df[behavior])
+
 def load_Activities_DataFrame(dataframe, dataframe2):
+    """ What function does...
+    
+    Args:
+    
+    Returns:
+    """
     
     activities_dict = {}
     behaviors = {'Arena_centerpoint':1, 'Open1_centerpoint':1, 'Open2_centerpoint':1, 'Closed1_centerpoint':1, 
@@ -166,7 +198,7 @@ def run_EPM_analysis(raw_files):
     
     for raw_file in raw_files:
         data = pd.read_csv(raw_file, header=None)
-        z_scored_dataframe, AUC_dataframe, cell_transients_dataframe = Core.detect_ca_transients_mossy(data, 2, 0.5, 0.2, 10)
+        z_scored_dataframe, AUC_dataframe, cell_transients_dataframe = SigProc.detect_ca_transients_mossy(data, 2, 0.5, 0.2, 10)
         plot_correlation_heatmap(cell_transients_dataframe)
         plot_clustermap(cell_transients_dataframe)
         
