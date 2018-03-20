@@ -1,12 +1,15 @@
 # Hen Lab 
 
-Python implementation of code used for signal processing data analysis, and etc.
+Signal processing and data analysis code to be used for the analysis of data collected during *in vivo* calcium imaging
 
 ## Getting Started
 
+TODO
 These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. See deployment for notes on how to deploy the project on a live system.
 
 ### Prerequisites
+
+TODO
 
 In order to render plotly graphs, charts, and etc., please follow the instructions at the link below:
 
@@ -14,68 +17,38 @@ https://github.com/jupyterlab/jupyter-renderers/tree/master/packages/plotly-exte
 
 ### Installing
 
-A step by step series of examples that tell you have to get a development env running
+* The best way to start using this code is by cloning the repository as follows:
 
-Say what the step will be
-
-```
-Give the example
-```
-
-And repeat
-
-```
-until finished
-```
-
-End with an example of getting some data out of the system or using it for a little demo
-
-## Running the tests
-
-Explain how to run the automated tests for this system
-
-### Break down into end to end tests
-
-Explain what these tests test and why
-
-```
-Give an example
-```
-
-### And coding style tests
-
-Explain what these tests test and why
-
-```
-Give an example
-```
-
-## Deployment
-
-Add additional notes about how to deploy this on a live system
+1. Open a terminal in your machine
+2. On the [main page](https://github.com/jaberry/Hen_Lab) of this repo, hit `Clone or download`
+3. Copy the link in the small pop-up windows that says `Clone with HTTPS`
+4. In your terminal, enter the following line: `git clone <Web-URL>`
 
 ## Built With
 
-* Python
+TODO
+* Python 3.6
 
 ## Contributing
 
+TODO
 Please read [CONTRIBUTING.md] for details on our code of conduct, and the process for submitting pull requests to us.
 
 ## Versioning
 
-N/A
+TODO
 
 ## Authors
 
-* **Billie Thompson** - *Initial work* - [PurpleBooth](https://github.com/PurpleBooth)
-
-See also the list of [contributors](https://github.com/your/project/contributors) who participated in this project.
+* **Jack Berry** - [jaberry](https://github.com/jaberry)
+* **Saveliy Yusufov** - [smu160](https://github.com/smu160)
 
 ## License
 
-None at this time.
+TODO
 
 ## Acknowledgments
 
-* Jessica Jimenez
+TODO
+
+* Jessica Jimenez 
