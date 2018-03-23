@@ -13,7 +13,7 @@ Signal processing and data analysis code to be used for the analysis of data col
 - [ ] Add functionality to run `is_neuron_selective()` based on different periods of time
 - [ ] Write up documentation for all "cell selectivity" functions
 - [ ] Move all functions from EPM Analysis notebook to `analysis_utils.py` once they are complete and sound
-- [ ] *Significantly* improve the run-time of `shuffle()` (By parallelizing or coming up with better implementation)
+- [x] *Significantly* improve the run-time of `shuffle()` (By parallelizing or coming up with better implementation)
 #### Graph Theoretical Analysis: 
 - [ ] Color nodes by their selectivity in all graphs
 - [ ] Implement a function that will find all time periods of (continuous) behavior 
