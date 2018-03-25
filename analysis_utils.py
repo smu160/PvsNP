@@ -245,3 +245,100 @@ def plot_neurons_as_function_of_beh(dataframe, neuron_x, neuron_y, behavior, siz
         size_of_plot: the size of the scatter plot. default is 8
     """
     sns.lmplot(x=neuron_x, y=neuron_y, hue=behavior, data=dataframe[[neuron_x, neuron_y, behavior]], size=size_of_plot)
+
+def is_neuron_selective(bootstrapped_df, real_d_df, neuron, behavior_name, hi_percentile, lo_percentile):
+    """ Classifies a given neuron as selective or non-selective
+    
+    Args:
+        bootstrapped_df: pandas dataframe that has all the bootstrapped data for 
+        the neurons and a given behavior
+        real_d_df: a pandas dataframe that has a single row with the real d values
+        neuron: the particular neuron to be classified
+        behavior_name: the name of the behavior to classify the 
+        hi_percentile: the cutoff for the high percentile
+        lo_percentile: the cutoff for the low percentile
+    
+    Returns:
+        the classification of the neuron; either <behavior>, Non-<behavior>, or Non-selective 
+    """
+    # print("{} percentile of {} is {},   d_value of {} is {}".format(hi_percentile, neuron, np.percentile(bootstrapped[neuron], 87), neuron, real_d_df[neuron]['d']))
+    if real_d_df[neuron]['d'] >= np.percentile(bootstrapped_df[neuron], hi_percentile):
+        return behavior_name
+    elif real_d_df[neuron]['d'] <= np.percentile(bootstrapped_df[neuron], lo_percentile):
+        return "Non-" + behavior_name
+    else: 
+        return "Non-selective"
+    
+def classify_neurons_for_beh(bootstrapped_df, real_d_df, behavior_name, hi_percentile, lo_percentile):
+    """ Classifies all neurons for one mouse as either selective or non-selective
+    
+    This function runs the is_neuron_selective function on all the given neurons
+    in the 
+    
+    Args: 
+        bootstrapped_df: pandas dataframe that has all the bootstrapped data for 
+        the neurons and a given behavior
+        real_d_df: a pandas dataframe that has a single row with the real d values
+        behavior_name: the name of the behavior to classify the 
+        hi_percentile: the cutoff for the high percentile
+        lo_percentile: the cutoff for the low percentile
+    
+    Returns: 
+        neurons_dict: a dictionary of neurons as keys and their corresponding classification as values
+    """
+    neurons_dict = {}
+    for neuron in bootstrapped_df.columns:
+        neurons_dict[neuron] = is_neuron_selective(bootstrapped_df, real_d_df, neuron, behavior_name, hi_percentile, lo_percentile)
+
+    return neurons_dict
+
+def shuffle_worker(q, n, neuron_activity_df, mouse_behavior_df, behavior):
+    """Homebrewed bootstrapping function for decoding
+
+    Bootstrapping function that allows estimation of the sample distribution
+    using cyclical shifting of the index of a pandas dataframe. This function
+    is a worker for the shuffle() function
+
+    Args:
+        n: the number of random shuffles to be performed on the given data
+        neuron_activity_df: the neuron activity dataframe for a given mouse
+        mouse_behavior_df: the behavior dataframe for a given mouse 
+        (must directly correspond with neuron_activity_df)
+        behavior: the behavior to be estimated
+
+    Returns:
+        A Pandas DataFrame that contains all the neuron and behavior
+        data after all the data has been bootstraped
+    """ 
+    shifted_beh_df = mouse_behavior_df.copy()
+    shuffled_df = pd.DataFrame(columns=neuron_activity_df.columns, index=range(1, n+1))
+    
+    for row in shuffled_df.itertuples():
+        shifted_beh_df.set_index(np.roll(mouse_behavior_df.index, random.randrange(1, len(mouse_behavior_df.index))), inplace=True)
+        shifted_df = pd.concat([neuron_activity_df, shifted_beh_df], axis=1)
+        shuffled_df.loc[row.Index] = compute_d_rate(shifted_df, neuron_activity_df, behavior)
+
+    q.put(shuffled_df)
+    
+def shuffle(iterations, neuron_activity_df, mouse_behavior_df, behavior):
+    """This function will serve as the bootstrapping function used for decoding
+    
+    Args:
+    
+    Returns:
+    """
+    NUM_OF_ROWS = int(iterations / 10)
+    q = Queue()
+    processes = []
+    rets = []
+    for _ in range(0, 10):
+        p = Process(target=shuffle_worker, args=(q, NUM_OF_ROWS, neuron_activity_df, mouse_behavior_df, behavior))
+        processes.append(p)
+        p.start()
+    for p in processes:
+        ret = q.get() # will block
+        rets.append(ret)
+    for p in processes:
+        p.join()
+
+    return pd.concat(rets, ignore_index=True)
