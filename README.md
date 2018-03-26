@@ -9,18 +9,17 @@ Signal processing and data analysis code to be used for the analysis of data col
 
 ### TODO
 #### Elevated Plus Maze Analysis: 
-- [ ] Finish implementation of `is_neuron_selective()`
+- [ ] Figure out a definitive way to classify neuron selectivity
+- [x] Finish implementation of `is_neuron_selective()`
 - [ ] Add functionality to run `is_neuron_selective()` based on different periods of time
 - [ ] Write up documentation for all "cell selectivity" functions
 - [ ] Move all functions from EPM Analysis notebook to `analysis_utils.py` once they are complete and sound
 - [x] *Significantly* improve the run-time of `shuffle()` (By parallelizing or coming up with better implementation)
 #### Graph Theoretical Analysis: 
 - [ ] Color nodes by their selectivity in all graphs
-- [ ] Implement a function that will find all time periods of (continuous) behavior 
-- [ ] Plot assortativity of networks
-- [ ] Plot the networks for different activities, e.g. What did a network of neurons look like when the mouse was doing a certain behavior
-- [ ] Generate network plots of the data over time, e.g. the network looked like *that* during first 2 minute interval, like *this* during second 2 minute interval, and etc.
-- [ ] Plot the network, but preserve the positions of the nodes (neurons) as they looked in the video
+- [x] Plot the networks for different activities, e.g. What did a network of neurons look like when the mouse was doing a certain behavior
+- [ ] Implement a function that will find all time periods of some (continuous) behavior 
+- [ ] Create visualizations for all computed network measures
 
 For any other feature requests, feel free to email Saveliy Yusufov at sy2685@columbia.edu
 
