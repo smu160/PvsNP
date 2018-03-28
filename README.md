@@ -15,6 +15,12 @@ Signal processing and data analysis code to be used for the analysis of data col
 - [ ] Write up documentation for all "cell selectivity" functions
 - [ ] Move all functions from EPM Analysis notebook to `analysis_utils.py` once they are complete and sound
 - [x] *Significantly* improve the run-time of `shuffle()` (By parallelizing or coming up with better implementation)
+- [ ] Be able to calculate rates: Running, non running, open arms, closed arms for each animal, and for all cells combined
+- [ ] generate plots of rates (AUC/sec and Events/sec)
+- [ ] Be able to handle varying frame rates for neuron or behavior data (want all files to be at 10fps for analysis)
+- [ ] Calculate rates for different time bins: (eg. first third of entire session, first minute of each behavior, first N entries in each arm)
+- [ ] Visualize correlation matrix with behavior data (concatenate activity and behavior dataframes)
+- [ ] Display correlation matrices for each behavior (eg. open arms vs closed arms)
 #### Graph Theoretical Analysis: 
 - [ ] Color nodes by their selectivity in all graphs
 - [x] Plot the networks for different activities, e.g. What did a network of neurons look like when the mouse was doing a certain behavior
