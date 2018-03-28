@@ -46,11 +46,6 @@ def neuron_scatter_plot_with_reg(neuron1, neuron2, dataframe):
     slope, intercept, r_value, _, _ = stats.linregress(dataframe[neuron1], dataframe[neuron2])
     regression_line = slope * dataframe[neuron1] + intercept
 
-    # Only continue to plot the data if the correlation coefficient indicates a
-    # moderate - strong correlation
-    # if abs(r_value) < 0.3:
-    #    return False
-
     fig = {
         'data': [
             {
@@ -72,27 +67,23 @@ def neuron_scatter_plot_with_reg(neuron1, neuron2, dataframe):
 
     return fig, r_value
 
-def neuron_line_plot(neuron1, neuron2, dataframe):
-    """ What function does...
+def neuron_line_plot(dataframe, *neurons):
+    """Plots a line plot of neuron activity over time
+    
+    This is a wrapper function for the plotly library line
+    plot functionality. It takes any amount of neurons and
+    will plot their time series data over a single line, 
+    for each individual neuron.
 
-    Args:
-
-    Returns:
+    Args: 
+        dataframe: a pandas DataFrame that contains the neuron(s)
+        activity time series datato be plotted as lines
     """
-    trace1 = go.Scatter(
-        x=list(range(0, len(dataframe))),
-        y=dataframe[neuron1],
-        name=neuron1
-    )
+    data = list()
+    for neuron in neurons:
+        data.append(go.Scatter(x=list(range(0, len(dataframe))), y=dataframe[neuron], name=neuron))
 
-    trace2 = go.Scatter(
-        x=list(range(0, len(dataframe))),
-        y=dataframe[neuron2],
-        name=neuron2
-    )
-
-    data = [trace1, trace2]
-    return plotly.offline.iplot(data)
+    plotly.offline.iplot(data)
 
 def activity_by_neurons(dataframe, neuron, **behaviors):
     """ What function does...
@@ -189,7 +180,7 @@ def new_corr_coeff(dataframe, neuron_x, neuron_y):
     return mag_of_neuron_x_and_neuron_y / mag_of_neuron_x_or_neuron_y
 
 def run_epm_analysis(raw_files):
-    """ Carry out EPM analysis functions on all available raw datasets
+    """Executes all EPM analysis functions on all available raw datasets
 
     Args:
         raw_files: a list of csv files to be analyzed
