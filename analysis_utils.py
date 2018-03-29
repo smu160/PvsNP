@@ -32,8 +32,27 @@ def bin_dataframe(dataframe, amount_of_bins):
 
     return binned_dataframes
 
+def downsample_dataframe(dataframe, row_multiple):
+    """Downsample a given pandas DataFrame
+    
+    Args: 
+        dataframe: the pandas DataFrame to be downsampled 
+        row_multiple: the row multiple is the rows to be removed...
+        e.g., row_multiple of 3 would remove every 3rd row from the 
+        provided dataframe
+    
+    Returns: the downsampled pandas DataFrame
+    """
+    # Drop every nth (row multiple) row
+    dataframe = dataframe.iloc[0::row_multiple, :]
+
+    # Reset and drop the old indices of the pandas DataFrame 
+    dataframe.reset_index(inplace=True, drop=True)
+
+    return dataframe
+
 def neuron_scatter_plot_with_reg(neuron1, neuron2, dataframe):
-    """ What function does...
+    """What function does...
 
     Args:
 
@@ -86,9 +105,15 @@ def neuron_line_plot(dataframe, *neurons):
     plotly.offline.iplot(data)
 
 def activity_by_neurons(dataframe, neuron, **behaviors):
-    """ What function does...
+    """Helper function for load_activities_dataframe()
+    
+    This function computes the rates for a particular 
+    neuron, given some set of behaviors
 
-    Args:
+    Args: 
+        dataframe: a 
+        neuron: the name of the neuron whose rates are to be computed
+        behaviors:
 
     Returns:
     """
@@ -147,7 +172,7 @@ def plot_correlation_heatmap(dataframe, size=16):
     sns.heatmap(dataframe.corr(), mask=mask, cmap=cmap, vmax=1.0, center=0, square=True, linewidths=.5, cbar_kws={"shrink": .5})
 
 def plot_clustermap(dataframe, size=15):
-    """ Seaborn clustermap wrapper function
+    """Seaborn clustermap wrapper function
 
     A wrapper function for seaborn to quickly plot a
     clustermap using the "centroid" method to find
@@ -162,7 +187,7 @@ def plot_clustermap(dataframe, size=15):
     cluster_map.ax_col_dendrogram.set_visible(False)
 
 def new_corr_coeff(dataframe, neuron_x, neuron_y):
-    """ A different way to compute the correlation between 2 neurons
+    """A different way to compute the correlation between 2 neurons
 
     Formula is as follows:
     $$q=\frac{|\vec{n_1} \wedge \vec{n_2}|}{|\vec{n_1} \vee \vec{n_2}|}$$
@@ -252,7 +277,6 @@ def is_neuron_selective(bootstrapped_df, real_d_df, neuron, behavior_name, hi_pe
     Returns:
         the classification of the neuron; either <behavior>, Non-<behavior>, or Non-selective 
     """
-    # print("{} percentile of {} is {},   d_value of {} is {}".format(hi_percentile, neuron, np.percentile(bootstrapped[neuron], 87), neuron, real_d_df[neuron]['d']))
     if real_d_df[neuron]['d'] >= np.percentile(bootstrapped_df[neuron], hi_percentile):
         return behavior_name
     elif real_d_df[neuron]['d'] <= np.percentile(bootstrapped_df[neuron], lo_percentile):
@@ -261,7 +285,7 @@ def is_neuron_selective(bootstrapped_df, real_d_df, neuron, behavior_name, hi_pe
         return "Non-selective"
     
 def classify_neurons_for_beh(bootstrapped_df, real_d_df, behavior_name, hi_percentile, lo_percentile):
-    """ Classifies all neurons for one mouse as either selective or non-selective
+    """Classifies all neurons for one mouse as either selective or non-selective
     
     This function runs the is_neuron_selective function on all the given neurons
     in the 
