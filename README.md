@@ -12,7 +12,7 @@ Signal processing and data analysis code to be used for the analysis of data col
 - [ ] Figure out a definitive way to classify neuron selectivity
 - [x] Finish implementation of `is_neuron_selective()`
 - [ ] Add functionality to run `is_neuron_selective()` based on different periods of time
-- [ ] Write up documentation for all "cell selectivity" functions
+- [x] Write up documentation for all "cell selectivity" functions
 - [ ] Move all functions from EPM Analysis notebook to `analysis_utils.py` once they are complete and sound
 - [x] *Significantly* improve the run-time of `shuffle()` (By parallelizing or coming up with better implementation)
 - [ ] Be able to calculate rates: Running, non running, open arms, closed arms for each animal, and for all cells combined
