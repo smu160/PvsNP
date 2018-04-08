@@ -104,48 +104,6 @@ def neuron_line_plot(dataframe, *neurons):
 
     plotly.offline.iplot(data)
 
-def activity_by_neurons(dataframe, neuron, **behaviors):
-    """Helper function for load_activities_dataframe()
-    
-    This function computes the rates for a particular 
-    neuron, given some set of behaviors
-
-    Args: 
-        dataframe: a 
-        neuron: the name of the neuron whose rates are to be computed
-        behaviors:
-
-    Returns:
-    """
-    new_df = dataframe
-    for behavior in behaviors:
-        new_df = new_df[(new_df[behavior] == behaviors[behavior])]
-
-    return 10 * sum(new_df[neuron]) / len(new_df[behavior])
-
-def load_activities_dataframe(dataframe, dataframe2):
-    """ What function does...
-
-    Args:
-
-    Returns:
-    """
-    activities_dict = {}
-    behaviors = {'Arena_centerpoint':1, 'Open1_centerpoint':1,
-                 'Open2_centerpoint':1, 'Closed1_centerpoint':1,
-                 'Closed2_centerpoint':1, 'OpenArms_centerpoint':1,
-                 'ClosedArms_centerpoint':1}
-
-    activities_dataframe = pd.DataFrame(index=dataframe2.columns)
-
-    for behavior in behaviors:
-        for neuron in dataframe2:
-            activities_dict[neuron] = activity_by_neurons(dataframe, neuron, **{behavior:behaviors[behavior]})
-
-        activities_dataframe[behavior] = pd.Series(activities_dict)
-
-    return activities_dataframe
-
 def plot_correlation_heatmap(dataframe, size=16):
     """ Seaborn correlation heatmap wrapper function
 
@@ -203,18 +161,6 @@ def new_corr_coeff(dataframe, neuron_x, neuron_y):
     mag_of_neuron_x_and_neuron_y = len(dataframe[(dataframe[neuron_x] != 0) & (dataframe[neuron_y] != 0)])
     mag_of_neuron_x_or_neuron_y = len(dataframe[(dataframe[neuron_x] != 0) | (dataframe[neuron_y] != 0)])
     return mag_of_neuron_x_and_neuron_y / mag_of_neuron_x_or_neuron_y
-
-def run_epm_analysis(raw_files):
-    """Executes all EPM analysis functions on all available raw datasets
-
-    Args:
-        raw_files: a list of csv files to be analyzed
-    """
-    for raw_file in raw_files:
-        data = pd.read_csv(raw_file, header=None)
-        _, _, cell_transients_dataframe = SigProc.detect_ca_transients_mossy(data, 2, 0.5, 0.2, 10)
-        plot_correlation_heatmap(cell_transients_dataframe)
-        plot_clustermap(cell_transients_dataframe)
 
 def find_correlated_pairs(dataframe, correlation_coeff=0.3):
     """
