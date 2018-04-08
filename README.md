@@ -9,18 +9,18 @@ Signal processing and data analysis code to be used for the analysis of data col
 
 ### TODO
 #### Elevated Plus Maze Analysis: 
-- [ ] Figure out a definitive way to classify neuron selectivity
+- [ ] Figure out a definitive way to classify neuron selectivity 
 - [x] Finish implementation of `is_neuron_selective()`
 - [ ] Add functionality to run `is_neuron_selective()` based on different periods of time
 - [x] Write up documentation for all "cell selectivity" functions
 - [ ] Move all functions from EPM Analysis notebook to `analysis_utils.py` once they are complete and sound
 - [x] *Significantly* improve the run-time of `shuffle()` (By parallelizing or coming up with better implementation)
-- [ ] Be able to calculate rates: Running, non running, open arms, closed arms for each animal, and for all cells combined
+- [x] Be able to calculate rates: Running, non running, open arms, closed arms for each animal, and for all cells combined (bar plot) and by animal (line plot)
 - [ ] generate plots of rates (AUC/sec and Events/sec)
 - [x] Be able to handle varying frame rates for neuron or behavior data (want all files to be at 10fps for analysis)
-- [ ] Calculate rates for different time bins: (eg. first third of entire session, first minute of each behavior, first N entries in each arm)
-- [ ] Visualize correlation matrix with behavior data (concatenate activity and behavior dataframes)
-- [ ] Display correlation matrices for each behavior (eg. open arms vs closed arms)
+- [x] Calculate rates for different time bins: (eg. first third of entire session, first minute of each behavior, first N entries in each arm)
+- [x] Visualize correlation matrix with behavior data (concatenate activity and behavior dataframes)
+- [x] Display correlation matrices for each behavior (eg. open arms vs closed arms)
 #### Graph Theoretical Analysis: 
 - [ ] Color nodes by their selectivity in all graphs
 - [x] Plot the networks for different activities, e.g. What did a network of neurons look like when the mouse was doing a certain behavior
@@ -46,7 +46,9 @@ After installation, be sure to run `conda update --all` in your terminal.
 
 If you already have Anaconda installed, then simply run `conda update --all` in your terminal.
 
-In order to render plotly graphs, charts, and etc., please follow the instructions provided [here](https://github.com/jupyterlab/jupyter-renderers/tree/master/packages/plotly-extension)
+You will need to [install the latest plotly package](https://anaconda.org/anaconda/plotly), as well. Open up your terminal or the command prompt and run: `conda install -c anaconda plotly`
+
+In order to render plotly graphs, charts, and etc. in Jupyterlab, please follow the instructions provided [here](https://github.com/jupyterlab/jupyter-renderers/tree/master/packages/plotly-extension)
 
 ## Troubleshooting
 
@@ -67,22 +69,12 @@ For any issues, feel free to email Saveliy Yusufov at sy2685@columbia.edu
 * [seaborn](http://seaborn.pydata.org)
 * [plotly](https://plot.ly)
 
-## Contributing
-
-Please read [...] for details on our code of conduct, and the process for submitting pull requests to us.
-
-## Versioning
-
-...
 
 ## Authors
 
 * **Jack Berry** - [jaberry](https://github.com/jaberry)
 * **Saveliy Yusufov** - [smu160](https://github.com/smu160)
 
-## License
-
-...
 
 ## Acknowledgments
 
