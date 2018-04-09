@@ -11,21 +11,20 @@ Signal processing and data analysis code to be used for the analysis of data col
 #### Elevated Plus Maze Analysis: 
 - [ ] Figure out a definitive way to classify neuron selectivity 
 - [x] Finish implementation of `is_neuron_selective()`
-- [ ] Add functionality to run `is_neuron_selective()` based on different periods of time
 - [x] Write up documentation for all "cell selectivity" functions
-- [ ] Move all functions from EPM Analysis notebook to `analysis_utils.py` once they are complete and sound
 - [x] *Significantly* improve the run-time of `shuffle()` (By parallelizing or coming up with better implementation)
-- [x] Be able to calculate rates: Running, non running, open arms, closed arms for each animal, and for all cells combined (bar plot) and by animal (line plot)
+- [ ] Be able to calculate rates: Running, non running, open arms, closed arms for each animal, and for all cells combined (bar plot) and by animal (line plot)
 - [ ] generate plots of rates (AUC/sec and Events/sec)
 - [x] Be able to handle varying frame rates for neuron or behavior data (want all files to be at 10fps for analysis)
 - [x] Calculate rates for different time bins: (eg. first third of entire session, first minute of each behavior, first N entries in each arm)
 - [x] Visualize correlation matrix with behavior data (concatenate activity and behavior dataframes)
 - [x] Display correlation matrices for each behavior (eg. open arms vs closed arms)
 #### Graph Theoretical Analysis: 
-- [ ] Color nodes by their selectivity in all graphs
+- [x] Color nodes by their betweeness centrality
 - [x] Plot the networks for different activities, e.g. What did a network of neurons look like when the mouse was doing a certain behavior
 - [ ] Implement a function that will find all time periods of some (continuous) behavior 
 - [ ] Create visualizations for all computed network measures
+- [ ] Color nodes by their selectivity in all graphs
 
 For any other feature requests, feel free to email Saveliy Yusufov at sy2685@columbia.edu
 
