@@ -6,6 +6,16 @@ import analysis.analysis_utils as au
 
 
 def create_graph(dataframe):
+    """Wrapper function for creating a NetworkX graph
+    
+    Each individual column of the provided DataFrame will be represented by
+    a single node in the graph. Each pair of correlated nodes (neurons)
+    will be connected by an edge, where the edge will receive a weight of the
+    specific correlation coefficient of those two nodes.
+    
+    Args: 
+        dataframe: a pandas DataFrame that contains the data to be represented with a NetworkX graph
+    """
     G = nx.Graph()
     G.add_nodes_from(dataframe.columns)
     corr_pairs = au.find_correlated_pairs(dataframe, correlation_coeff=0.3)
@@ -16,6 +26,16 @@ def create_graph(dataframe):
     return G
 
 def create_random_graph(dataframe):
+    """Generates a random NetworkX graph
+    
+    Each individual column of the provided DataFrame will be represented by
+    a single node in the graph. The amount of correlated nodes (neurons) in 
+    the provided DataFrame will be computed, and that specific amount of
+    edges will be added between random pairs of nodes (neurons) in the graph.
+    
+    Args:
+        dataframe: the pandas DataFrame to use as a basis for the random graph
+    """
     G = nx.Graph()
     G.add_nodes_from(dataframe.columns)
     corr_pairs = au.find_correlated_pairs(dataframe, correlation_coeff=0.3)
@@ -27,6 +47,14 @@ def create_random_graph(dataframe):
     return G
 
 def plot_graph(G):
+    """A wrapper function for plotting a NetworkX graph
+    
+    This function will draw a provided NetworkX graph using the spring_layout
+    algorithm. The 
+    
+    Args:
+        G: the NetworkX graph to be plotted
+    """
 
     # positions for all nodes
     pos = nx.spring_layout(G, weight='weight') 
@@ -89,6 +117,30 @@ def compute_network_measures(graph):
     
     return network_measures_dict
 
+def compute_connection_density(graph):
+    n = len(list(graph.nodes()))
+    return len(list(graph.edges())) / ((n * (n-1)) / 2)
+
 def compute_mean_betweenness_centrality(graph):
-    graph_centrality = nx.betweenness_centrality(graph)
+    graph_centrality = nx.betweenness_centrality(graph, weight="weight")
     return np.mean(list(graph_centrality.values()))
+
+def compute_mean_degree_centrality(graph):
+    graph_centrality = nx.degree_centrality(graph)
+    return np.mean(list(graph_centrality.values()))
+
+def compute_mean_eigen_centrality(graph):
+    graph_centrality = nx.eigenvector_centrality(graph, weight="weight")
+    return np.mean(list(graph_centrality.values()))
+
+def compute_mean_katz_centrality(graph):
+    graph_centrality = nx.katz_centrality(graph)
+    return np.mean(list(graph_centrality.values()))
+
+def compute_mean_load_centrality(graph):
+    graph_centrality = nx.load_centrality(graph, weight="weight")
+    return np.mean(list(graph_centrality.values()))
+
+def get_max_clique_size(graph):
+    "https://en.wikipedia.org/wiki/Clique_(graph_theory)#Definitions"
+    return len(clique.max_clique(graph))
