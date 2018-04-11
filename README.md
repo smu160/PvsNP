@@ -23,7 +23,7 @@ Signal processing and data analysis code to be used for the analysis of data col
 - [x] Color nodes by their betweeness centrality
 - [x] Plot the networks for different activities, e.g. What did a network of neurons look like when the mouse was doing a certain behavior
 - [ ] Implement a function that will find all time periods of some (continuous) behavior 
-- [ ] Create visualizations for all computed network measures
+- [x] Create visualizations for all computed network measures
 - [ ] Color nodes by their selectivity in all graphs
 
 For any other feature requests, feel free to email Saveliy Yusufov at sy2685@columbia.edu
