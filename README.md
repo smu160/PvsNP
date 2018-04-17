@@ -13,7 +13,7 @@ Signal processing and data analysis code to be used for the analysis of data col
 - [x] Finish implementation of `is_neuron_selective()`
 - [x] Write up documentation for all "cell selectivity" functions
 - [x] *Significantly* improve the run-time of `shuffle()` (By parallelizing or coming up with better implementation)
-- [ ] Be able to calculate rates: Running, non running, open arms, closed arms for each animal, and for all cells combined (bar plot) and by animal (line plot)
+- [x] Be able to calculate rates: Running, non running, open arms, closed arms for each animal, and for all cells combined (bar plot) and by animal (line plot)
 - [ ] generate plots of rates (AUC/sec and Events/sec)
 - [x] Be able to handle varying frame rates for neuron or behavior data (want all files to be at 10fps for analysis)
 - [x] Calculate rates for different time bins: (eg. first third of entire session, first minute of each behavior, first N entries in each arm)
