@@ -22,6 +22,7 @@ Signal processing and data analysis code to be used for the analysis of data col
 - [ ] Create pie charts to visualize the amount of neurons that were selective, not-selective, and unclassifiable for any behavior
 - [ ] Utilize real difference values to conclude what a selective neuron (after permutation test) is selective for exactly. i.e. behavior or $\neg$behavior
 - [ ] Plot scatter plot of neurons with open rates on the $y$-axis and closed rates on the $x$-axis, and $y=x$ line bisecting the scatter plot
+- [ ] Plot the time-series for each neuron, vertically with way to distinguish behaviors
 #### Graph Theoretical Analysis: 
 - [x] Color nodes by their betweeness centrality
 - [x] Plot the networks for different activities, e.g. What did a network of neurons look like when the mouse was doing a certain behavior
