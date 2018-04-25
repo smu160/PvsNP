@@ -26,10 +26,13 @@ Signal processing and data analysis code to be used for the analysis of data col
 #### Graph Theoretical Analysis: 
 - [x] Color nodes by their betweeness centrality
 - [x] Plot the networks for different activities, e.g. What did a network of neurons look like when the mouse was doing a certain behavior
-- [ ] Implement a function that will find all time periods of some (continuous) behavior 
 - [x] Create visualizations for all computed network measures
 - [ ] Color nodes by their selectivity in all graphs
 - [ ] Implement and add mean clique size network measure 
+- [ ] Implement a function that will find all time periods of some (continuous) behavior 
+- [ ] Plot all graphs by time
+- [ ] Plot all graphs by periods of *continuous* behavior
+
 
 For any other feature requests, feel free to email Saveliy Yusufov at sy2685@columbia.edu
 
