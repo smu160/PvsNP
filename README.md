@@ -70,7 +70,6 @@ For any issues, feel free to email Saveliy Yusufov at sy2685@columbia.edu
 
 ## Built With
 
-* [Python](https://www.python.org)
 * [pandas](http://pandas.pydata.org)
 * [NetworkX](https://networkx.github.io)
 * [seaborn](http://seaborn.pydata.org)
