@@ -14,7 +14,8 @@ def create_graph(dataframe):
     specific correlation coefficient of those two nodes.
     
     Args: 
-        dataframe: a pandas DataFrame that contains the data to be represented with a NetworkX graph
+        dataframe: a pandas DataFrame that contains the data to be represented 
+        with a NetworkX graph
     """
     G = nx.Graph()
     G.add_nodes_from(dataframe.columns)
@@ -40,7 +41,8 @@ def create_random_graph(dataframe):
     G.add_nodes_from(dataframe.columns)
     corr_pairs = au.find_correlated_pairs(dataframe, correlation_coeff=0.3)
 
-    # Connect a len(correlated_pairs_dict) amount of random edges between all the nodes in the random graph
+    # Connect a len(correlated_pairs_dict) amount of random edges between all 
+    # nodes in the random graph
     for i in range(len(corr_pairs)):
         G.add_edge(np.random.randint(1, len(dataframe.columns)+1), np.random.randint(1, len(dataframe.columns)+1))
         
@@ -144,3 +146,23 @@ def compute_mean_load_centrality(graph):
 def get_max_clique_size(graph):
     "https://en.wikipedia.org/wiki/Clique_(graph_theory)#Definitions"
     return len(clique.max_clique(graph))
+
+def compute_mean_clique_size(graph):
+    """Computes the mean clique size of a given graph
+    
+        Args:
+            G: a NetworkX graph
+        
+        Returns:
+            mean: the mean clique size of the given NetworkX graph, G
+    """
+    all_cliques = nx.enumerate_all_cliques(graph)
+    
+    size = 0
+    running_sum = 0
+    for l in all_cliques:
+        size += 1
+        running_sum += len(l)
+
+    mean = running_sum / size
+    return mean
