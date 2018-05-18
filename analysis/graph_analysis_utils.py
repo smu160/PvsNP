@@ -1,9 +1,14 @@
+"""
+This module contains all the functions that are needed
+for quickly generating and plotting visualizations of 
+networks.
+"""
+
 import matplotlib.pyplot as plt
 import numpy as np
 import networkx as nx
 from networkx.algorithms.approximation import clique
 import analysis.analysis_utils as au
-
 
 def create_graph(dataframe):
     """Wrapper function for creating a NetworkX graph
@@ -16,6 +21,9 @@ def create_graph(dataframe):
     Args: 
         dataframe: a pandas DataFrame that contains the data to be represented 
         with a NetworkX graph
+
+    Returns:
+        G: a NetworkX graph of the neuronal network 
     """
     G = nx.Graph()
     G.add_nodes_from(dataframe.columns)
