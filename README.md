@@ -28,7 +28,7 @@ Signal processing and data analysis code to be used for the analysis of data col
 - [x] Plot the networks for different activities, e.g. What did a network of neurons look like when the mouse was doing a certain behavior
 - [x] Create visualizations for all computed network measures
 - [x] Implement and add mean clique size network measure 
-- [ ] Color nodes by their selectivity in all graphs
+- [x] Color nodes by their selectivity in all graphs
 - [ ] Plot all graphs by time
 - [ ] Plot all graphs by periods of *continuous* behavior
 
