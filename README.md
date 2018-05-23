@@ -30,7 +30,7 @@ Signal processing and data analysis code to be used for the analysis of data col
 - [x] Implement and add mean clique size network measure 
 - [x] Color nodes by their selectivity in all graphs
 - [x] Plot all graphs by time
-- [ ] Plot all graphs by periods of *continuous* behavior
+- [x] Plot all graphs by periods of *continuous* behavior
 
 For any other feature requests, feel free to email Saveliy Yusufov at sy2685@columbia.edu
 
