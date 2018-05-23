@@ -9,8 +9,6 @@ import matplotlib.pyplot as plt
 import plotly
 import plotly.graph_objs as go
 from scipy import stats
-import SigProc
-
 
 def bin_dataframe(dataframe, amount_of_bins):
     """
@@ -32,21 +30,63 @@ def bin_dataframe(dataframe, amount_of_bins):
 
     return binned_dataframes
 
+def compute_diff_rate(dataframe, neuron_activity_df, *behaviors, frame_rate=10):
+    """Computes difference between the rates of two behaviors
+
+    Args:
+        dataframe: DataFrame 
+            
+            a concatenated pandas DataFrame of an animal's neuron
+            activity and corresponding behavior
+        
+            neuron_activity_df: DataFrame 
+            
+                the names of the neuron columns in the DataFrame
+        
+            *behaviors: 
+                a single or ordered pair of behaviors to compute the
+                difference rate for, e.g. "Running", e.g. "ClosedArms", 
+                "OpenArms"
+        
+            frame_rate:
+
+                the framerate associated with the given data; default is 10
+
+    Returns: numpy array
+        
+            a numpy array of all the means of the behavior vectors subtracted 
+            from the corresponding means of the non-behavior vectors, all scaled
+            by frame rate
+    """
+    if len(behaviors) == 1:
+        beh_vec = dataframe.loc[dataframe[behaviors[0]] != 0, neuron_activity_df.columns]
+        no_beh_vec = dataframe.loc[dataframe[behaviors[0]] == 0, neuron_activity_df.columns]
+        return frame_rate * (beh_vec.values.mean(axis=0) - no_beh_vec.values.mean(axis=0))
+    elif len(behaviors) == 2:
+        beh_vec = dataframe.loc[dataframe[behaviors[0]] != 0, neuron_activity_df.columns]
+        no_beh_vec = dataframe.loc[dataframe[behaviors[1]] != 0, neuron_activity_df.columns]
+        return frame_rate * (beh_vec.values.mean(axis=0) - no_beh_vec.values.mean(axis=0))
+
 def downsample_dataframe(dataframe, row_multiple):
     """Downsample a given pandas DataFrame
-    
-    Args: 
-        dataframe: the pandas DataFrame to be downsampled 
-        row_multiple: the row multiple is the rows to be removed...
-        e.g., row_multiple of 3 would remove every 3rd row from the 
-        provided dataframe
-    
-    Returns: the downsampled pandas DataFrame
+
+    Args:
+        dataframe: DataFrame
+            the pandas DataFrame to be downsampled
+        
+        row_multiple: int
+        
+            the row multiple is the rows to be removed.
+            e.g., row_multiple of 3 would remove every 3rd row from the
+            provided dataframe
+
+    Returns: 
+        the downsampled pandas DataFrame
     """
     # Drop every nth (row multiple) row
     dataframe = dataframe.iloc[0::row_multiple, :]
 
-    # Reset and drop the old indices of the pandas DataFrame 
+    # Reset and drop the old indices of the pandas DataFrame
     dataframe.reset_index(inplace=True, drop=True)
 
     return dataframe
@@ -88,13 +128,13 @@ def neuron_scatter_plot_with_reg(neuron1, neuron2, dataframe):
 
 def neuron_line_plot(dataframe, *neurons):
     """Plots a line plot of neuron activity over time
-    
+
     This is a wrapper function for the plotly library line
     plot functionality. It takes any amount of neurons and
-    will plot their time series data over a single line, 
+    will plot their time series data over a single line,
     for each individual neuron.
 
-    Args: 
+    Args:
         dataframe: a pandas DataFrame that contains the neuron(s)
         activity time series datato be plotted as lines
     """
@@ -104,16 +144,20 @@ def neuron_line_plot(dataframe, *neurons):
 
     plotly.offline.iplot(data)
 
-def plot_correlation_heatmap(dataframe, size=16):
-    """ Seaborn correlation heatmap wrapper function
+def plot_correlation_heatmap(dataframe, **kwargs):
+    """Seaborn correlation heatmap wrapper function
 
     A wrapper function for seaborn to quickly plot a
     correlation heatmap with a lower triangle, only
 
     Args:
-        dataframe: a Pandas dataframe to be plotted in the correlation
-        heatmap
-        size: the size of the heatmap to be plotted, default is 16
+        dataframe: DataFrame 
+            
+            a Pandas dataframe to be plotted in the correlation
+            heatmap
+        
+        figsize: tuple, optional
+            the size of the heatmap to be plotted, default is 16.
     """
 
     # Generate a mask for the upper triangle
@@ -121,7 +165,7 @@ def plot_correlation_heatmap(dataframe, size=16):
     mask[np.triu_indices_from(mask)] = True
 
     # Set up the matplotlib figure
-    _, _ = plt.subplots(figsize=(size, size))
+    _, _ = plt.subplots(figsize=kwargs.get("figsize", (16,16)))
 
     # Generate a custom diverging colormap
     cmap = sns.diverging_palette(220, 10, as_cmap=True)
@@ -129,18 +173,23 @@ def plot_correlation_heatmap(dataframe, size=16):
     # Draw the heatmap with the mask and correct aspect ratio
     sns.heatmap(dataframe.corr(), mask=mask, cmap=cmap, vmax=1.0, center=0, square=True, linewidths=.5, cbar_kws={"shrink": .5})
 
-def plot_clustermap(dataframe, size=15):
+def plot_clustermap(dataframe, **kwargs):
     """Seaborn clustermap wrapper function
 
-    A wrapper function for seaborn to quickly plot a
-    clustermap using the "centroid" method to find
-    clusters
+    A wrapper function for seaborn to quickly plot a clustermap using the
+    "centroid" method to find clusters.
 
     Args:
-        dataframe: a Pandas dataframe to be plotted in the clustermap
-        size: the size of the clustermap to be plotted, default is 15
+        dataframe: DataFrame 
+            
+            a Pandas dataframe to be plotted in the clustermap
+        
+        figsize: tuple, optional
+        
+            the size of the clustermap to be plotted, default is 15
     """
-    cluster_map = sns.clustermap(dataframe.corr(), center=0, linewidths=.75, figsize=(size, size), method="centroid", cmap="vlag")
+    figsize = kwargs.get("figsize", (15,15))
+    cluster_map = sns.clustermap(dataframe.corr(), center=0, linewidths=.75, figsize=figsize, method="centroid", cmap="vlag")
     cluster_map.ax_row_dendrogram.set_visible(False)
     cluster_map.ax_col_dendrogram.set_visible(False)
 
@@ -151,10 +200,20 @@ def new_corr_coeff(dataframe, neuron_x, neuron_y):
     $$q=\frac{|\vec{n_1} \wedge \vec{n_2}|}{|\vec{n_1} \vee \vec{n_2}|}$$
 
     Args:
-        dataframe: a pandas dataframe in which the 2 neurons are located
-        neuron_x: one of the neurons to be correlated with
-        neuron_y: the other neuron to be correlated with
-
+        dataframe: DataFrame
+        
+            the pandas dataframe in which the 2 neurons are located
+        
+        neuron_x: string
+        
+            the name of the neuron column vector located in the passed-in 
+            DataFrame
+        
+        neuron_y: string 
+            
+            the name of the neuron column vector located in the passed-in 
+            DataFrame
+        
     Returns:
         The new and improved correlation value, q
     """
@@ -183,7 +242,7 @@ def find_correlated_pairs(dataframe, correlation_coeff=0.3):
 
     for i in corr_dataframe.columns:
         for j in corr_dataframe.index:
-            if abs(corr_dataframe.at[i, j]) >= correlation_coeff and i != j:
+            if corr_dataframe.at[i, j] >= correlation_coeff and i != j:
                 if (i, j) not in corr_pairs_dict and (j, i) not in corr_pairs_dict:
                     corr_pairs_dict[(i, j)] = corr_dataframe.at[i, j]
 
@@ -192,60 +251,106 @@ def find_correlated_pairs(dataframe, correlation_coeff=0.3):
 def plot_neurons_as_function_of_beh(dataframe, neuron_x, neuron_y, behavior, size_of_plot=8):
     """ This function plots two neurons as a function of a third variable (behavior)
 
-    Scatter plots allow one to explore the relationship between a pair of variables.
-    Often, however, a more interesting question is “how does the relationship between
-    these two variables change as a function of a third variable?”
-    The best way to separate out a relationship is to plot both levels on the same axes
-    and to use color to distinguish them.
+    Scatter plots allow one to explore the relationship between a pair of
+    variables. Often, however, a more interesting question is “how does the
+    relationship between these two variables change as a function of a third
+    variable?” The best way to separate out a relationship is to plot both
+    levels on the same axes and to use color to distinguish them.
     Source: http://seaborn.pydata.org/tutorial/regression.html
 
     Args:
-        dataframe: a pandas dataframe that has both, neuron activity and corresponding behavior
-        neuron_x: the neuron to be plotted along the x-axis
-        neuron_y: the neuron to be plotted along the y-axis
-        behavior: the behavior over time (represented in the form of booleans)
-        size_of_plot: the size of the scatter plot. default is 8
+        dataframe: DataFrame 
+        
+            a pandas dataframe that has both, neuron activity and
+            corresponding behavior
+        
+        neuron_x: string 
+            
+            the neuron to be plotted along the x-axis
+        
+        neuron_y: string 
+            the neuron to be plotted along the y-axis
+        
+        behavior: string 
+            
+            the behavior over time (represented in the form of booleans)
+        
+        size_of_plot: int 
+            the size of the scatter plot. default is 8
     """
     sns.lmplot(x=neuron_x, y=neuron_y, hue=behavior, data=dataframe[[neuron_x, neuron_y, behavior]], size=size_of_plot)
 
-def is_neuron_selective(bootstrapped_df, real_d_df, neuron, behavior_name, hi_percentile, lo_percentile):
+def is_neuron_selective(resampled_df, real_diff_vals, neuron, behavior_name, high, low):
     """ Classifies a given neuron as selective or non-selective
-    
+
     Args:
-        bootstrapped_df: pandas dataframe that has all the bootstrapped data for 
-        the neurons and a given behavior
-        real_d_df: a pandas dataframe that has a single row with the real d values
-        neuron: the particular neuron to be classified
-        behavior_name: the name of the behavior to classify the 
-        hi_percentile: the cutoff for the high percentile
-        lo_percentile: the cutoff for the low percentile
-    
+        bootstrapped_df: DataFrame
+            
+            all the bootstrapped data for the neurons and a given behavior
+        
+        real_diff_vals: DataFrame 
+                
+            a single row with the real D_hat values for each corresponding
+            neuron
+
+        neuron: Series 
+        
+            the particular neuron (column vector) to be classified
+        
+        behavior_name: string 
+            
+            the name of the behavior to classify the
+        
+        high: int
+        
+            the cutoff for the high percentile
+        
+        low: int 
+            
+            the cutoff for the low percentile
+
     Returns:
-        the classification of the neuron; either <behavior>, Non-<behavior>, or Non-selective 
+        the classification of the neuron; either <behavior>, Non-<behavior>,
+        or Non-selective
     """
-    if real_d_df[neuron]['d'] >= np.percentile(bootstrapped_df[neuron], hi_percentile):
+    if real_diff_vals[neuron]['d'] >= np.percentile(resampled_df[neuron], high):
         return behavior_name
-    elif real_d_df[neuron]['d'] <= np.percentile(bootstrapped_df[neuron], lo_percentile):
-        return "Non-" + behavior_name
-    else: 
+    elif real_diff_vals[neuron]['d'] <= np.percentile(resampled_df[neuron], low):
+        return "Non-"+behavior_name
+    else:
         return "Non-selective"
-    
-def classify_neurons_for_beh(bootstrapped_df, real_d_df, behavior_name, hi_percentile, lo_percentile):
+
+def classify_neurons_for_beh(resampled_df, real_diff_vals, behavior_name, high, low):
     """Classifies all neurons for one mouse as either selective or non-selective
-    
+
     This function runs the is_neuron_selective function on all the given neurons
-    in the 
-    
-    Args: 
-        bootstrapped_df: pandas dataframe that has all the bootstrapped data for 
-        the neurons and a given behavior
-        real_d_df: a pandas dataframe that has a single row with the real d values
-        behavior_name: the name of the behavior to classify the 
-        hi_percentile: the cutoff for the high percentile
-        lo_percentile: the cutoff for the low percentile
-    
-    Returns: 
-        neurons_dict: a dictionary of neurons as keys and their corresponding classification as values
+    in the
+
+    Args:
+        resampled_df: DataFrame 
+            
+            all the resampled (simulated) D_hat values for the neurons,
+            and a given behavior
+        
+        real_diff_vals: DataFrame
+            
+            a single row with the actual D_hat values.
+        
+        behavior_name: string
+            
+            the name of the behavior to classify by.
+        
+        high: float
+            the cutoff for the high percentile.
+        
+        low: float
+            the cutoff for the low percentile.
+
+    Returns:
+        neurons_dict: dictionary
+            
+            a dictionary of neurons as keys and their corresponding 
+            classification as values.
     """
     neurons_dict = {}
     for neuron in bootstrapped_df.columns:
@@ -253,53 +358,29 @@ def classify_neurons_for_beh(bootstrapped_df, real_d_df, behavior_name, hi_perce
 
     return neurons_dict
 
-def shuffle_worker(q, n, neuron_activity_df, mouse_behavior_df, behavior):
-    """Homebrewed bootstrapping function for decoding
-
-    Bootstrapping function that allows estimation of the sample distribution
-    using cyclical shifting of the index of a pandas dataframe. This function
-    is a worker for the shuffle() function
+def set_real_diff_df(dataframe, neuron_sig_df, behavior1, behavior2):
+    """Compute the real difference mean values for all neurons
 
     Args:
-        n: the number of random shuffles to be performed on the given data
-        neuron_activity_df: the neuron activity dataframe for a given mouse
-        mouse_behavior_df: the behavior dataframe for a given mouse 
-        (must directly correspond with neuron_activity_df)
-        behavior: the behavior to be estimated
+        dataframe: DataFrame
+
+            the concatenated pandas DataFrame of the neuron activity
+            DataFrame and corresponding behavior DataFrame, for a given animal
+        
+        neuron_sig_df: DataFrame
+            the pandas DataFrame of neuron activity, for a given animal.
+        
+        behavior: string 
+            
+            the behavior for which to compute the difference rate.
 
     Returns:
-        A Pandas DataFrame that contains all the neuron and behavior
-        data after all the data has been bootstraped
-    """ 
-    shifted_beh_df = mouse_behavior_df.copy()
-    shuffled_df = pd.DataFrame(columns=neuron_activity_df.columns, index=range(1, n+1))
-    
-    for row in shuffled_df.itertuples():
-        shifted_beh_df.set_index(np.roll(mouse_behavior_df.index, random.randrange(1, len(mouse_behavior_df.index))), inplace=True)
-        shifted_df = pd.concat([neuron_activity_df, shifted_beh_df], axis=1)
-        shuffled_df.loc[row.Index] = compute_d_rate(shifted_df, neuron_activity_df, behavior)
+        real_diff_vals: DataFrame
 
-    q.put(shuffled_df)
-    
-def shuffle(iterations, neuron_activity_df, mouse_behavior_df, behavior):
-    """This function will serve as the bootstrapping function used for decoding
-    
-    Args:
-    
-    Returns:
+            a pandas DataFrame that consists of one row with all of the actual
+            D_hat values, computed for all the neurons for a given animal.
     """
-    NUM_OF_ROWS = int(iterations / 10)
-    q = Queue()
-    processes = []
-    rets = []
-    for _ in range(0, 10):
-        p = Process(target=shuffle_worker, args=(q, NUM_OF_ROWS, neuron_activity_df, mouse_behavior_df, behavior))
-        processes.append(p)
-        p.start()
-    for p in processes:
-        ret = q.get() # will block
-        rets.append(ret)
-    for p in processes:
-        p.join()
+    real_diff_vals = pd.DataFrame(columns=neuron_sig_df.columns, index=["d"])
+    real_diff_vals.loc['d'] = compute_diff_rate(dataframe, neuron_sig_df, behavior1, behavior2)
+    return real_diff_vals
 
-    return pd.concat(rets, ignore_index=True)
