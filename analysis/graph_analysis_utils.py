@@ -22,7 +22,7 @@ class NeuronNetwork(object):
         self.connection_density = self.compute_connection_density()
         self.global_efficiency = nx.global_efficiency(self.network)
         self.local_efficiency = nx.local_efficiency(self.network)
-        self.clustering_coefficient = nx.average_clustering(self.network)
+        self.clustering_coefficient = nx.average_clustering(self.network, weight="weight")
         self.max_clique_size = self.compute_max_clique_size()
         self.mean_clique_size = self.compute_mean_clique_size()
         # self.mean_betw_centrality = self.compute_mean_betw_cent()
@@ -170,41 +170,103 @@ class NeuronNetwork(object):
         plt.show()
 
     def compute_connection_density(self):
+        """Computes the connection density of a network of neurons.
+
+        Connection density is the actual number of edges in the graph as a
+        proportion of the total number of possible edges and is the simplest
+        estimator of the physical cost — for example, the energy or other
+        resource requirements — of a network. (Bullmore et al. 2009)
+
+        total number of possible edges is: n(n-1) / 2,
+        where n is the number of nodes (neurons) in the graph.
+        """
         num_of_neurons = len(self.neurons)
         possible_num_of_edges = (num_of_neurons * (num_of_neurons-1)) / 2
         return len(list(self.network.edges())) / possible_num_of_edges
 
     def compute_mean_betw_cent(self):
+        """Computes the mean betweeness centrality of a network of neurons.
+
+           The centrality of a node measures how many of the shortest paths
+           between all other nodes pairs in the network pass through it. A node
+           with high centrality is thus crucial to efficient communication.
+           (Bullmore et. al. 2009)
+
+           https://en.wikipedia.org/wiki/Betweenness_centrality
+        """
         graph_centrality = nx.betweenness_centrality(self.network, weight="weight")
         return np.mean(list(graph_centrality.values()))
 
     def compute_mean_degree_cent(self):
+        """Computes the mean degree centrality of a network of neurons.
+
+           The centrality of a node measures how many of the shortest paths
+           between all other nodes pairs in the network pass through it. A node
+           with high centrality is thus crucial to efficient communication.
+           (Bullmore et. al. 2009)
+
+           https://en.wikipedia.org/wiki/Centrality#Degree_centrality
+        """
         graph_centrality = nx.degree_centrality(self.network)
         return np.mean(list(graph_centrality.values()))
 
     def compute_mean_eigen_cent(self):
+        """Computes the mean Eigenvector centrality of a network of neurons.
+
+            The centrality of a node measures how many of the shortest paths
+            between all other nodes pairs in the network pass through it. A node
+            with high centrality is thus crucial to efficient communication.
+            (Bullmore et. al. 2009)
+
+            https://en.wikipedia.org/wiki/Eigenvector_centrality
+        """
         graph_centrality = nx.eigenvector_centrality(self.network, weight="weight")
         return np.mean(list(graph_centrality.values()))
 
     def compute_mean_katz_cent(self):
-        graph_centrality = nx.katz_centrality(self.network)
+        """Computes the mean Katz centrality of a network of neurons.
+
+           The centrality of a node measures how many of the shortest paths
+           between all other nodes pairs in the network pass through it. A node
+           with high centrality is thus crucial to efficient communication.
+           (Bullmore et. al. 2009)
+
+           https://en.wikipedia.org/wiki/Katz_centrality
+        """
+        graph_centrality = nx.katz_centrality(self.network, weight="weight")
         return np.mean(list(graph_centrality.values()))
 
     def compute_mean_load_cent(self):
+        """Computes the mean load centrality of a network of neurons.
+
+            The centrality of a node measures how many of the shortest paths
+            between all other nodes pairs in the network pass through it. A node
+            with high centrality is thus crucial to efficient communication.
+            (Bullmore et. al. 2009)
+        """
         graph_centrality = nx.load_centrality(self.network, weight="weight")
         return np.mean(list(graph_centrality.values()))
 
     def compute_max_clique_size(self):
-        "https://en.wikipedia.org/wiki/Clique_(graph_theory)#Definitions"
+        """Computes the size of the maxiumum clique in the network of neurons.
+
+            A maximum clique of a graph, G, is a clique, such that there is no
+            clique with more vertices.
+
+            https://en.wikipedia.org/wiki/Clique_(graph_theory)#Definitions
+        """
         return len(clique.max_clique(self.network))
 
     def compute_mean_clique_size(self):
-        """Computes the mean clique size of a given graph
+        """Computes the mean clique size in the network of neurons.
+
+        Finds all cliques in an undirected graph (network), and computes the
+        mean size of all those cliques.
 
             Returns:
-                mean:
+                mean: float
 
-                    the mean clique size of the given NetworkX graph, G
+                    the mean clique size of the network of neurons.,
         """
         all_cliques = nx.enumerate_all_cliques(self.network)
 
