@@ -44,7 +44,48 @@ def get_num_of_events(dataframe, neuron):
     """
     return len(dataframe.loc[:, neuron][dataframe[neuron] != 0])
 
-def shuffle(total_experiments, neuron_and_behavior_df, neuron_activity_df, behavior1, behavior2):
+def compute_diff_rate(dataframe, neuron_col_names, *behaviors, frame_rate=10):
+    """Computes difference between the rates of two behaviors
+
+    Args:
+        dataframe: DataFrame
+
+            a concatenated pandas DataFrame of all the neuron column vectors for
+            a given animal and its corresponding behavior column vectors.
+
+            neuron_col_names: list
+
+                the names of the neuron column vectors to be computed.
+
+            *behaviors: str
+
+                a single or ordered pair of behaviors to compute the
+                difference rate for, e.g. "Running", or "ClosedArms",
+                "OpenArms".
+
+            frame_rate: int
+
+                the framerate associated with the given data; default is 10
+
+    Returns: numpy array
+
+            a numpy array of all the means of the behavior vectors subtracted
+            from the corresponding means of the non-behavior vectors, all scaled
+            by frame rate
+    """
+    if len(behaviors) == 1:
+        beh_vec = dataframe.loc[dataframe[behaviors[0]] != 0, neuron_col_names]
+        no_beh_vec = dataframe.loc[dataframe[behaviors[0]] == 0, neuron_col_names]
+        return frame_rate * (beh_vec.values.mean(axis=0) - no_beh_vec.values.mean(axis=0))
+    elif len(behaviors) == 2:
+        beh_vec = dataframe.loc[dataframe[behaviors[0]] != 0, neuron_col_names]
+        no_beh_vec = dataframe.loc[dataframe[behaviors[1]] != 0, neuron_col_names]
+        return frame_rate * (beh_vec.values.mean(axis=0) - no_beh_vec.values.mean(axis=0))
+    else:
+        raise ValueError("You provided an appropriate amount of behaviors.")
+
+
+def shuffle(total_experiments, neuron_concated_behavior, neuron_col_names, beh1, beh2):
     """Homebrewed resampling function for EPM Analysis
 
     Resampling function that gives the capability to "simulate"
@@ -67,8 +108,8 @@ def shuffle(total_experiments, neuron_and_behavior_df, neuron_activity_df, behav
     queue = Queue()
     processes = []
     rets = []
-    for _ in range(0, os.cpu_count()):
-        process = Process(target=shuffle_worker, args=(queue, experiments_per_worker, neuron_activity_df, neuron_and_behavior_df, behavior1, behavior2))
+    for _ in range(os.cpu_count()):
+        process = Process(target=shuffle_worker, args=(queue, experiments_per_worker, neuron_col_names, neuron_concated_behavior, beh1, beh2))
         processes.append(process)
         process.start()
     for process in processes:
@@ -79,7 +120,7 @@ def shuffle(total_experiments, neuron_and_behavior_df, neuron_activity_df, behav
 
     return pd.concat(rets, ignore_index=True)
 
-def shuffle_worker(q, num_of_experiments, neuron_activity_df, neuron_and_behavior_df, behavior1, behavior2):
+def shuffle_worker(queue, num_of_experiments, neuron_col_names, neuron_and_behavior_df, beh1, beh2):
     """Helper function for shuffle()
 
     Given a certain number of experiments to simulate, this function will
@@ -97,16 +138,16 @@ def shuffle_worker(q, num_of_experiments, neuron_activity_df, neuron_and_behavio
         dataframes for a given mouse
         behavior: the specific behavior to simulate the experiments on
     """
-    first_col = neuron_activity_df.columns[0]
-    last_col = neuron_activity_df.columns[len(neuron_activity_df.columns)-1]
-    shuffled_df = pd.DataFrame(columns=neuron_activity_df.columns)
+    first_col = neuron_col_names[0]
+    last_col = neuron_col_names[len(neuron_col_names)-1]
+    shuffled_df = pd.DataFrame(columns=neuron_col_names)
 
     for index in range(num_of_experiments):
         neuron_and_behavior_df.loc[:, first_col:last_col] = neuron_and_behavior_df.loc[:, first_col:last_col].sample(frac=1).reset_index(drop=True)
-        shuffled_df.loc[index] = au.compute_diff_rate(neuron_and_behavior_df, neuron_activity_df, behavior1, behavior2)
+        shuffled_df.loc[index] = compute_diff_rate(neuron_and_behavior_df, neuron_col_names, beh1, beh2)
 
-    q.put(shuffled_df)
-
+    queue.put(shuffled_df)
+    
 def non_normal_neuron_classifier(dataframe, resampled_df, real_diff_df, p_value=0.05, threshold=10):
     """Classify neurons as selective or not-selective
 
