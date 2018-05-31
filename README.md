@@ -9,24 +9,24 @@ Signal processing and data analysis code to be used for the analysis of data col
 
 ### TODO
 #### Elevated Plus Maze Analysis: 
-- [] QA cell selectivity 
-- [] Create demo of cell selectivity
-- [] Compute rates per entry into open arms and closed arms;
-- [] Plot pie charts of cell selectivity by each animal and all together
-- [] Plot line charts of rates by entry and time
+- [ ] QA cell selectivity 
+- [ ] Create demo of cell selectivity
+- [ ] Compute rates per entry into open arms and closed arms;
+- [ ] Plot pie charts of cell selectivity by each animal and all together
+- [ ] Plot line charts of rates by entry and time
 #### Graph Theoretical Analysis: 
-- [] Plot all the cells as they are physically
-- [] Plot graphs of rearing, freezing, and neither within each of the 3 days.
-- [] Analyze NO, OFT, POPP data for DRD87
+- [ ] Plot all the cells as they are physically
+- [ ] Plot graphs of rearing, freezing, and neither within each of the 3 days.
+- [ ] Analyze NO, OFT, POPP data for DRD87
 #### Create Powerpoint:
-- [] Cell selectivity and rates for all 5 animals
-- [] Pie charts of neuron classification for all 5 animals
-- [] Line graphs of by entry rates
-- [] Overall graph
-- [] Overall graph colored by selectivity 
-- [] Overall graphs of open vs. closed
-- [] Overall graphs of open vs. closed colored by selectivity
-- [] All network measures (leave out uninteresting measures)
+- [ ] Cell selectivity and rates for all 5 animals
+- [ ] Pie charts of neuron classification for all 5 animals
+- [ ] Line graphs of by entry rates
+- [ ] Overall graph
+- [ ] Overall graph colored by selectivity 
+- [ ] Overall graphs of open vs. closed
+- [ ] Overall graphs of open vs. closed colored by selectivity
+- [ ] All network measures (leave out uninteresting measures)
 
 For any other feature requests, feel free to email Saveliy Yusufov at sy2685@columbia.edu
 
