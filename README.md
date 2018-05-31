@@ -9,28 +9,24 @@ Signal processing and data analysis code to be used for the analysis of data col
 
 ### TODO
 #### Elevated Plus Maze Analysis: 
-- [x] Figure out a definitive way to classify neuron selectivity 
-- [x] Finish implementation of `is_neuron_selective()`
-- [x] Write up documentation for all "cell selectivity" functions
-- [x] *Significantly* improve the run-time of `shuffle()` (By parallelizing or coming up with better implementation)
-- [x] Be able to calculate rates: Running, non running, open arms, closed arms for each animal, and for all cells combined (bar plot) and by animal (line plot)
-- [x] Be able to handle varying frame rates for neuron or behavior data (want all files to be at 10fps for analysis)
-- [x] Calculate rates for different time bins: (eg. first third of entire session, first minute of each behavior, first N entries in each arm)
-- [x] Visualize correlation matrix with behavior data (concatenate activity and behavior dataframes)
-- [x] Display correlation matrices for each behavior (eg. open arms vs closed arms)
-- [x] Create pie charts to visualize the amount of neurons that were selective, not-selective, and unclassifiable for any behavior
-- [x] Utilize real difference values to conclude what a selective neuron (after permutation test) is selective for exactly. i.e. behavior or $\neg$behavior
-- [ ] generate plots of rates (AUC/sec and Events/sec)
-- [ ] Plot scatter plot of neurons with open rates on the $y$-axis and closed rates on the $x$-axis, and $y=x$ line bisecting the scatter plot
-- [ ] Plot the time-series for each neuron, vertically with way to distinguish behaviors
+- [] QA cell selectivity 
+- [] Create demo of cell selectivity
+- [] Compute rates per entry into open arms and closed arms;
+- [] Plot pie charts of cell selectivity by each animal and all together
+- [] Plot line charts of rates by entry and time
 #### Graph Theoretical Analysis: 
-- [x] Color nodes by their betweeness centrality
-- [x] Plot the networks for different activities, e.g. What did a network of neurons look like when the mouse was doing a certain behavior
-- [x] Create visualizations for all computed network measures
-- [x] Implement and add mean clique size network measure 
-- [x] Color nodes by their selectivity in all graphs
-- [x] Plot all graphs by time
-- [x] Plot all graphs by periods of *continuous* behavior
+- [] Plot all the cells as they are physically
+- [] Plot graphs of rearing, freezing, and neither within each of the 3 days.
+- [] Analyze NO, OFT, POPP data for DRD87
+#### Create Powerpoint:
+- [] Cell selectivity and rates for all 5 animals
+- [] Pie charts of neuron classification for all 5 animals
+- [] Line graphs of by entry rates
+- [] Overall graph
+- [] Overall graph colored by selectivity 
+- [] Overall graphs of open vs. closed
+- [] Overall graphs of open vs. closed colored by selectivity
+- [] All network measures (leave out uninteresting measures)
 
 For any other feature requests, feel free to email Saveliy Yusufov at sy2685@columbia.edu
 
