@@ -9,7 +9,7 @@ Signal processing and data analysis code to be used for the analysis of data col
 
 ### TODO
 #### Elevated Plus Maze Analysis: 
-- [ ] QA cell selectivity 
+- [x] QA cell selectivity 
 - [ ] Create demo of cell selectivity
 - [ ] Compute rates per entry into open arms and closed arms;
 - [ ] Plot pie charts of cell selectivity by each animal and all together
