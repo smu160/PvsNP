@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import networkx as nx
 from networkx.algorithms.approximation import clique
-import analysis.analysis_utils as au
+from analysis.analysis_utils import FeatureExtractor
 
 class NeuronNetwork(object):
     """
@@ -50,7 +50,7 @@ class NeuronNetwork(object):
         """
         graph = nx.Graph()
         graph.add_nodes_from(dataframe.columns)
-        corr_pairs = au.find_correlated_pairs(dataframe, correlation_coeff=0.3)
+        corr_pairs = FeatureExtractor.find_correlated_pairs(dataframe, correlation_coeff=0.3)
 
         for key in corr_pairs:
             graph.add_edge(key[0], key[1], weight=round(corr_pairs[key], 3))
