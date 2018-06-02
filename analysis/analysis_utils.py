@@ -26,7 +26,7 @@ class FeatureExtractor(object):
             self.behavior_df.columns = behavior_column_names
 
             row_multiple = kwargs.get("row_multiple", 3)
-            self.behavior_df = self.downsample_dataframe(behavior_df, row_multiple)
+            self.behavior_df = FeatureExtractor.downsample_dataframe(behavior_df, row_multiple)
 
             # Adds "Running_frames" column to the end of the behavior Dataframe
             velocity_cutoff = kwargs.get("velocity_cutoff", 4)
@@ -36,8 +36,9 @@ class FeatureExtractor(object):
         else:
             message = "A behavior dataframe was not provided."
             warnings.warn(message, Warning)
-
-    def downsample_dataframe(self, dataframe, row_multiple):
+    
+    @staticmethod
+    def downsample_dataframe(dataframe, row_multiple):
         """Downsample a given pandas DataFrame
 
         Args:
