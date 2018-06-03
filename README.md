@@ -11,6 +11,7 @@ Signal processing and data analysis code to be used for the analysis of data col
 #### Elevated Plus Maze Analysis: 
 - [x] QA cell selectivity 
 - [x] Plot pie charts of cell selectivity by each animal and all together
+- [x] Fix cell selectivity scatter plot
 - [ ] Compute rates per entry into open arms and closed arms
 - [ ] Plot line charts of rates by entry and time
 - [ ] Create demo of cell selectivity
