@@ -8,7 +8,6 @@ import pandas as pd
 import plotly
 import plotly.graph_objs as go
 import seaborn as sns
-from scipy import stats
 
 class FeatureExtractor(object):
     """Utilize this class to store, manipulate, and visualize all data pertaining
@@ -67,7 +66,7 @@ class FeatureExtractor(object):
         dataframe.reset_index(inplace=True, drop=True)
         return dataframe
 
-    def compute_diff_rate(self, dataframe, neuron_col_names, *behaviors, frame_rate=10):
+    def compute_diff_rate(self, dataframe, col_names, *behaviors, **kwargs):
         """Computes difference between the rates of two behaviors
 
         Args:
@@ -89,115 +88,103 @@ class FeatureExtractor(object):
 
                 frame_rate: int, optional
 
-                    the framerate associated with the given data; default is 10
+                    The frame rate associated with the given data; default is
+                    10.
 
         Returns: numpy array
 
-                a numpy array of all the means of the behavior vectors subtracted
-                from the corresponding means of the non-behavior vectors, all scaled
-                by frame rate
-                :param neuron_col_names:
-                :param frame_rate:
+                a numpy array of all the means of the behavior vectors
+                subtracted from the corresponding means of the non-behavior
+                vectors, all scaled by the frame rate.
         """
+        frame_rate = kwargs.get("frame_rate", None)
+        if frame_rate is None:
+            warnings.warn("Frame rate wasn't specified, so frame rate will be"
+                          + " set to 10", Warning)
+            frame_rate = 10
+
         if len(behaviors) == 1:
-            beh_vec = dataframe.loc[dataframe[behaviors[0]] != 0, neuron_col_names]
-            no_beh_vec = dataframe.loc[dataframe[behaviors[0]] == 0, neuron_col_names]
+            beh_vec = dataframe.loc[dataframe[behaviors[0]] != 0, col_names]
+            no_beh_vec = dataframe.loc[dataframe[behaviors[0]] == 0, col_names]
             return frame_rate * (beh_vec.values.mean(axis=0) - no_beh_vec.values.mean(axis=0))
         elif len(behaviors) == 2:
-            beh_vec = dataframe.loc[dataframe[behaviors[0]] != 0, neuron_col_names]
-            no_beh_vec = dataframe.loc[dataframe[behaviors[1]] != 0, neuron_col_names]
+            beh_vec = dataframe.loc[dataframe[behaviors[0]] != 0, col_names]
+            no_beh_vec = dataframe.loc[dataframe[behaviors[1]] != 0, col_names]
             return frame_rate * (beh_vec.values.mean(axis=0) - no_beh_vec.values.mean(axis=0))
         else:
-            raise ValueError("You provided an appropriate amount of behaviors.")
+            raise ValueError("Improper amount of behaviors detected!")
 
-    def set_real_diff_df(self, dataframe, neuron_col_names, beh1, beh2):
+    def set_real_diff_df(self, dataframe, col_names, *behaviors, **kwargs):
         """Compute the real difference mean values for all neurons
 
         Args:
             dataframe: DataFrame
 
-                the concatenated pandas DataFrame of the neuron activity
-                DataFrame and corresponding behavior DataFrame, for a given animal
+                The concatenated pandas DataFrame of the neuron activity
+                DataFrame and corresponding behavior DataFrame, for a given
+                animal.
 
-            neuron_sig_df: DataFrame
-                the pandas DataFrame of neuron activity, for a given animal.
+            col_names:
 
-            behavior: string
+                A list of the neuron column vector names.
 
-                the behavior for which to compute the difference rate.
+            behaviors: string
+
+                The behaviors for which to compute the difference rate, i.e.,
+                D_hat.
 
         Returns:
             real_diff_vals: DataFrame
 
-                a pandas DataFrame that consists of one row with all of the
+                A pandas DataFrame that consists of one row with all of the
                 actual D_hat values, computed for all the neurons for a given
                 animal.
-                :param neuron_col_names:
-                :param behavior1:
-                :param behavior2:
         """
-        real_diff_vals = pd.DataFrame(columns=neuron_col_names, index=["D"])
-        real_diff_vals.loc['D'] = self.compute_diff_rate(dataframe, neuron_col_names, beh1, beh2)
+        frame_rate = kwargs.get("frame_rate", None)
+        real_diff_vals = pd.DataFrame(columns=col_names, index=["D"])
+        real_diff_vals.loc['D'] = self.compute_diff_rate(dataframe, col_names,
+                                                         *behaviors,
+                                                         frame_rate=frame_rate)
         return real_diff_vals
 
-    def neuron_line_plot(self, dataframe, *neurons):
+    def neuron_line_plot(self, *neurons, **kwargs):
         """Plots a line plot of neuron activity over time.
 
-        This is a wrapper function for the plotly library line
-        plot functionality. It takes any amount of neurons and
-        will plot their time series data over a single line,
-        for each individual neuron.
+        This is a wrapper function for the plotly library line plot
+        functionality. This function takes any amount of neurons, and plots
+        their time series data over a single line, each.
 
         Args:
             neurons: str
 
                 the name(s) of the column vectors in the dataframe.
 
-            dataframe: DataFrame
+            dataframe: str, optional
 
-                the name of one of the available pandas dataframes to use as the
-                source of neuron column vectors to plot.
+                The name of one of the available pandas dataframes to use as the
+                source of neuron column vectors to plot; default is the
+                cell_transients_df. E.g. pass-in dataframe=object.auc_df to use
+                the area under the curve dataframe.
         """
+        if not neurons:
+            raise ValueError("You need to provide the name of at least one"
+                             + " neuron column vector in the dataframe.")
+
+        dataframe = kwargs.get("dataframe", None)
+        if dataframe is None:
+            warnings.warn("You did not specify which dataframe to use for"
+                          + " plotting, so the cell transients dataframe"
+                          + " was used.", Warning)
+
+            dataframe = self.cell_transients_df
+
         data = list()
         for neuron in neurons:
-            data.append(go.Scatter(x=list(dataframe[neuron].index), y=dataframe[neuron], name=neuron))
+            x_axis = list(dataframe[neuron].index)
+            y_axis = dataframe[neuron]
+            data.append(go.Scatter(x=x_axis, y=y_axis, name=neuron))
 
         plotly.offline.iplot(data)
-
-    def neuron_scatter_plot_with_reg(self, neuron1, neuron2, dataframe):
-        """What function does...
-
-        Args:
-
-        Returns:
-        """
-
-        if pd.isnull(dataframe[neuron1]).all():
-            return False
-
-        slope, intercept, r_value, _, _ = stats.linregress(dataframe[neuron1], dataframe[neuron2])
-        regression_line = slope * dataframe[neuron1] + intercept
-
-        fig = {
-            'data': [
-                {
-                    'x': dataframe[neuron1],
-                    'y': dataframe[neuron2],
-                    'mode': 'markers'
-                },
-                {
-                    'x': dataframe[neuron1],
-                    'y': regression_line,
-                    'mode': 'lines'
-                }
-            ],
-            'layout': {
-                'xaxis': {'title': neuron1},
-                'yaxis': {'title': neuron2}
-            }
-        }
-
-        return fig, r_value
 
     def plot_correlation_heatmap(self, dataframe, **kwargs):
         """Seaborn correlation heatmap wrapper function
@@ -208,11 +195,11 @@ class FeatureExtractor(object):
         Args:
             dataframe: DataFrame
 
-                a Pandas dataframe to be plotted in the correlation
-                heatmap
+                A Pandas dataframe to be plotted in the correlation heatmap.
 
             figsize: tuple, optional
-                the size of the heatmap to be plotted, default is 16.
+
+                The size of the heatmap to be plotted, default is (16, 16).
         """
 
         # Generate a mask for the upper triangle
@@ -226,8 +213,8 @@ class FeatureExtractor(object):
         cmap = sns.diverging_palette(220, 10, as_cmap=True)
 
         # Draw the heatmap with the mask and correct aspect ratio
-        sns.heatmap(dataframe.corr(), mask=mask, cmap=cmap, vmax=1.0, center=0, square=True, linewidths=.5,
-                    cbar_kws={"shrink": .5})
+        sns.heatmap(dataframe.corr(), mask=mask, cmap=cmap, vmax=1.0, center=0,
+                    square=True, linewidths=.5, cbar_kws={"shrink": .5})
 
     def plot_clustermap(self, dataframe, **kwargs):
         """Seaborn clustermap wrapper function
@@ -238,45 +225,18 @@ class FeatureExtractor(object):
         Args:
             dataframe: DataFrame
 
-                a Pandas dataframe to be plotted in the clustermap
+                A Pandas dataframe to be plotted in the clustermap.
 
             figsize: tuple, optional
 
-                the size of the clustermap to be plotted, default is 15
+                the size of the clustermap to be plotted, default is (15, 15).
         """
         figsize = kwargs.get("figsize", (15, 15))
-        cluster_map = sns.clustermap(dataframe.corr(), center=0, linewidths=.75, figsize=figsize, method="centroid",
+        cluster_map = sns.clustermap(dataframe.corr(), center=0, linewidths=.75,
+                                     figsize=figsize, method="centroid",
                                      cmap="vlag")
         cluster_map.ax_row_dendrogram.set_visible(False)
         cluster_map.ax_col_dendrogram.set_visible(False)
-
-    def new_corr_coeff(self, dataframe, neuron_x, neuron_y):
-        """A different way to compute the correlation between 2 neurons
-
-        Formula is as follows:
-        $$q=\frac{|\vec{n_1} \wedge \vec{n_2}|}{|\vec{n_1} \vee \vec{n_2}|}$$
-
-        Args:
-            dataframe: DataFrame
-
-                the pandas dataframe in which the 2 neurons are located
-
-            neuron_x: string
-
-                the name of the neuron column vector located in the passed-in
-                DataFrame
-
-            neuron_y: string
-
-                the name of the neuron column vector located in the passed-in
-                DataFrame
-
-        Returns:
-            The new and improved correlation value, q
-        """
-        mag_of_neuron_x_and_neuron_y = len(dataframe[(dataframe[neuron_x] != 0) & (dataframe[neuron_y] != 0)])
-        mag_of_neuron_x_or_neuron_y = len(dataframe[(dataframe[neuron_x] != 0) | (dataframe[neuron_y] != 0)])
-        return mag_of_neuron_x_and_neuron_y / mag_of_neuron_x_or_neuron_y
 
     @staticmethod
     def find_correlated_pairs(dataframe, **kwargs):
@@ -316,45 +276,3 @@ class FeatureExtractor(object):
                         corr_pairs_dict[(i, j)] = corr_dataframe.at[i, j]
 
         return corr_pairs_dict
-
-    def plot_neurons_as_function_of_beh(self, **kwargs):
-        """ This function plots two neurons as a function of a third variable (behavior)
-
-        Scatter plots allow one to explore the relationship between a pair of
-        variables. Often, however, a more interesting question is “how does the
-        relationship between these two variables change as a function of a third
-        variable?” The best way to separate out a relationship is to plot both
-        levels on the same axes and to use color to distinguish them.
-        Source: http://seaborn.pydata.org/tutorial/regression.html
-
-        Args:
-            dataframe: DataFrame
-
-                a pandas dataframe that has both, neuron activity and
-                corresponding behavior
-
-            neuron_x: string
-
-                the neuron column vector to be plotted along the x-axis.
-
-            neuron_y: string
-                the neuron column vector to be plotted along the y-axis.
-
-            behavior: string
-
-                the behavior over time (represented in the form of booleans)
-
-            size_of_plot: int
-                the size of the scatter plot. default is 8
-        """
-        x = kwargs.get("neuron_x", None)
-        if x is None:
-            raise ValueError("You did not provide the neuron_x column vector!")
-        y = kwargs.get("neuron_y", None)
-        if y is None:
-            raise ValueError("You did not provide the neuron_y column vector!")
-        beh = kwargs.get("behavior")
-        if beh is None:
-            raise ValueError("You did not provide a behavior.")
-        size = kwargs.get("size", 8)
-        sns.lmplot(x=x, y=y, hue=beh, data=dataframe[[x, y, behavior]], size=size)
