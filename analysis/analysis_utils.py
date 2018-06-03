@@ -25,7 +25,8 @@ class FeatureExtractor(object):
                 warnings.warn("Row multiple to downsample behavior dataframe"
                               + " not specified. Behavior dataframe will be"
                               + " downsampled by a row multiple of 3", Warning)
-            row_multiple = 3
+                row_multiple = 3
+
             self.behavior_df = FeatureExtractor.downsample_dataframe(behavior_df, row_multiple)
             behavior_column_names = kwargs.get("behavior_col_names", None)
             self.behavior_df.columns = behavior_column_names
