@@ -20,23 +20,25 @@ class FeatureExtractor(object):
         self.auc_df = auc_df
 
         if isinstance(behavior_df, pd.DataFrame):
-            self.behavior_df = behavior_df
-
+            row_multiple = kwargs.get("row_multiple", None)
+            if row_multiple is None:
+                warnings.warn("Row multiple to downsample behavior dataframe"
+                              + " not specified. Behavior dataframe will be"
+                              + " downsampled by a row multiple of 3", Warning)
+            row_multiple = 3
+            self.behavior_df = FeatureExtractor.downsample_dataframe(behavior_df, row_multiple)
             behavior_column_names = kwargs.get("behavior_col_names", None)
             self.behavior_df.columns = behavior_column_names
 
-            row_multiple = kwargs.get("row_multiple", 3)
-            self.behavior_df = FeatureExtractor.downsample_dataframe(behavior_df, row_multiple)
-
             # Adds "Running_frames" column to the end of the behavior Dataframe
             velocity_cutoff = kwargs.get("velocity_cutoff", 4)
-            self.behavior_df = self.behavior_df.assign(
-                Running_frames=np.where(self.behavior_df["Velocity"] > velocity_cutoff, 1, 0))
+            running_frames = np.where(self.behavior_df["Velocity"] > velocity_cutoff, 1, 0)
+            self.behavior_df = self.behavior_df.assign(Running_frames=running_frames)
             self.neuron_concated_behavior = self.auc_df.join(self.behavior_df, how="left")
         else:
             message = "A behavior dataframe was not provided."
             warnings.warn(message, Warning)
-    
+
     @staticmethod
     def downsample_dataframe(dataframe, row_multiple):
         """Downsample a given pandas DataFrame
@@ -314,7 +316,7 @@ class FeatureExtractor(object):
 
         return corr_pairs_dict
 
-    def plot_neurons_as_function_of_beh(dataframe, **kwargs):
+    def plot_neurons_as_function_of_beh(self, **kwargs):
         """ This function plots two neurons as a function of a third variable (behavior)
 
         Scatter plots allow one to explore the relationship between a pair of
