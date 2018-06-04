@@ -12,9 +12,9 @@ Signal processing and data analysis code to be used for the analysis of data col
 - [x] QA cell selectivity 
 - [x] Plot pie charts of cell selectivity by each animal and all together
 - [x] Fix cell selectivity scatter plot
-- [ ] Compute rates per entry into open arms and closed arms
-- [ ] Plot line charts of rates by entry and time
-- [ ] Create demo of cell selectivity
+- [x] Compute rates per entry into open arms and closed arms
+- [x] Plot line charts of rates by entry and time
+- [x] Create demo of cell selectivity
 #### Graph Theoretical Analysis: 
 - [ ] Plot all the cells as they are physically
 - [ ] Plot graphs of rearing, freezing, and neither within each of the 3 days.
