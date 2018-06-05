@@ -8,6 +8,7 @@ import numpy as np
 import networkx as nx
 from networkx.algorithms.approximation import clique
 from analysis.analysis_utils import FeatureExtractor
+import sys
 
 class NeuronNetwork(object):
     """
@@ -21,10 +22,10 @@ class NeuronNetwork(object):
         self.mean_degree_centrality = self.compute_mean_degree_cent()
         self.connection_density = self.compute_connection_density()
         self.global_efficiency = nx.global_efficiency(self.network)
-        self.local_efficiency = nx.local_efficiency(self.network)
         self.clustering_coefficient = nx.average_clustering(self.network, weight="weight")
         self.max_clique_size = self.compute_max_clique_size()
         self.mean_clique_size = self.compute_mean_clique_size()
+        # self.local_efficiency = nx.local_efficiency(self.network)
         # self.mean_betw_centrality = self.compute_mean_betw_cent()
         # self.mean_katz_centrality = self.compute_mean_katz_cent()
         # self.mean_load_centrality = self.compute_mean_load_cent()
@@ -87,28 +88,38 @@ class NeuronNetwork(object):
 
         return graph
 
-    def plot_with_spring_layout(self, **kwargs):
+    def plot(self, **kwargs):
         """A wrapper function for plotting a NetworkX graph
 
-        This function will draw a provided NetworkX graph using the spring
-        layout algorithm.
+        This function will draw a provided NetworkX graph using either the
+        spring layout algorithm, or by the positions provided.
 
         Args:
+            pos: dictionary, optional
+
+                A dictionary of the network's neurons as keys and their (x ,y)
+                coordinates as corresponding values.
+
             node_size: int, optional
 
-                the size of the plotted neurons in the network.
+                The size of the plotted neurons in the network.
 
             node_color: str, optional
 
-                the color of the neurons to be plotted.
+                The color of the neurons to be plotted.
 
             fontsize: int, optional
 
-                the size of the font in the plotted neurons.
+                The size of the font in the plotted neurons.
         """
 
-        # positions for all nodes
-        pos = nx.spring_layout(self.network, weight="weight")
+        # Get positions for all nodes
+        pos = kwargs.get("pos", None)
+        if pos is None:
+            print("You did not provide a neuron position dictionary, "
+                  + "so the Spring Layout algorithm will be used to "
+                  + "plot the network", file=sys.stderr)
+            pos = nx.spring_layout(self.network, weight="weight")
 
         # Size of the plot
         plt.figure(figsize=kwargs.get("figsize", (35, 35)))
