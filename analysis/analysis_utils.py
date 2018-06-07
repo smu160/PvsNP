@@ -28,12 +28,15 @@ class FeatureExtractor(object):
 
             self.behavior_df = FeatureExtractor.downsample_dataframe(behavior_df, row_multiple)
             behavior_column_names = kwargs.get("behavior_col_names", None)
-            self.behavior_df.columns = behavior_column_names
+            if behavior_column_names is not None:
+                self.behavior_df.columns = behavior_column_names
 
             # Adds "Running_frames" column to the end of the behavior Dataframe
-            velocity_cutoff = kwargs.get("velocity_cutoff", 4)
-            running_frames = np.where(self.behavior_df["Velocity"] > velocity_cutoff, 1, 0)
-            self.behavior_df = self.behavior_df.assign(Running_frames=running_frames)
+            velocity_cutoff = kwargs.get("velocity_cutoff", None)
+            if velocity_cutoff is not None:
+                running_frames = np.where(self.behavior_df["Velocity"] > velocity_cutoff, 1, 0)
+                self.behavior_df = self.behavior_df.assign(Running_frames=running_frames)
+
             self.neuron_concated_behavior = self.auc_df.join(self.behavior_df, how="left")
         else:
             message = "A behavior dataframe was not provided."
