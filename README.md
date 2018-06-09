@@ -16,18 +16,9 @@ Signal processing and data analysis code to be used for the analysis of data col
 - [x] Plot line charts of rates by entry and time
 - [x] Create demo of cell selectivity
 #### Graph Theoretical Analysis: 
-- [ ] Plot all the cells as they are physically
+- [x] Plot all the cells as they are physically
 - [ ] Plot graphs of rearing, freezing, and neither within each of the 3 days.
 - [ ] Analyze NO, OFT, POPP data for DRD87
-#### Create Powerpoint:
-- [ ] Cell selectivity and rates for all 5 animals
-- [ ] Pie charts of neuron classification for all 5 animals
-- [ ] Line graphs of by entry rates
-- [ ] Overall graph
-- [ ] Overall graph colored by selectivity 
-- [ ] Overall graphs of open vs. closed
-- [ ] Overall graphs of open vs. closed colored by selectivity
-- [ ] All network measures (leave out uninteresting measures)
 
 For any other feature requests, feel free to email Saveliy Yusufov at sy2685@columbia.edu
 
