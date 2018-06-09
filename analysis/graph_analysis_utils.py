@@ -26,8 +26,8 @@ class NeuronNetwork(object):
         self.max_clique_size = self.compute_max_clique_size()
         self.mean_clique_size = self.compute_mean_clique_size()
         # self.local_efficiency = nx.local_efficiency(self.network)
-        # self.mean_betw_centrality = self.compute_mean_betw_cent()
-        # self.mean_katz_centrality = self.compute_mean_katz_cent()
+        self.mean_betw_centrality = self.compute_mean_betw_cent()
+        # self.mean_eigen_centrality = self.compute_mean_eigen_cent()
         # self.mean_load_centrality = self.compute_mean_load_cent()
 
     def create_graph(self, dataframe):
