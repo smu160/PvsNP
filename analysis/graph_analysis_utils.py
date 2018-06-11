@@ -58,35 +58,43 @@ class NeuronNetwork(object):
 
         return graph
 
-    def gen_rand_graph(self, dataframe):
-        """Generates a random NetworkX graph
+    def generate_random_graph(self):
+        """Generates a random NetworkX graph based on the network of neurons.
 
-        Each individual column of the provided DataFrame will be represented by
-        a single node in the graph. The amount of correlated nodes (neurons) in
-        the provided DataFrame will be computed, and that specific amount of
-        edges will be added between random pairs of nodes (neurons) in the graph.
-
-        Args:
-            dataframe: DataFrame
-
-                the pandas DataFrame to use as a basis for the random graph
+        The specific amount of edges will be added between random pairs of nodes
+        (neurons) in the graph.
 
         Returns:
-            graph: NetworkX graph
-                a NetworkX graph of the neuronal network
+            random_graph: NetworkX graph
+
+                A NetworkX graph of the neuronal network with the same number of
+                connections and neurons as the original network of neurons.
         """
-        graph = nx.Graph()
-        graph.add_nodes_from(dataframe.columns)
-        corr_pairs = au.find_correlated_pairs(dataframe, correlation_coeff=0.3)
+        random_graph = nx.Graph()
+        random_graph.add_nodes_from(self.neurons)
 
-        # Connect a len(correlated_pairs_dict) amount of random edges between
-        # all nodes in the random graph
-        end_node1 = np.random.randint(1, len(dataframe.columns)+1)
-        end_node2 = np.random.randint(1, len(dataframe.columns)+1)
-        for _ in range(len(corr_pairs)):
-            graph.add_edge(end_node1, end_node2)
+        weights = list()
+        for edge in self.network.edges:
+            weight = self.network.get_edge_data(edge[0], edge[1])["weight"]
+            weights.append(weight)
 
-        return graph
+        # Connect an E amount of random edges between all nodes in the random
+        # graph.
+        i = 0
+        node_list = list(random_graph.nodes)
+        while i < len(self.network.edges):
+            end_node1 = node_list[np.random.randint(0, len(node_list))]
+            end_node2 = node_list[np.random.randint(0, len(node_list))]
+
+            # Make sure that the random edge generated does not already exist.
+            if random_graph.get_edge_data(end_node1, end_node2) or random_graph.get_edge_data(end_node2, end_node1):
+                continue
+
+            random_index = np.random.randint(0, len(weights))
+            random_graph.add_edge(end_node1, end_node2, weight=weights.pop(random_index))
+            i += 1
+
+        return random_graph
 
     def plot(self, **kwargs):
         """A wrapper function for plotting a NetworkX graph
@@ -149,36 +157,6 @@ class NeuronNetwork(object):
             file_format = kwargs.get("format", "PNG")
             plt.savefig(title, format=file_format)
 
-        plt.show()
-
-   def generate_random_graph(self):
-        """Generates a random graph based on the network of neurons.
-
-            Args:
-                figsize: tuple, optional
-
-                    The size of the network to be plotted, defaults is (15, 15).
-        """
-        # positions for all nodes
-        pos = nx.spring_layout(self.network, weight="weight")
-
-        figsize = kwargs.get("figsize", (15, 15))
-        plt.figure(figsize=figsize)
-
-        # nodes
-        nx.draw_networkx_nodes(self.network, pos, node_size=700, node_color='lightblue')
-
-        # edges
-        nx.draw_networkx_edges(self.network, pos, width=1.0)
-
-        labels = nx.get_edge_attributes(self.network, "weight")
-        nx.draw_networkx_edge_labels(self.network, pos, edge_labels=labels)
-
-        # labels
-        font_size = kwargs.get("font_size", 15)
-        nx.draw_networkx_labels(self.network, pos, font_size=font_size, edge_labels=labels)
-
-        plt.axis('off')
         plt.show()
 
     def compute_connection_density(self):
