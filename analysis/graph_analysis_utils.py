@@ -151,19 +151,19 @@ class NeuronNetwork(object):
 
         plt.show()
 
-    def plot_by_true_pos(self):
-        """Plots the network of neurons as they look in reality.
-        """
-        pass
+   def generate_random_graph(self):
+        """Generates a random graph based on the network of neurons.
 
-    # TODO: Find out if this is still needed and fix this function
-    def generate_random_graph(self):
-        """Generates a random graph based on the graph
+            Args:
+                figsize: tuple, optional
+
+                    The size of the network to be plotted, defaults is (15, 15).
         """
         # positions for all nodes
-        pos = nx.spring_layout(self.network, weight='weight')
+        pos = nx.spring_layout(self.network, weight="weight")
 
-        plt.figure(figsize=(15, 15))
+        figsize = kwargs.get("figsize", (15, 15))
+        plt.figure(figsize=figsize)
 
         # nodes
         nx.draw_networkx_nodes(self.network, pos, node_size=700, node_color='lightblue')
@@ -171,11 +171,12 @@ class NeuronNetwork(object):
         # edges
         nx.draw_networkx_edges(self.network, pos, width=1.0)
 
-        labels = nx.get_edge_attributes(self.network, 'weight')
+        labels = nx.get_edge_attributes(self.network, "weight")
         nx.draw_networkx_edge_labels(self.network, pos, edge_labels=labels)
 
         # labels
-        nx.draw_networkx_labels(self.network, pos, font_size=15, edge_labels=labels)
+        font_size = kwargs.get("font_size", 15)
+        nx.draw_networkx_labels(self.network, pos, font_size=font_size, edge_labels=labels)
 
         plt.axis('off')
         plt.show()
