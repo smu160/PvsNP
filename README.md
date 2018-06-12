@@ -1,6 +1,10 @@
 # Hen Lab 
 
-Signal processing and data analysis code to be used for the analysis of data collected during *in vivo* calcium imaging
+This code base was written with the intention of being utilized for:
+
+1. Signal Processing of neuron data collected via *in vivo* calcium imaging.
+2. Statistical Testing of neuron classification by behavior.
+3. Graph Theoretical Analysis of networks of neurons. 
 
 ### Why Python?
 - [Eight Advantages of Python Over Matlab](http://phillipmfeldman.org/Python/Advantages_of_Python_Over_Matlab.html)
@@ -20,11 +24,21 @@ The best way to start using this code is by cloning the repository as follows:
 
 ### Prerequisites
 
-In order to avoid dependency hell, it is highly reccomended that you install and use [Anaconda](https://www.anaconda.com/download/)
+It is *strongly* advised to install and use [Anaconda](https://www.anaconda.com/download/).
 
 After installation, be sure to run `conda update --all` in your terminal.
 
 If you already have Anaconda installed, then simply run `conda update --all` in your terminal.
+
+**WARNING** This code base strives to utilize the latest version of Python as 
+well as the latest version of all the dependencies. If you do not create a 
+separate environment for using this code base, you are at risk of creating a 
+massive headache for yourself. It behooves you to not install dependencies to 
+the same environment Python that your operating system is using. In addition, if
+you update your base environment to Python 3.x, while other software you use 
+requires an older version of Python, you will be in a bad place. In order to 
+address this issue, a Bash script that creates a conda environment with all 
+required dependencies will soon be made available.     
 
 You will need to [install the latest plotly package](https://anaconda.org/anaconda/plotly), as well. Open up your terminal or the command prompt and run: `conda install -c anaconda plotly`
 
@@ -33,13 +47,12 @@ In order to render plotly graphs, charts, and etc. in Jupyterlab, please follow 
 ## Troubleshooting
 
 Running the resmpling functions in analysis/resampling.py will only work on 
-Unix based operating systems, i.e. Linux, MacOS, and etc. This issue will be 
-addressed with the creation of a Dockerfile for those of you who are using 
+Unix based operating systems, i.e., Linux and MacOS. This issue will be soon 
+addressed with the creation of a Dockerfile, for those of you who are using 
 Windows. In the mean time, you have two choices: 
 
-1. Use a machine that has a Unix based operating system.
-2. Install and use any Linux distro of your choice. I reccomend [Ubuntu](https://www.ubuntu.com/download/desktop)
-
+1. Use a machine that is running a Unix based operating system.
+2. Install and use any Linux distro of your choice. I recommend [Ubuntu](https://www.ubuntu.com/download/desktop).
 
 ## Built With
 
@@ -48,12 +61,10 @@ Windows. In the mean time, you have two choices:
 * [seaborn](http://seaborn.pydata.org)
 * [plotly](https://plot.ly)
 
-
 ## Authors
 
 * **Jack Berry** - [jaberry](https://github.com/jaberry)
 * **Saveliy Yusufov** - [smu160](https://github.com/smu160)
-
 
 ## Acknowledgments
 
