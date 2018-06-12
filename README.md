@@ -36,9 +36,9 @@ separate environment for using this code base, you are at risk of creating a
 massive headache for yourself. It behooves you to not install dependencies to 
 the same environment Python that your operating system is using. In addition, if
 you update your base environment to Python 3.x, while other software you use 
-requires an older version of Python, you will be in a bad place. In order to 
-address this issue, a Bash script that creates a conda environment with all 
-required dependencies will soon be made available.     
+requires an older version of Python, you will be in a bad place. For your 
+convenience, a Bash script that creates a conda environment with all required
+dependencies will soon be made available.     
 
 You will need to [install the latest plotly package](https://anaconda.org/anaconda/plotly), as well. Open up your terminal or the command prompt and run: `conda install -c anaconda plotly`
 
