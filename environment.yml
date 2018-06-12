@@ -1,4 +1,4 @@
-name: henlabenv2
+name: henlabenv
 channels:
   - defaults
 dependencies:

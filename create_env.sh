@@ -10,7 +10,7 @@ printf "\e[36;1mCreating an environment for Hen Lab code base... \e[0m \n"
 conda env create -f environment.yml 
 
 printf "\e[36;1mActivating newly created conda environment... \e[0m \n"
-source activate henlabenv2
+source activate henlabenv
 
 printf "\e[36;1mInstalling Node.js, requirement for plotly... \e[0m \n"
 conda install -c conda-forge nodejs
