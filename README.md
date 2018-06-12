@@ -1,6 +1,10 @@
-# Hen Lab 
+Hen Lab 
+======
+# <img src="neurons_pic.png" >
 
-This code base was written with the intention of being utilized for:
+* [Image source](https://www.flickr.com/photos/pennstatelive/26133296018/in/photolist-FPiYrh-ayGQme-oh3wgN-3Y9rPw-7EbTfz-5uoCvQ-6RFagT-cXaYiW-26saMb5-cXaYaf-SjW3Ej-5dopRY-577km2-SAAVs-5giagf-pUE6zU-7aC9da-cUjTYd-b3V8ue-4kMWWf-nxMXcN-af2bm-7vBoAp-2WE91-GL7hrL-8eisF6-NvaH2-8d8VPZ-654maj-9TSa47-8P1nS9-2kLAC-5TpNDj-7ViV3Q-rrREQF-GEMqn7-5H4b4k-phmhkw-dZBAtA-58VDW-REmihs-339Dq-dXKxjW-8weapo-9qsdEj-9UwZT-84RE2M-T2fmWP-e9UeMM-9UwZJ)
+
+This code base was written with the intention of serving as a toolbox for:
 
 1. Signal Processing of neuron data collected via *in vivo* calcium imaging.
 2. Statistical Testing of neuron classification by behavior.
@@ -25,10 +29,6 @@ The best way to start using this code is by cloning the repository as follows:
 ### Prerequisites
 
 It is *strongly* advised to install and use [Anaconda](https://www.anaconda.com/download/).
-
-After installation, be sure to run `conda update --all` in your terminal.
-
-If you already have Anaconda installed, then simply run `conda update --all` in your terminal.
 
 **WARNING** This code base strives to utilize the latest version of Python as 
 well as the latest version of all the dependencies. If you do not create a 
