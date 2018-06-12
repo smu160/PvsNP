@@ -7,20 +7,7 @@ Signal processing and data analysis code to be used for the analysis of data col
 - [Interactive notebooks: Sharing the code](https://www.nature.com/news/interactive-notebooks-sharing-the-code-1.16261)
 - [A gallery of interesting Jupyter Notebooks](https://github.com/jupyter/jupyter/wiki/A-gallery-of-interesting-Jupyter-Notebooks)
 
-### TODO
-#### Elevated Plus Maze Analysis: 
-- [x] QA cell selectivity 
-- [x] Plot pie charts of cell selectivity by each animal and all together
-- [x] Fix cell selectivity scatter plot
-- [x] Compute rates per entry into open arms and closed arms
-- [x] Plot line charts of rates by entry and time
-- [x] Create demo of cell selectivity
-#### Graph Theoretical Analysis: 
-- [x] Plot all the cells as they are physically
-- [ ] Plot graphs of rearing, freezing, and neither within each of the 3 days.
-- [ ] Analyze NO, OFT, POPP data for DRD87
-
-For any other feature requests, feel free to email Saveliy Yusufov at sy2685@columbia.edu
+For any feature requests, feel free to email Saveliy Yusufov at sy2685@columbia.edu
 
 ## Getting Started
 
@@ -45,14 +32,14 @@ In order to render plotly graphs, charts, and etc. in Jupyterlab, please follow 
 
 ## Troubleshooting
 
-If, for some reason, plotly graphs/charts used to render and they no longer render, try the following:
+Running the resmpling functions in analysis/resampling.py will only work on 
+Unix based operating systems, i.e. Linux, MacOS, and etc. This issue will be 
+addressed with the creation of a Dockerfile for those of you who are using 
+Windows. In the mean time, you have two choices: 
 
-1. Open your terminal and run: `jupyter labextension uninstall @jupyterlab/plotly-extension`
-2. After this command finishes executing, run: `jupyter labextension install @jupyterlab/plotly-extension`
+1. Use a machine that has a Unix based operating system.
+2. Install and use any Linux distro of your choice. I reccomend [Ubuntu](https://www.ubuntu.com/download/desktop)
 
-This is only a band-aid solution, and the underlying issue will be explored (and hopefully fixed) in the near future.
-
-For any issues, feel free to email Saveliy Yusufov at sy2685@columbia.edu
 
 ## Built With
 
