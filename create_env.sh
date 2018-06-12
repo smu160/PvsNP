@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env bash
 
 printf "\e[36;1mNow updating conda... \e[0m \n"
 conda update -n root conda
