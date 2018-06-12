@@ -19,16 +19,15 @@ For any feature requests, feel free to email Saveliy Yusufov at sy2685@columbia.
 
 ## Getting Started
 
-The best way to start using this code is by cloning the repository as follows:
+### Installation on Mac or Linux (Python 3.x)
 
-1. Open a terminal on your machine
-2. On the [main page](https://github.com/jaberry/Hen_Lab) of this repo, hit `Clone or download`
-3. Copy the link in the small pop-up window that says `Clone with HTTPS`
-4. In your terminal, enter the following line: `git clone <Web-URL>` (not including the `< >`)
+* Download and install [Anaconda](https://docs.anaconda.com/anaconda/install/) (Python 3.6) 
 
-### Prerequisites
-
-It is *strongly* advised to install and use [Anaconda](https://www.anaconda.com/download/).
+```bash
+git clone https://github.com/jaberry/Hen_Lab.git
+cd Hen_Lab
+bash create_env.sh
+```
 
 **WARNING** This code base strives to utilize the latest version of Python as 
 well as the latest version of all the dependencies. If you do not create a 
@@ -38,21 +37,18 @@ the same environment Python that your operating system is using. In addition, if
 you update your base environment to Python 3.x, while other software you use 
 requires an older version of Python, you will be in a bad place. For your 
 convenience, a Bash script that creates a conda environment with all required
-dependencies will soon be made available.     
-
-You will need to [install the latest plotly package](https://anaconda.org/anaconda/plotly), as well. Open up your terminal or the command prompt and run: `conda install -c anaconda plotly`
-
-In order to render plotly graphs, charts, and etc. in Jupyterlab, please follow the instructions provided [here](https://github.com/jupyterlab/jupyter-renderers/tree/master/packages/plotly-extension)
+dependencies was made available. You can run it by following the aforementioned
+instructions.     
 
 ## Troubleshooting
 
-Running the resmpling functions in analysis/resampling.py will only work on 
-Unix based operating systems, i.e., Linux and MacOS. This issue will be soon 
-addressed with the creation of a Dockerfile, for those of you who are using 
-Windows. In the mean time, you have two choices: 
+Some features, e.g., permutation testing will only work on Unix based operating
+ systems, i.e., Linux and MacOS. This issue will be soon addressed with the 
+creation of a Dockerfile, for those of you who are using Windows. In the mean 
+time, you have two choices: 
 
 1. Use a machine that is running a Unix based operating system.
-2. Install and use any Linux distro of your choice. I recommend [Ubuntu](https://www.ubuntu.com/download/desktop).
+2. Install and use any Linux distro of your choice. For beginners, we recommend [Ubuntu](https://www.ubuntu.com/download/desktop).
 
 ## Built With
 
