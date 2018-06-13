@@ -10,11 +10,6 @@ This code base was written with the intention of serving as a toolbox for:
 2. Statistical Testing of neuron classification by behavior.
 3. Graph Theoretical Analysis of networks of neurons. 
 
-### Why Python?
-- [Eight Advantages of Python Over Matlab](http://phillipmfeldman.org/Python/Advantages_of_Python_Over_Matlab.html)
-- [Interactive notebooks: Sharing the code](https://www.nature.com/news/interactive-notebooks-sharing-the-code-1.16261)
-- [A gallery of interesting Jupyter Notebooks](https://github.com/jupyter/jupyter/wiki/A-gallery-of-interesting-Jupyter-Notebooks)
-
 For any feature requests, feel free to email Saveliy Yusufov at sy2685@columbia.edu
 
 ## Getting Started
@@ -62,6 +57,7 @@ time, you have two choices:
 * **Jack Berry** - [jaberry](https://github.com/jaberry)
 * **Saveliy Yusufov** - [smu160](https://github.com/smu160)
 
-## Acknowledgments
-
-* Jessica Jimenez 
+## Why Python?
+- [Eight Advantages of Python Over Matlab](http://phillipmfeldman.org/Python/Advantages_of_Python_Over_Matlab.html)
+- [Interactive notebooks: Sharing the code](https://www.nature.com/news/interactive-notebooks-sharing-the-code-1.16261)
+- [A gallery of interesting Jupyter Notebooks](https://github.com/jupyter/jupyter/wiki/A-gallery-of-interesting-Jupyter-Notebooks)
