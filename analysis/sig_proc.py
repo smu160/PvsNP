@@ -90,8 +90,8 @@ def detect_ca_transients_mossy(data, thresh, baseline, t_half, frame_rate):
             if offset[m + 1] - offset[m] > 1 or m == len(offset) - 2:
 
                 # Deals with the last index in the vector
-                if (m == len(offset) - 2):
-                    finish = offset[m + 1]
+                if m == len(offset)-2:
+                    finish = offset[m+1]
                 else:
                     finish = offset[m]
 
