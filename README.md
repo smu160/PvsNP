@@ -24,26 +24,38 @@ cd Hen_Lab
 bash create_env.sh
 ```
 
-**WARNING** This code base strives to utilize the latest version of Python as 
-well as the latest version of all the dependencies. If you do not create a 
-separate environment for using this code base, you are at risk of creating a 
-massive headache for yourself. It behooves you to not install dependencies to 
-the same environment Python that your operating system is using. In addition, if
-you update your base environment to Python 3.x, while other software you use 
-requires an older version of Python, you will be in a bad place. For your 
-convenience, a Bash script that creates a conda environment with all required
-dependencies was made available. You can run it by following the aforementioned
-instructions.     
+**WARNING** If you do not create a separate environment for using this code 
+base, you are at risk of creating a massive headache for yourself. It behooves 
+you to not install dependencies to the same environment Python that your 
+operating system is using. In addition, if you update your base environment to
+Python 3.x, while other software you use requires an older version of Python,
+you will be in a bad place. For your convenience, a Bash script that creates a
+conda environment with all required dependencies was made available. You can run
+it by following the aforementioned instructions.     
+
+### Installation on Windows (Python 3.x)
+
+* Download and install [Anaconda](https://docs.anaconda.com/anaconda/install/) (Python 3.6) We recommend telling conda to modify your PATH variable (it is a checkbox during Anaconda install, off by default).
+
+* Downloads and install [Node.js](https://nodejs.org/en/download/)
+
+* Launch an anaconda-enabled command prompt as follows: start --> Anaconda3 --> Anaconda Prompt
+
+* Use conda to install git as follows: `conda install git`
+
+```bash
+git clone https://github.com/jaberry/Hen_Lab.git
+cd Hen_Lab
+conda list --export > conda_packages.txt
+conda create --name henlabenv --file conda_packages.txt
+activate henlabenv
+conda install -c anaconda plotly
+jupyter labextension install @jupyterlab/plotly-extension
+```
 
 ## Troubleshooting
 
-Some features, e.g., permutation testing will only work on Unix based operating
- systems, i.e., Linux and MacOS. This issue will be soon addressed with the 
-creation of a Dockerfile, for those of you who are using Windows. In the mean 
-time, you have two choices: 
-
-1. Use a machine that is running a Unix based operating system.
-2. Install and use any Linux distro of your choice. For beginners, we recommend [Ubuntu](https://www.ubuntu.com/download/desktop).
+For any issues, feel free to email Saveliy Yusufov at sy2685@columbia.edu
 
 ## Built With
 
