@@ -22,10 +22,10 @@ class Resampler(object):
             Args:
                 dataframe: DataFrame
 
-                    A Pandas DataFrame that contains at least one neuron's 
+                    A Pandas DataFrame that contains at least one neuron's
                     signal data, in column vector form.
-               
-                neuron: 
+
+                neuron:
                     The name of the neuron column vector to get the number
                     of events for.
 
@@ -43,7 +43,7 @@ class Resampler(object):
             dataframe: DataFrame
 
                 A concatenated pandas DataFrame of all the neuron column vectors
-                for a given animal and its corresponding behavior column 
+                for a given animal and its corresponding behavior column
                 vectors.
 
             neuron_col_names: list
@@ -52,7 +52,7 @@ class Resampler(object):
 
             *behaviors: str
 
-                A single or ordered pair of behaviors to compute the difference 
+                A single or ordered pair of behaviors to compute the difference
                 of means rate for, e.g. "OpenArms" vs. "ClosedArms".
 
             frame_rate: int
@@ -61,8 +61,8 @@ class Resampler(object):
 
         Returns: numpy array
 
-            A numpy array of all the difference of means, D_hat, values, i.e. 
-            all of the behavior vectors means subtracted from the corresponding 
+            A numpy array of all the difference of means, D_hat, values, i.e.
+            all of the behavior vectors means subtracted from the corresponding
             means of the non-behavior vectors, all scaled by the frame rate.
         """
         if len(behaviors) == 1:
@@ -79,88 +79,88 @@ class Resampler(object):
     @staticmethod
     def shuffle_worker(queue, resamples, neuron_concated_behavior, neuron_col_names, *behaviors):
         """Helper function for shuffle()
-        
-        This function repeats the permutation resampling and computation of 
+
+        This function repeats the permutation resampling and computation of
         the test statistic (difference of means), a *resamples* amount of times.
-        This allows us to create a permutation distribution for each neuron 
-        column vector, under the condition that the null hypothesis is true, 
+        This allows us to create a permutation distribution for each neuron
+        column vector, under the condition that the null hypothesis is true,
         i.e., that the neuron is not-selective for the behaviors.
-        
+
         NOTE: This function is meant to be only be used as a helper function
         for the shuffle() function.
 
         Args:
             queue: Queue
-            
-                The blocking queue to which the resulting dataframe will be 
+
+                The blocking queue to which the resulting dataframe will be
                 added to.
-            
+
             neuron_concated_behavior: DataFrame
-            
-                The neuron activity dataframe & the corresponding behavior 
+
+                The neuron activity dataframe & the corresponding behavior
                 dataframe concatenated together, for a given animal.
 
             neuron_col_names: list
-                
-                The names of the neuron column vectors in the 
+
+                The names of the neuron column vectors in the
                 neuron_concated_behavior dataframe.
-                
+
             behaviors:
-                
-                The two behaviors, as strings, to be used as the two groups to 
+
+                The two behaviors, as strings, to be used as the two groups to
                 use for permutation resamples.
         """
         first_col = neuron_col_names[0]
         last_col = neuron_col_names[len(neuron_col_names)-1]
-        
+
         rows_list = []
         for _ in range(resamples):
             neuron_concated_behavior.loc[:, first_col:last_col] = neuron_concated_behavior.loc[:, first_col:last_col].sample(frac=1).reset_index(drop=True)
             row = Resampler.compute_diff_rate(neuron_concated_behavior, neuron_col_names, behaviors[0], behaviors[1])
             rows_list.append(dict(zip(neuron_col_names, row)))
 
-        queue.put(pd.DataFrame(rows_list, columns=neuron_col_names)) 
-        
+        queue.put(pd.DataFrame(rows_list, columns=neuron_col_names))
+
     @staticmethod
     def shuffle(resamples, neuron_concated_behavior, neuron_col_names, *behaviors):
         """Permutation resampling function for neuron selectivty analysis.
 
         This function simply starts a new process for each CPU that the machine
-        has. More specifically, this function starts the shuffle_worker() 
-        function for each new process, in order to allow the permutation 
-        distribution for each neuron column vector to be created in a more 
+        has. More specifically, this function starts the shuffle_worker()
+        function for each new process, in order to allow the permutation
+        distribution for each neuron column vector to be created in a more
         expedited fashion. More specifically, the amount of required permutation
         resamples is split evenly amongst all of the CPU's of the machine this
         function will be run on.
 
         Args:
-            resamples: int 
-            
+            resamples: int
+
                 The total amount of permutation resamples desired.
-            
+
             neuron_concated_behavior: DataFrame
-            
-                The neuron activity dataframe & the corresponding behavior 
+
+                The neuron activity dataframe & the corresponding behavior
                 dataframe concatenated together, for a given animal.
 
             neuron_col_names: list
-                
-                The names of the neuron column vectors in the 
+
+                The names of the neuron column vectors in the
                 neuron_concated_behavior dataframe.
-                
+
             behaviors:
-                
-                The two behaviors, as strings, to be used as the two groups to 
+
+                The two behaviors, as strings, to be used as the two groups to
                 use for permutation resamples.
-            
-        Returns: 
-        
+
+        Returns:
+
             A (vertically) concatenated pandas DataFrame of all the DataFrames
             the shuffle_worker processes produced.
         """
         if len(behaviors) != 2:
             raise ValueError("You provided an appropriate amount of behaviors.")
-        
+
         resamples_per_worker = resamples // os.cpu_count()
         queue = Queue()
         processes = []
@@ -176,7 +176,7 @@ class Resampler(object):
             process.join()
 
         return pd.concat(rets, ignore_index=True)
-   
+
     @staticmethod
     def compute_two_side_p_val(resampled_df, real_diff_vals, neuron):
         """Compute a two-sided p-value for permutation test
@@ -216,20 +216,20 @@ class Resampler(object):
             WARNING: Use this function if your resampled data is NOT normally
             distributed.
 
-            Remember that this function can only tell you if a neuron is 
-            selective for a certain behavior or not. It will not classify what 
+            Remember that this function can only tell you if a neuron is
+            selective for a certain behavior or not. It will not classify what
             behavior the behavior the neuron was actually selective for.
 
             Args:
                 dataframe: DataFrame
-                
+
                     A Pandas DataFrame that contains the neuron(s) column
                     vector(s) to be classified.
-                
+
                 resampled_df: DataFrame
-                
-                    A Pandas Dataframe of all the computed difference of mean 
-                    values, D_hat, after permutation resampling. 
+
+                    A Pandas Dataframe of all the computed difference of mean
+                    values, D_hat, after permutation resampling.
 
                 real_diff_df: DataFrame
 
@@ -246,10 +246,10 @@ class Resampler(object):
                     considered classifiable, default is 10.
 
            Returns:
-                classified_neurons: dictionary 
-                
-                A dictionary of key-value pairs, where the name of each 
-                classified neuron is a key, and that neuron's classification 
+                classified_neurons: dictionary
+
+                A dictionary of key-value pairs, where the name of each
+                classified neuron is a key, and that neuron's classification
                 is the corresponding value.
         """
         p_value = kwargs.get("p_value", 0.05)
@@ -271,10 +271,55 @@ class Resampler(object):
 
         return classified_neurons
 
+    @staticmethod
+    def classify_by_behavior(classified_neurons, real_diff_vals, *behaviors):
+        """Further classifies selective neurons by behavior.
+
+            This function should be used to classify already classified neurons
+            (via permutation test) for the specific behavior they were selecitve
+            for. Namely, if the actual difference of means, D_hat, is greater
+            than 0, then the neuron will be classified as selective for the
+            first specified behavior. If the actual difference of means, D_hat,
+            is less than 0, then the neuron will be classified as selecitve for
+            the second specified behavior.
+
+            Args:
+                classified neurons: dictionary
+
+                    A dictionary of the initially classified neurons, i.e.,
+                    classified as either selective or not-selective.
+
+                real_diff_vals: DataFrame
+
+                    A pandas DataFrame with one row, containing the actual
+                    difference of means, D_hat, for each neuron, for a
+                    particular animal
+
+                behaviors:
+
+                    The two possible behaviors that a selective neuron could
+                    be classified as being selective for.
+        """
+        if len(behaviors) != 2:
+            raise ValueError("You provided an appropriate amount of behaviors.")
+
+        deeper_classification = classified_neurons.copy()
+
+        for neuron in deeper_classification:
+            if real_diff_vals[neuron].values > 0:
+                if deeper_classification[neuron] == "selective":
+                    deeper_classification[neuron] = behaviors[0]
+            elif real_diff_vals[neuron].values < 0:
+                if deeper_classification[neuron] == "selective":
+                    deeper_classification[neuron] = behaviors[1]
+
+        return deeper_classification
+
+
     def compute_two_tailed_test(resampled_df, real_d_df, neuron, kwargs):
         """Classifies a given neuron via a two-tailed hypothesis test.
 
-        WARNING: Use this function ONLY if your resampled data is indeed 
+        WARNING: Use this function ONLY if your resampled data is indeed
         normally distributed.
 
         Classifies a given neuron as selective for a certain behavior, selective
@@ -285,35 +330,35 @@ class Resampler(object):
         used as a helper function for the normal_neuron_classifier() function.
 
         Args:
-            resampled_df: DataFrame 
-            
+            resampled_df: DataFrame
+
                 A pandas DataFrame with all of the computed statistics for each
                 permutation resample that was taken.
-            
-            real_d_df: DataFrame 
-            
+
+            real_d_df: DataFrame
+
                 A row of the actual D_hat, real difference of means, values for
                 of each of the neuron column vectors.
 
-            neuron: 
-                
-                The name of the neuron column vector to classify, using the 
+            neuron:
+
+                The name of the neuron column vector to classify, using the
                 two-tailed hypothesis test.
-            
+
             behavior1_name: str
-            
+
                 The behavior to classify the neuron by, e.g., "OpenArms".
 
             behavior2_name: str
-            
+
                 The behavior to classify the neuron by, e.g., "ClosedArms".
 
             high: float
-            
+
                 The cutoff for the upper-tail of the distribution.
-            
+
             low: float
-            
+
                 The cutoff for the lower-tail of the distribution.
 
         Returns:
@@ -346,7 +391,7 @@ class Resampler(object):
 
             high: int, optional
 
-                The cutoff for the upper-tail of the distribution, 
+                The cutoff for the upper-tail of the distribution,
                 default is 95.
 
             low: int, optinonal
@@ -355,14 +400,14 @@ class Resampler(object):
 
             threshold: int, optional
 
-                The minimum required number of events for a neuron to be 
+                The minimum required number of events for a neuron to be
                 considered classifiable, default is 10.
 
         Returns:
             classified_neurons: dictionary
 
-                A dictionary of key-value pairs, where the name of each 
-                classified neuron is a key, and that neuron's classification 
+                A dictionary of key-value pairs, where the name of each
+                classified neuron is a key, and that neuron's classification
                 is the corresponding value.
         """
         classified_neurons = dict()
