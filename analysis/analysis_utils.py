@@ -279,3 +279,53 @@ class FeatureExtractor(object):
                         corr_pairs_dict[(i, j)] = corr_dataframe.at[i, j]
 
         return corr_pairs_dict
+
+    @staticmethod
+    def activity_by_neurons(concated_df, neuron_names, *behaviors, **kwargs):
+        """Computes the neuron activity rates for given behaviors
+
+        This function computes the rates for a given animal's activity and
+        neuron, given some set of behaviors.
+
+        Args:
+            concated_df: DataFrame
+
+                A concatenated pandas DataFrame of the neuron activity and
+                the corresponding behavior, for a given animal.
+
+            neuron_names: list
+
+                The names of the neurons whose rates are to be computed.
+
+            behaviors:
+
+                The behaviors for which to compute the activity rates.
+
+            frame_rate: int, optional
+
+                The framerate to multiply the activity rate by, default is 10.
+
+        Returns:
+            activity_df: a pandas DataFrame of the neuron activity rates.
+        """
+        frame_rate = kwargs.get("frame_rate", None)
+        if frame_rate is None:
+            warnings.warn("You did not specify a frame rate, so a frame rate"
+                          + " of 10 will be utilized in the computation", Warning)
+            frame_rate = 10
+
+        activity_df = pd.DataFrame(columns=behaviors)
+
+        for behavior in behaviors:
+            if behavior in concated_df.columns:
+                activity_df.loc[:, behavior] = frame_rate * concated_df.loc[concated_df[behavior] != 0, neuron_names].mean()
+            elif '&' in behavior:
+                beh1 = behavior.split('&')[0]
+                beh2 = behavior.split('&')[1]
+                activity_df.loc[:, behavior] = frame_rate * concated_df.loc[(concated_df[beh1] != 0) & ((concated_df[beh2] != 0)), neuron_names].mean()
+            elif '|' in behavior:
+                beh1 = behavior.split('|')[0]
+                beh2 = behavior.split('|')[1]
+                activity_df.loc[:, behavior] = frame_rate * concated_df.loc[(concated_df[beh1] != 0) | ((concated_df[beh2] != 0)), neuron_names].mean()
+
+        return activity_df
