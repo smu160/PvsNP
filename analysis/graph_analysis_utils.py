@@ -8,6 +8,7 @@ import numpy as np
 import networkx as nx
 from networkx.algorithms.approximation import clique
 from analysis.analysis_utils import FeatureExtractor
+from analysis.resampling import Resampler
 import sys
 
 class NeuronNetwork(object):
@@ -16,8 +17,8 @@ class NeuronNetwork(object):
     Use this class in order to conduct graph theory analysis on
     networks of neurons that were recorded using Calcium Imaging.
     """
-    def __init__(self, dataframe):
-        self.network = self.create_graph(dataframe)
+    def __init__(self, dataframe, no_events_neurons):
+        self.network = self.create_graph(dataframe, no_events_neurons)
         self.neurons = list(self.network.nodes())
         self.mean_degree_centrality = self.compute_mean_degree_cent()
         self.connection_density = self.compute_connection_density()
@@ -25,12 +26,42 @@ class NeuronNetwork(object):
         self.clustering_coefficient = nx.average_clustering(self.network, weight="weight")
         self.max_clique_size = self.compute_max_clique_size()
         self.mean_clique_size = self.compute_mean_clique_size()
-        # self.local_efficiency = nx.local_efficiency(self.network)
         self.mean_betw_centrality = self.compute_mean_betw_cent()
-        # self.mean_eigen_centrality = self.compute_mean_eigen_cent()
-        # self.mean_load_centrality = self.compute_mean_load_cent()
+        self.avg_shortest_path_len = self.compute_avg_shortest_path_len()
+        self.small_worldness = self.compute_small_worldness()
 
-    def create_graph(self, dataframe):
+    @staticmethod
+    def get_no_events_neurons(feature_extractor, neurons, **kwargs):
+        """Finds neurons that were not active in the specified behavior.
+
+            This function...
+
+            Args:
+                feature_extractor: Feature_Extractor
+
+                neurons: list
+
+                behavior: str, optional
+
+            Returns:
+                no_events_neurons: set
+        """
+        no_events_neurons = set()
+        neuron_and_beh_df = feature_extractor.neuron_concated_behavior
+
+        behavior = kwargs.get("behavior")
+        if behavior:
+            df = neuron_and_beh_df.loc[neuron_and_beh_df[behavior] != 0]
+        else:
+            df = neuron_and_beh_df
+
+        for neuron in neurons:
+            if Resampler.get_num_of_events(df, "neuron"+str(neuron)) < 1:
+                no_events_neurons.add(neuron)
+
+        return no_events_neurons
+
+    def create_graph(self, dataframe, no_events_neurons):
         """Wrapper function for creating a NetworkX graph
 
         Each individual column of the provided DataFrame will be represented by
@@ -44,6 +75,8 @@ class NeuronNetwork(object):
                 a pandas DataFrame that contains the data to be represented
                 with a NetworkX graph
 
+            no_events_neurons: dictionary
+
         Returns:
             graph: NetworkX graph
 
@@ -54,7 +87,8 @@ class NeuronNetwork(object):
         corr_pairs = FeatureExtractor.find_correlated_pairs(dataframe, correlation_coeff=0.3)
 
         for key in corr_pairs:
-            graph.add_edge(key[0], key[1], weight=round(corr_pairs[key], 3))
+            if key[0] not in no_events_neurons and key[1] not in no_events_neurons:
+                graph.add_edge(key[0], key[1], weight=round(corr_pairs[key], 3))
 
         return graph
 
@@ -268,3 +302,35 @@ class NeuronNetwork(object):
 
         mean = running_sum / size
         return mean
+
+    def compute_avg_shortest_path_len(self):
+        """Computes the average path shortest path length.
+
+        This function compute the average path length L, as the average
+        length of the shortest path connecting any paid of nodes in a
+        network.
+
+        Returns:
+            avg_shortest_path_len: float
+
+                The average shortest path length in the network of neurons.
+
+        """
+        graph = self.network
+        shortest_path_lengths = list()
+        node_list = list(graph.nodes)
+
+        for i in range(0, len(node_list)):
+            for j in range(i+1, len(node_list)):
+                source = node_list[i]
+                target = node_list[j]
+                if not nx.has_path(graph, source, target):
+                    continue
+
+                shortest_path_lengths.append(nx.shortest_path_length(graph, source=source, target=target, weight="weight"))
+
+        avg_shortest_path_len = np.mean(shortest_path_lengths)
+        return avg_shortest_path_len
+
+    def compute_small_worldness(self):
+        pass
