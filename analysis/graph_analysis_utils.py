@@ -333,4 +333,5 @@ class NeuronNetwork(object):
         return avg_shortest_path_len
 
     def compute_small_worldness(self):
-        pass
+        small_worldness = self.clustering_coefficient/self.avg_shortest_path_len
+        return small_worldness
