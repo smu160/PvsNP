@@ -1,6 +1,8 @@
 """
 This module contains all the functions responsible for executing a
 permutation test.
+
+@author: Saveliy Yusufov, Columbia University, sy2685@columbia.edu
 """
 
 import os
@@ -8,9 +10,12 @@ from multiprocessing import Process
 from multiprocessing import Queue
 import numpy as np
 import pandas as pd
-from analysis import analysis_utils as au
 
 class Resampler(object):
+    """
+    This class is meant to be a toolbox for the purposes of executing
+    permutation resampling, and in order to carry out permutation tests.
+    """
 
     def __init__(self):
         pass
