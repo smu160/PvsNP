@@ -1,5 +1,8 @@
-""" This module contains all the functions necessary for
+"""
+This module contains all the functions necessary for
 feature engineering, data visualization, and data analysis.
+
+@author: Saveliy Yusufov, Columbia University, sy2685@columbia.edu
 """
 import warnings
 import matplotlib.pyplot as plt
