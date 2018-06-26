@@ -1,15 +1,17 @@
 """
 This module contains the NeuronNetwork class, which is to be used for quickly
 generating and plotting visualizations of neuron networks.
+
+@author: Saveliy Yusufov, Columbia University, sy2685@columbia.edu
 """
 
+import sys
 import matplotlib.pyplot as plt
 import numpy as np
 import networkx as nx
 from networkx.algorithms.approximation import clique
 from analysis.analysis_utils import FeatureExtractor
 from analysis.resampling import Resampler
-import sys
 
 class NeuronNetwork(object):
     """
