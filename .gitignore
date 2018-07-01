@@ -1,4 +1,6 @@
 # Don't track content of these directories
 .ipynb_checkpoints
+MATLAB_produced_CSVs
+Mice
 
 .DS_Store
