@@ -5,13 +5,14 @@ generating and plotting visualizations of neuron networks.
 @author: Saveliy Yusufov, Columbia University, sy2685@columbia.edu
 """
 
+import os
 import sys
-import matplotlib.pyplot as plt
+from multiprocessing import Process
+from multiprocessing import Queue
 import numpy as np
 import networkx as nx
 from networkx.algorithms.approximation import clique
-from analysis.analysis_utils import FeatureExtractor
-from analysis.resampling import Resampler
+from matplotlib.pylab import plt
 
 class NeuronNetwork(object):
     """
@@ -19,9 +20,10 @@ class NeuronNetwork(object):
     Use this class in order to conduct graph theory analysis on
     networks of neurons that were recorded using Calcium Imaging.
     """
-    def __init__(self, dataframe, no_events_neurons):
-        self.network = self.create_graph(dataframe, no_events_neurons)
-        self.neurons = list(self.network.nodes())
+    def __init__(self, dataframe):
+        self.neurons = list(dataframe.columns)
+        self.connections = get_corr_pairs(dataframe, p_val=0.01)
+        self.network = self.create_graph(self.neurons, self.connections)
         self.mean_degree_centrality = self.compute_mean_degree_cent()
         self.connection_density = self.compute_connection_density()
         self.global_efficiency = nx.global_efficiency(self.network)
@@ -32,38 +34,7 @@ class NeuronNetwork(object):
         self.avg_shortest_path_len = self.compute_avg_shortest_path_len()
         self.small_worldness = self.compute_small_worldness()
 
-    @staticmethod
-    def get_no_events_neurons(feature_extractor, neurons, **kwargs):
-        """Finds neurons that were not active in the specified behavior.
-
-            This function...
-
-            Args:
-                feature_extractor: Feature_Extractor
-
-                neurons: list
-
-                behavior: str, optional
-
-            Returns:
-                no_events_neurons: set
-        """
-        no_events_neurons = set()
-        neuron_and_beh_df = feature_extractor.neuron_concated_behavior
-
-        behavior = kwargs.get("behavior")
-        if behavior:
-            df = neuron_and_beh_df.loc[neuron_and_beh_df[behavior] != 0]
-        else:
-            df = neuron_and_beh_df
-
-        for neuron in neurons:
-            if Resampler.get_num_of_events(df, "neuron"+str(neuron)) < 1:
-                no_events_neurons.add(neuron)
-
-        return no_events_neurons
-
-    def create_graph(self, dataframe, no_events_neurons):
+    def create_graph(self, nodes, edges):
         """Wrapper function for creating a NetworkX graph
 
         Each individual column of the provided DataFrame will be represented by
@@ -85,12 +56,10 @@ class NeuronNetwork(object):
                 a graph of the neuronal network
         """
         graph = nx.Graph()
-        graph.add_nodes_from(dataframe.columns)
-        corr_pairs = FeatureExtractor.find_correlated_pairs(dataframe, correlation_coeff=0.3)
+        graph.add_nodes_from(nodes)
 
-        for key in corr_pairs:
-            if key[0] not in no_events_neurons and key[1] not in no_events_neurons:
-                graph.add_edge(key[0], key[1], weight=round(corr_pairs[key], 3))
+        for edge in edges:
+            graph.add_edge(edge[0], edge[1], weight=round(edges[edge], 2))
 
         return graph
 
@@ -337,3 +306,193 @@ class NeuronNetwork(object):
     def compute_small_worldness(self):
         small_worldness = self.clustering_coefficient/self.avg_shortest_path_len
         return small_worldness
+
+def roll_worker(queue, dataframe, neuron_x, neuron_y, resamples):
+    """Helper function for roll()
+
+        Note: This function is only meant to be called by roll(), i.e.,
+        this function should not used as a standalone function.
+
+        Args:
+            queue: Queue
+
+                The blocking Queue to add the list of computed correlation
+                coefficients that this function produces.
+
+            dataframe: DataFrame
+
+                A T x N matrix, where T := # of rows (observations) and
+                N := # of neuron column vectors.
+
+            neuron_x:
+
+                The name of a neuron column vector in the provided dataframe.
+
+            neuron_y:
+
+                The name of a neuron column vector in the provided dataframe.
+
+            resamples: int
+
+                The amount of times to compute the test statistic, i.e.,
+                correlation coefficient between the two provided neurons.
+
+        Returns:
+            corr_coefficients: list
+
+                A list of all the computed correlation coefficients between
+                the two provided neurons.
+    """
+    corr_coefficients = []
+    high = len(dataframe.loc[:, neuron_x].index)
+
+    time_series_x = dataframe.loc[:, neuron_x].values
+    time_series_y = dataframe.loc[:, neuron_y].values
+    for _ in range(resamples):
+        time_series_x = np.roll(time_series_x, shift=np.random.randint(1, high))
+        time_series_y = np.roll(time_series_y, shift=np.random.randint(1, high))
+        corr_coefficients.append(np.corrcoef(time_series_x, time_series_y)[0][1])
+
+    queue.put(corr_coefficients)
+
+def roll(dataframe, neuron_x, neuron_y, resamples):
+    """Create resampled distribution of correlation coefficients for two neurons
+
+        Args:
+            dataframe: DataFrame
+
+                A T x N matrix, where T := # of rows (observations) and
+                N := # of neuron column vectors.
+
+            neuron_x:
+
+                The name of a neuron column vector in the provided dataframe.
+
+            neuron_y:
+
+                The name of a neuron column vector in the provided dataframe.
+
+            resamples: int
+
+                The amount of times to compute the test statistic, i.e.,
+                correlation coefficient between the two provided neurons.
+
+        Returns:
+            corr_coefficients: list
+
+                A list of all the computed correlation coefficients between
+                the two provided neurons.
+    """
+    resamples_per_worker = resamples // os.cpu_count()
+    queue = Queue()
+    processes = []
+    rets = []
+
+    for _ in range(os.cpu_count()):
+        process = Process(target=roll_worker, args=(queue, dataframe, neuron_x, neuron_y, resamples_per_worker))
+        processes.append(process)
+        process.start()
+    for process in processes:
+        ret = queue.get()  # will block
+        rets.append(ret)
+    for process in processes:
+        process.join()
+
+    corr_coefficients = [item for sublist in rets for item in sublist]
+
+    return corr_coefficients
+
+def one_sided_p_val(actual_corrcoef, corr_coefficients):
+    """Compute the one sided p-value of correlation coefficients.
+
+        Args:
+            actual_corrcoef: float
+
+                The actual correlation coefficient of a pair of
+                neurons.
+
+            corr_coefficients: list
+
+                The resampled distribution of all the possible correlation
+                coefficients between two neurons.
+
+        Returns:
+            p_value: float
+
+                The computed one sided p-value.
+    """
+    p = len(corr_coefficients)
+    D = actual_corrcoef
+
+    count = 0
+    for D_i in corr_coefficients:
+        if D_i >= D:
+            count += 1
+
+    p_value = (1 / p) * count
+
+    return p_value
+
+def get_corr_pairs(dataframe, **kwargs):
+    """Find pairs of correlated neurons
+
+        Goes through all possible pairs of neurons and
+        saves the pairs that have statistically significant
+        correlation coefficients.
+
+        Args:
+            dataframe: DataFrame
+
+                A T x N matrix, where T := # of rows (observations) and
+                N := # of neuron column vectors of all of the neurons.
+
+            p_val: float, optional
+
+                The p_val to use as the threshold for when to reject the null
+                hypothesis, i.e., that the correlation coefficient of the pair
+                of neurons are is statistically significant; default is 0.05
+
+            resamples: int, optional
+
+                The amount of times to roll the two neural time series, i.e.,
+                the neural time series data from a given pair of neurons;
+                default is 10000.
+
+        Returns:
+
+            corr_pairs: dictionary
+
+                A dictionary that contains all of the statistically significant
+                correlated pairs and their respective correlation coefficient,
+                as such: <(neuron_x, neuron_y), corrcoef>
+    """
+    corr_pairs = {}
+    p_val = kwargs.get("p_val", 0.05)
+    resamples = kwargs.get("resamples", 10000)
+
+    for i in range(1, len(dataframe.columns)+1):
+
+        # Skip this iteration of i if the standard dev. is going to be 0
+        if len(dataframe[i].unique()) == 1:
+            continue
+
+        for j in range(i+1, len(dataframe.columns)+1):
+
+            # Skip this iteration if the standard dev. is going to be 0
+            if len(dataframe[j].unique()) == 1:
+                continue
+
+            # Compute the real corrcoef between spiking data of two neurons
+            actual_corrcoef = np.corrcoef(dataframe.loc[:, i], dataframe.loc[:, j])[0][1]
+
+            # Skip this iteration if the real corrcoef is not positive
+            if actual_corrcoef <= 0:
+                continue
+
+            # Carry out the rolling to build a resampled distribution
+            resampled_vals = roll(dataframe, i, j, resamples)
+
+            if one_sided_p_val(actual_corrcoef, resampled_vals) < p_val:
+                corr_pairs[(i, j)] = actual_corrcoef
+
+    return corr_pairs
