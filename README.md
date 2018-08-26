@@ -22,18 +22,30 @@ For any feature requests, feel free to email Saveliy Yusufov at sy2685@columbia.
 git clone https://github.com/jaberry/Hen_Lab.git
 cd Hen_Lab
 bash create_env.sh
+```   
+
+### Installation on Windows 
+
+#### (Python 2.x)
+
+* Download and install [Anaconda](https://docs.anaconda.com/anaconda/install/) (Python 2.7) We recommend telling conda to modify your PATH variable (it is a checkbox during Anaconda install, off by default).
+
+* Downloads and install [Node.js](https://nodejs.org/en/download/)
+
+* Launch an anaconda-enabled command prompt as follows: start --> Anaconda2 --> Anaconda Prompt
+
+* Use conda to install git as follows: `conda install git`
+
+```bash
+git clone https://github.com/jaberry/Hen_Lab.git
+cd Hen_Lab
+conda create -n henlabenv anaconda python=3.6
+conda activate henlabenv
+conda install -c anaconda plotly
+jupyter labextension install @jupyterlab/plotly-extension
 ```
 
-**WARNING** If you do not create a separate environment for using this code 
-base, you are at risk of creating a massive headache for yourself. It behooves 
-you to not install dependencies to the same environment Python that your 
-operating system is using. In addition, if you update your base environment to
-Python 3.x, while other software you use requires an older version of Python,
-you will be in a bad place. For your convenience, a Bash script that creates a
-conda environment with all required dependencies was made available. You can run
-it by following the aforementioned instructions.     
-
-### Installation on Windows (Python 3.x)
+#### (Python 3.x)
 
 * Download and install [Anaconda](https://docs.anaconda.com/anaconda/install/) (Python 3.6) We recommend telling conda to modify your PATH variable (it is a checkbox during Anaconda install, off by default).
 
@@ -48,10 +60,11 @@ git clone https://github.com/jaberry/Hen_Lab.git
 cd Hen_Lab
 conda list --export > conda_packages.txt
 conda create --name henlabenv --file conda_packages.txt
-activate henlabenv
+conda activate henlabenv
 conda install -c anaconda plotly
 jupyter labextension install @jupyterlab/plotly-extension
 ```
+
 
 ## Troubleshooting
 
