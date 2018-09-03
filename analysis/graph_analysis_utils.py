@@ -20,19 +20,19 @@ class NeuronNetwork(object):
     Use this class in order to conduct graph theory analysis on
     networks of neurons that were recorded using Calcium Imaging.
     """
-    def __init__(self, dataframe):
-        self.neurons = list(dataframe.columns)
-        self.connections = get_corr_pairs(dataframe, p_val=0.01)
+    def __init__(self, neurons, connections):
+        self.neurons = list(neurons)
+        self.connections = connections
         self.network = self.create_graph(self.neurons, self.connections)
-        self.mean_degree_centrality = self.compute_mean_degree_cent()
-        self.connection_density = self.compute_connection_density()
-        self.global_efficiency = nx.global_efficiency(self.network)
-        self.clustering_coefficient = nx.average_clustering(self.network, weight="weight")
-        self.max_clique_size = self.compute_max_clique_size()
-        self.mean_clique_size = self.compute_mean_clique_size()
-        self.mean_betw_centrality = self.compute_mean_betw_cent()
-        self.avg_shortest_path_len = self.compute_avg_shortest_path_len()
-        self.small_worldness = self.compute_small_worldness()
+        # self.mean_degree_centrality = self.compute_mean_degree_cent()
+        # self.connection_density = self.compute_connection_density()
+        # self.global_efficiency = nx.global_efficiency(self.network)
+        # self.clustering_coefficient = nx.average_clustering(self.network, weight="weight")
+        # self.max_clique_size = self.compute_max_clique_size()
+        # self.mean_clique_size = self.compute_mean_clique_size()
+        # self.mean_betw_centrality = self.compute_mean_betw_cent()
+        # self.avg_shortest_path_len = self.compute_avg_shortest_path_len()
+        # self.small_worldness = self.compute_small_worldness()
 
     def create_graph(self, nodes, edges):
         """Wrapper function for creating a NetworkX graph
@@ -59,7 +59,7 @@ class NeuronNetwork(object):
         graph.add_nodes_from(nodes)
 
         for edge in edges:
-            graph.add_edge(edge[0], edge[1], weight=round(edges[edge], 2))
+            graph.add_edge(edge[0], edge[1], weight=abs(edges[edge]))
 
         return graph
 
@@ -117,9 +117,9 @@ class NeuronNetwork(object):
 
                 The size of the plotted neurons in the network.
 
-            node_color: str, optional
+            node_colors: list, optional
 
-                The color of the neurons to be plotted.
+                The colors of the neurons to be plotted.
 
             fontsize: int, optional
 
@@ -138,21 +138,21 @@ class NeuronNetwork(object):
         plt.figure(figsize=kwargs.get("figsize", (35, 35)))
 
         # nodes
-        node_size = kwargs.get("node_size", 1000)
-        color = kwargs.get("node_color", "pink")
-        nx.draw_networkx_nodes(self.network, pos, node_size=node_size, node_color=color)
+        node_size = kwargs.get("node_size", 600)
+        node_colors = kwargs.get("node_colors", self.neurons)
+        nx.draw_networkx_nodes(self.network, pos, node_size=node_size, cmap=plt.cm.Dark2, node_color=node_colors)
 
         edges, weights = zip(*nx.get_edge_attributes(self.network, "weight").items())
 
         # edges
-        nx.draw_networkx_edges(self.network, pos, width=3.0, edge_color=weights, edge_cmap=plt.cm.YlGnBu)
+        nx.draw_networkx_edges(self.network, pos, alpha=0.2, edge_color=weights)
 
-        labels = nx.get_edge_attributes(self.network, "weight")
-        nx.draw_networkx_edge_labels(self.network, pos, edge_labels=labels)
+        # labels = nx.get_edge_attributes(self.network, "weight")
+        # nx.draw_networkx_edge_labels(self.network, pos, edge_labels=labels)
 
         # labels
-        font_size = kwargs.get("font_size", 15)
-        nx.draw_networkx_labels(self.network, pos, font_size=font_size, edge_labels=labels)
+        font_size = kwargs.get("font_size", 10)
+        nx.draw_networkx_labels(self.network, pos, font_size=font_size)
 
         plt.axis("off")
 
@@ -422,11 +422,10 @@ def one_sided_p_val(actual_corrcoef, corr_coefficients):
                 The computed one sided p-value.
     """
     p = len(corr_coefficients)
-    D = actual_corrcoef
 
     count = 0
-    for D_i in corr_coefficients:
-        if D_i >= D:
+    for corrcoef in corr_coefficients:
+        if corrcoef >= actual_corrcoef:
             count += 1
 
     p_value = (1 / p) * count
@@ -436,9 +435,8 @@ def one_sided_p_val(actual_corrcoef, corr_coefficients):
 def get_corr_pairs(dataframe, **kwargs):
     """Find pairs of correlated neurons
 
-        Goes through all possible pairs of neurons and
-        saves the pairs that have statistically significant
-        correlation coefficients.
+        Iterates through all possible pairs of neurons and saves the pairs that
+        have statistically significant correlation coefficients.
 
         Args:
             dataframe: DataFrame
@@ -459,7 +457,6 @@ def get_corr_pairs(dataframe, **kwargs):
                 default is 10000.
 
         Returns:
-
             corr_pairs: dictionary
 
                 A dictionary that contains all of the statistically significant
