@@ -41,7 +41,7 @@ class Resampler(object):
         return len(dataframe.loc[:, neuron][dataframe[neuron] != 0])
 
     @staticmethod
-    def compute_diff_rate(dataframe, neuron_col_names, *behaviors, frame_rate=10):
+    def compute_diff_rate(mouse, *behaviors, frame_rate=10):
         """Computes difference between the rates of two behaviors
 
         Args:
@@ -71,18 +71,18 @@ class Resampler(object):
             means of the non-behavior vectors, all scaled by the frame rate.
         """
         if len(behaviors) == 1:
-            beh_vec = dataframe.loc[dataframe[behaviors[0]] != 0, neuron_col_names]
-            no_beh_vec = dataframe.loc[dataframe[behaviors[0]] == 0, neuron_col_names]
+            beh_vec = mouse.auc_df.loc[mouse.neuron_concated_behavior[behaviors[0]] != 0]
+            no_beh_vec = mouse.auc_df.loc[mouse.neuron_concated_behavior[behaviors[0]] == 0]
             return frame_rate * (beh_vec.values.mean(axis=0) - no_beh_vec.values.mean(axis=0))
         elif len(behaviors) == 2:
-            beh_vec = dataframe.loc[dataframe[behaviors[0]] != 0, neuron_col_names]
-            no_beh_vec = dataframe.loc[dataframe[behaviors[1]] != 0, neuron_col_names]
+            beh_vec = mouse.auc_df.loc[mouse.neuron_concated_behavior[behaviors[0]] != 0]
+            no_beh_vec = mouse.auc_df.loc[mouse.neuron_concated_behavior[behaviors[1]] != 0]
             return frame_rate * (beh_vec.values.mean(axis=0) - no_beh_vec.values.mean(axis=0))
         else:
             raise ValueError("You provided an appropriate amount of behaviors.")
 
     @staticmethod
-    def shuffle_worker(queue, resamples, neuron_concated_behavior, neuron_col_names, *behaviors):
+    def shuffle_worker(queue, resamples, mouse, *behaviors):
         """Helper function for shuffle()
 
         This function repeats the permutation resampling and computation of
@@ -115,19 +115,20 @@ class Resampler(object):
                 The two behaviors, as strings, to be used as the two groups to
                 use for permutation resamples.
         """
-        first_col = neuron_col_names[0]
-        last_col = neuron_col_names[len(neuron_col_names)-1]
+        neurons = list(mouse.auc_df.columns)
+        first_col = neurons[0]
+        last_col = neurons[len(neurons)-1]
 
         rows_list = []
         for _ in range(resamples):
-            neuron_concated_behavior.loc[:, first_col:last_col] = neuron_concated_behavior.loc[:, first_col:last_col].sample(frac=1).reset_index(drop=True)
-            row = Resampler.compute_diff_rate(neuron_concated_behavior, neuron_col_names, behaviors[0], behaviors[1])
-            rows_list.append(dict(zip(neuron_col_names, row)))
+            mouse.auc_df = mouse.auc_df.sample(frac=1).reset_index(drop=True)
+            row = Resampler.compute_diff_rate(mouse, behaviors[0], behaviors[1])
+            rows_list.append(dict(zip(neurons, row)))
 
-        queue.put(pd.DataFrame(rows_list, columns=neuron_col_names))
+        queue.put(pd.DataFrame(rows_list, columns=neurons))
 
     @staticmethod
-    def shuffle(resamples, neuron_concated_behavior, neuron_col_names, *behaviors):
+    def shuffle(resamples, mouse, *behaviors):
         """Permutation resampling function for neuron selectivty analysis.
 
         This function simply starts a new process for each CPU that the machine
@@ -171,7 +172,7 @@ class Resampler(object):
         processes = []
         rets = []
         for _ in range(os.cpu_count()):
-            process = Process(target=Resampler.shuffle_worker, args=(queue, resamples_per_worker, neuron_concated_behavior, neuron_col_names, *behaviors))
+            process = Process(target=Resampler.shuffle_worker, args=(queue, resamples_per_worker, mouse, *behaviors))
             processes.append(process)
             process.start()
         for process in processes:
