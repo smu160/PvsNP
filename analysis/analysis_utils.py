@@ -72,7 +72,7 @@ class FeatureExtractor(object):
         dataframe.reset_index(inplace=True, drop=True)
         return dataframe
 
-    def compute_diff_rate(self, dataframe, col_names, *behaviors, **kwargs):
+    def compute_diff_rate(self, dataframe, *behaviors, **kwargs):
         """Computes difference between the rates of two behaviors
 
         Args:
@@ -109,18 +109,21 @@ class FeatureExtractor(object):
                           + " set to 10", Warning)
             frame_rate = 10
 
+
+        concated_df = self.neuron_concated_behavior
+
         if len(behaviors) == 1:
-            beh_vec = dataframe.loc[dataframe[behaviors[0]] != 0, col_names]
-            no_beh_vec = dataframe.loc[dataframe[behaviors[0]] == 0, col_names]
+            beh_vec = self.auc_df.loc[self.neuron_concated_behavior[behaviors[0]] != 0]
+            no_beh_vec = self.auc_df.loc[self.neuron_concated_behavior[behaviors[0]] == 0]
             return frame_rate * (beh_vec.values.mean(axis=0) - no_beh_vec.values.mean(axis=0))
         elif len(behaviors) == 2:
-            beh_vec = dataframe.loc[dataframe[behaviors[0]] != 0, col_names]
-            no_beh_vec = dataframe.loc[dataframe[behaviors[1]] != 0, col_names]
+            beh_vec = self.auc_df.loc[self.neuron_concated_behavior[behaviors[0]] != 0]
+            no_beh_vec = self.auc_df.loc[self.neuron_concated_behavior[behaviors[1]] != 0]
             return frame_rate * (beh_vec.values.mean(axis=0) - no_beh_vec.values.mean(axis=0))
         else:
             raise ValueError("Improper amount of behaviors detected!")
 
-    def set_real_diff_df(self, dataframe, col_names, *behaviors, **kwargs):
+    def set_real_diff_df(self, dataframe, *behaviors, **kwargs):
         """Compute the real difference mean values for all neurons
 
         Args:
@@ -147,9 +150,8 @@ class FeatureExtractor(object):
                 animal.
         """
         frame_rate = kwargs.get("frame_rate", None)
-        real_diff_vals = pd.DataFrame(columns=col_names, index=["D"])
-        real_diff_vals.loc['D'] = self.compute_diff_rate(dataframe, col_names,
-                                                         *behaviors,
+        real_diff_vals = pd.DataFrame(columns=self.auc_df.columns, index=["D"])
+        real_diff_vals.loc['D'] = self.compute_diff_rate(dataframe, *behaviors,
                                                          frame_rate=frame_rate)
         return real_diff_vals
 
@@ -274,7 +276,6 @@ class FeatureExtractor(object):
         corr_pairs_dict = {}
         corr_dataframe = dataframe.corr()
         corr_coeff = kwargs.get("corr_coeff", 0.3)
-
         for i in corr_dataframe.columns:
             for j in corr_dataframe.index:
                 if corr_dataframe.at[i, j] >= corr_coeff and i != j:
