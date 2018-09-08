@@ -4,6 +4,7 @@ feature engineering, data visualization, and data analysis.
 
 @author: Saveliy Yusufov, Columbia University, sy2685@columbia.edu
 """
+import os
 import warnings
 import matplotlib.pyplot as plt
 import numpy as np
@@ -12,38 +13,61 @@ import plotly
 import plotly.graph_objs as go
 import seaborn as sns
 
-class FeatureExtractor(object):
-    """Utilize this class to store, manipulate, and visualize all data pertaining
-    to the data garnered from a single experiment
+def find_file(root_directory, target_file):
+    """Finds a file in a given root directory (folder).
+
+    Args:
+        root_directory: str
+            The name of the first or top-most directory (folder)
+            to search for the target file (e.g. "Hen_Lab/Mice").
+
+        target_file: str
+            The full name of the file to be found (e.g. "mouse1_spikes.csv").
+
+    Returns:
+        file_path: str
+            The full path to the target file.
+
+    """
+    root_directory = os.path.join(os.path.expanduser("~"), root_directory)
+
+    if not os.path.exists(root_directory):
+        print("{} does not exist!".format(root_directory), file=sys.stderr)
+        return
+    if not os.path.isdir(root_directory):
+        print("{} is not a directory!".format(root_directory), file=sys.stderr)
+        return
+
+    for subdir, dirs, files in os.walk(root_directory):
+        for file in files:
+            if file == target_file:
+                file_path = os.path.join(subdir, file)
+                return file_path
+
+    print("{} not found!".format(target_file), file=sys.stderr)
+
+class Mouse(object):
+    """A base class for keeping all relevant & corresponding objects, i.e.,
+    spikes, cell transients, & behavior dataframes, with their respective
+    mouse.
     """
 
-    def __init__(self, cell_transients_df=None, auc_df=None, behavior_df=None, **kwargs):
-        self.cell_transients_df = cell_transients_df
-        self.auc_df = auc_df
+    def __init__(self, cell_transients=None, spikes=None, behavior=None, **kwargs):
+        self.cell_transients = cell_transients
+        self.spikes = spikes
 
-        if isinstance(behavior_df, pd.DataFrame):
-            row_multiple = kwargs.get("row_multiple", None)
-            if row_multiple is None:
-                warnings.warn("Row multiple to downsample behavior dataframe"
-                              + " not specified. Behavior dataframe will be"
-                              + " downsampled by a row multiple of 3", Warning)
-                row_multiple = 3
-
-            self.behavior_df = FeatureExtractor.downsample_dataframe(behavior_df, row_multiple)
-            behavior_column_names = kwargs.get("behavior_col_names", None)
-            if behavior_column_names is not None:
-                self.behavior_df.columns = behavior_column_names
-
-            # Adds "Running_frames" column to the end of the behavior Dataframe
-            velocity_cutoff = kwargs.get("velocity_cutoff", None)
-            if velocity_cutoff is not None:
-                running_frames = np.where(self.behavior_df["Velocity"] > velocity_cutoff, 1, 0)
-                self.behavior_df = self.behavior_df.assign(Running_frames=running_frames)
-
-            self.neuron_concated_behavior = self.auc_df.join(self.behavior_df, how="left")
+        if behavior is not None:
+            self.behavior = behavior
+            self.spikes_and_beh = self.spikes.join(self.behavior, how="left")
         else:
             message = "A behavior dataframe was not provided."
             warnings.warn(message, Warning)
+
+        # Adds "Running_frames" column to the end of the behavior Dataframe
+        velocity_cutoff = kwargs.get("velocity_cutoff", None)
+        if velocity_cutoff is not None:
+            running_frames = np.where(self.behavior["Velocity"] > velocity_cutoff, 1, 0)
+            self.behavior = self.behavior.assign(Running_frames=running_frames)
 
     @staticmethod
     def downsample_dataframe(dataframe, row_multiple):
@@ -51,18 +75,15 @@ class FeatureExtractor(object):
 
         Args:
             dataframe: DataFrame
-
                 the pandas DataFrame to be downsampled
 
             row_multiple: int
-
                 the row multiple is the rows to be removed.
                 e.g., row_multiple of 3 would remove every 3rd row from the
                 provided dataframe
 
         Returns:
             dataframe: DataFrame
-
                 the downsampled pandas DataFrame
         """
         # Drop every nth (row multiple) row
@@ -71,89 +92,6 @@ class FeatureExtractor(object):
         # Reset and drop the old indices of the pandas DataFrame
         dataframe.reset_index(inplace=True, drop=True)
         return dataframe
-
-    def compute_diff_rate(self, dataframe, *behaviors, **kwargs):
-        """Computes difference between the rates of two behaviors
-
-        Args:
-            dataframe: DataFrame
-
-                a concatenated pandas DataFrame of all the neuron column vectors
-                for a given animal and its corresponding behavior column
-                vectors.
-
-                neuron_col_names: list
-
-                    the names of the neuron column vectors to be computed.
-
-                *behaviors: str
-
-                    a single or ordered pair of behaviors to compute the
-                    difference rate for, e.g. "Running", or "ClosedArms",
-                    "OpenArms".
-
-                frame_rate: int, optional
-
-                    The frame rate associated with the given data; default is
-                    10.
-
-        Returns: numpy array
-
-                a numpy array of all the means of the behavior vectors
-                subtracted from the corresponding means of the non-behavior
-                vectors, all scaled by the frame rate.
-        """
-        frame_rate = kwargs.get("frame_rate", None)
-        if frame_rate is None:
-            warnings.warn("Frame rate wasn't specified, so frame rate will be"
-                          + " set to 10", Warning)
-            frame_rate = 10
-
-
-        concated_df = self.neuron_concated_behavior
-
-        if len(behaviors) == 1:
-            beh_vec = self.auc_df.loc[self.neuron_concated_behavior[behaviors[0]] != 0]
-            no_beh_vec = self.auc_df.loc[self.neuron_concated_behavior[behaviors[0]] == 0]
-            return frame_rate * (beh_vec.values.mean(axis=0) - no_beh_vec.values.mean(axis=0))
-        elif len(behaviors) == 2:
-            beh_vec = self.auc_df.loc[self.neuron_concated_behavior[behaviors[0]] != 0]
-            no_beh_vec = self.auc_df.loc[self.neuron_concated_behavior[behaviors[1]] != 0]
-            return frame_rate * (beh_vec.values.mean(axis=0) - no_beh_vec.values.mean(axis=0))
-        else:
-            raise ValueError("Improper amount of behaviors detected!")
-
-    def set_real_diff_df(self, dataframe, *behaviors, **kwargs):
-        """Compute the real difference mean values for all neurons
-
-        Args:
-            dataframe: DataFrame
-
-                The concatenated pandas DataFrame of the neuron activity
-                DataFrame and corresponding behavior DataFrame, for a given
-                animal.
-
-            col_names:
-
-                A list of the neuron column vector names.
-
-            behaviors: string
-
-                The behaviors for which to compute the difference rate, i.e.,
-                D_hat.
-
-        Returns:
-            real_diff_vals: DataFrame
-
-                A pandas DataFrame that consists of one row with all of the
-                actual D_hat values, computed for all the neurons for a given
-                animal.
-        """
-        frame_rate = kwargs.get("frame_rate", None)
-        real_diff_vals = pd.DataFrame(columns=self.auc_df.columns, index=["D"])
-        real_diff_vals.loc['D'] = self.compute_diff_rate(dataframe, *behaviors,
-                                                         frame_rate=frame_rate)
-        return real_diff_vals
 
     def neuron_line_plot(self, *neurons, **kwargs):
         """Plots a line plot of neuron activity over time.
@@ -164,11 +102,9 @@ class FeatureExtractor(object):
 
         Args:
             neurons: str
-
                 the name(s) of the column vectors in the dataframe.
 
             dataframe: str, optional
-
                 The name of one of the available pandas dataframes to use as the
                 source of neuron column vectors to plot; default is the
                 cell_transients_df. E.g. pass-in dataframe=object.auc_df to use
@@ -184,7 +120,7 @@ class FeatureExtractor(object):
                           + " plotting, so the cell transients dataframe"
                           + " was used.", Warning)
 
-            dataframe = self.cell_transients_df
+            dataframe = self.cell_transients
 
         data = list()
         for neuron in neurons:
@@ -202,11 +138,9 @@ class FeatureExtractor(object):
 
         Args:
             dataframe: DataFrame
-
                 A Pandas dataframe to be plotted in the correlation heatmap.
 
             figsize: tuple, optional
-
                 The size of the heatmap to be plotted, default is (16, 16).
         """
 
@@ -247,44 +181,6 @@ class FeatureExtractor(object):
         cluster_map.ax_col_dendrogram.set_visible(False)
 
     @staticmethod
-    def find_correlated_pairs(dataframe, **kwargs):
-        """Find all of the correlated pairs of neurons.
-
-        This function returns a dictionary of all the correlated pairs
-        of neurons in a given dataframe of time series data, with an
-        individual column vector per neuron.
-
-        Args:
-            dataframe: DataFrame
-
-                A pandas dataframe, where the columns are individual neurons,
-                and the rows represent neuronal acitivty over time
-
-            corr_coeff: float, optional
-
-                The cutoff for the correlation coefficient to use in order to
-                consider a given pair of neurons to be correlated, default is
-                0.3.
-
-        Returns:
-            corr_pairs_dict: dictionary
-
-                A dictionary of <tuple, correlation value> where the tuple is a
-                unique, correlated pair, and the corresponding value is
-                correlation coefficient of that tuple.
-        """
-        corr_pairs_dict = {}
-        corr_dataframe = dataframe.corr()
-        corr_coeff = kwargs.get("corr_coeff", 0.3)
-        for i in corr_dataframe.columns:
-            for j in corr_dataframe.index:
-                if corr_dataframe.at[i, j] >= corr_coeff and i != j:
-                    if (i, j) not in corr_pairs_dict and (j, i) not in corr_pairs_dict:
-                        corr_pairs_dict[(i, j)] = corr_dataframe.at[i, j]
-
-        return corr_pairs_dict
-
-    @staticmethod
     def activity_by_neurons(concated_df, neuron_names, *behaviors, **kwargs):
         """Computes the neuron activity rates for given behaviors
 
@@ -293,20 +189,16 @@ class FeatureExtractor(object):
 
         Args:
             concated_df: DataFrame
-
                 A concatenated pandas DataFrame of the neuron activity and
                 the corresponding behavior, for a given animal.
 
             neuron_names: list
-
                 The names of the neurons whose rates are to be computed.
 
             behaviors:
-
                 The behaviors for which to compute the activity rates.
 
             frame_rate: int, optional
-
                 The framerate to multiply the activity rate by, default is 10.
 
         Returns:
