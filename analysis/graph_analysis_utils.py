@@ -43,17 +43,13 @@ class NeuronNetwork(object):
         the specific correlation coefficient of those two nodes.
 
         Args:
-            dataframe: DataFrame
+            nodes: list
 
-                a pandas DataFrame that contains the data to be represented
-                with a NetworkX graph
-
-            no_events_neurons: dictionary
+            edges: dictionary
 
         Returns:
             graph: NetworkX graph
-
-                a graph of the neuronal network
+                A graph of the neuronal network.
         """
         graph = nx.Graph()
         graph.add_nodes_from(nodes)
@@ -71,20 +67,16 @@ class NeuronNetwork(object):
 
         Args:
             pos: dictionary, optional
-
-                A dictionary of the network's neurons as keys and their (x ,y)
+                 A dictionary of the network's neurons as keys and their (x ,y)
                 coordinates as corresponding values.
 
             node_size: int, optional
-
                 The size of the plotted neurons in the network.
 
             node_colors: list, optional
-
                 The colors of the neurons to be plotted.
 
             fontsize: int, optional
-
                 The size of the font in the plotted neurons.
         """
 
@@ -97,7 +89,7 @@ class NeuronNetwork(object):
             pos = nx.spring_layout(self.network, weight="weight")
 
         # Size of the plot
-        plt.figure(figsize=kwargs.get("figsize", (35, 35)))
+        plt.figure(figsize=kwargs.get("figsize", (30, 30)))
 
         # nodes
         node_size = kwargs.get("node_size", 600)
@@ -106,8 +98,9 @@ class NeuronNetwork(object):
 
         edges, weights = zip(*nx.get_edge_attributes(self.network, "weight").items())
 
-        # edges
-        nx.draw_networkx_edges(self.network, pos, alpha=0.2, edge_color=weights)
+        # Draw edges
+        if kwargs.get("draw_edges", True):
+            nx.draw_networkx_edges(self.network, pos, alpha=0.2, edge_color=weights)
 
         # labels = nx.get_edge_attributes(self.network, "weight")
         # nx.draw_networkx_edge_labels(self.network, pos, edge_labels=labels)
@@ -245,7 +238,6 @@ class NeuronNetwork(object):
 
         Returns:
             avg_shortest_path_len: float
-
                 The average shortest path length in the network of neurons.
 
         """
