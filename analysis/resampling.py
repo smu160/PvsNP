@@ -57,8 +57,8 @@ class Resampler(object):
 
             *behaviors: str
 
-                A single or ordered pair of behaviors to compute the difference
-                of means rate for, e.g. "OpenArms" vs. "ClosedArms".
+                A single behavior or two behaviors pair used to compute the
+                difference of means rate for, e.g. "OpenArms" vs. "ClosedArms".
 
             frame_rate: int
 
@@ -71,12 +71,12 @@ class Resampler(object):
             means of the non-behavior vectors, all scaled by the frame rate.
         """
         if len(behaviors) == 1:
-            beh_vec = mouse.auc_df.loc[mouse.neuron_concated_behavior[behaviors[0]] != 0]
-            no_beh_vec = mouse.auc_df.loc[mouse.neuron_concated_behavior[behaviors[0]] == 0]
+            beh_vec = mouse.spikes.loc[mouse.spikes_and_beh[behaviors[0]] != 0]
+            no_beh_vec = mouse.spikes.loc[mouse.spikes_and_beh[behaviors[0]] == 0]
             return frame_rate * (beh_vec.values.mean(axis=0) - no_beh_vec.values.mean(axis=0))
         elif len(behaviors) == 2:
-            beh_vec = mouse.auc_df.loc[mouse.neuron_concated_behavior[behaviors[0]] != 0]
-            no_beh_vec = mouse.auc_df.loc[mouse.neuron_concated_behavior[behaviors[1]] != 0]
+            beh_vec = mouse.spikes.loc[mouse.spikes_and_beh[behaviors[0]] != 0]
+            no_beh_vec = mouse.spikes.loc[mouse.spikes_and_beh[behaviors[1]] != 0]
             return frame_rate * (beh_vec.values.mean(axis=0) - no_beh_vec.values.mean(axis=0))
         else:
             raise ValueError("You provided an appropriate amount of behaviors.")
@@ -115,13 +115,13 @@ class Resampler(object):
                 The two behaviors, as strings, to be used as the two groups to
                 use for permutation resamples.
         """
-        neurons = list(mouse.auc_df.columns)
+        neurons = list(mouse.spikes.columns)
         first_col = neurons[0]
         last_col = neurons[len(neurons)-1]
 
         rows_list = []
         for _ in range(resamples):
-            mouse.auc_df = mouse.auc_df.sample(frac=1).reset_index(drop=True)
+            mouse.spikes = mouse.spikes.sample(frac=1).reset_index(drop=True)
             row = Resampler.compute_diff_rate(mouse, behaviors[0], behaviors[1])
             rows_list.append(dict(zip(neurons, row)))
 
@@ -184,14 +184,14 @@ class Resampler(object):
         return pd.concat(rets, ignore_index=True)
 
     @staticmethod
-    def compute_two_side_p_val(resampled_df, real_diff_vals, neuron):
+    def compute_two_side_p_val(permutation_distributions, original_statistics, neuron):
         """Compute a two-sided p-value for permutation test
 
             IMPORTANT: Use this function in place when the data you resampled
             does not is not normally distributed.
 
             Args:
-                resampled_df: DataFrame
+                permutation_distribution: DataFrame
 
                     A pandas DataFrame of all the rates computed after
                     resampling.
@@ -210,13 +210,13 @@ class Resampler(object):
 
                 The two-sided p-value for a given neuron column vector.
         """
-        p = len(resampled_df.index)
-        D = real_diff_vals.at['D', neuron]
-        D_i = resampled_df[neuron].abs()
-        return (1/p) * len(resampled_df.loc[:, neuron].loc[D_i >= abs(D)])
+        p = len(permutation_distributions.index)
+        D = original_statistics[neuron]
+        D_i = permutation_distributions[neuron].abs()
+        return (1/p) * len(permutation_distributions[neuron].loc[D_i >= abs(D)])
 
     @staticmethod
-    def non_normal_neuron_classifier(dataframe, resampled_df, real_diff_df, **kwargs):
+    def non_normal_neuron_classifier(dataframe, original_statistics, **kwargs):
         """Classify neurons as selective or not-selective
 
             WARNING: Use this function if your resampled data is NOT normally
@@ -229,18 +229,12 @@ class Resampler(object):
             Args:
                 dataframe: DataFrame
 
-                    A Pandas DataFrame that contains the neuron(s) column
-                    vector(s) to be classified.
+                    A Pandas DataFrame that contains the permutation
+                    distribution, for each neuron.
 
-                resampled_df: DataFrame
+                original_statistics: dictionary
 
-                    A Pandas Dataframe of all the computed difference of mean
-                    values, D_hat, after permutation resampling.
-
-                real_diff_df: DataFrame
-
-                    A Pandas DataFrame with one row that has the real D_hat,
-                    difference of means, values.
+                    The real D_hat, test statistic, values.
 
                p_value: float, optional
 
@@ -267,8 +261,8 @@ class Resampler(object):
                 if not neuron in classified_neurons:
                     classified_neurons[neuron] = "unclassified"
 
-        for neuron in resampled_df.columns:
-            if Resampler.compute_two_side_p_val(resampled_df, real_diff_df, neuron) <= p_value:
+        for neuron in dataframe.columns:
+            if Resampler.compute_two_side_p_val(dataframe, original_statistics, neuron) <= p_value:
                 if not neuron in classified_neurons:
                     classified_neurons[neuron] = "selective"
             else:
@@ -278,7 +272,7 @@ class Resampler(object):
         return classified_neurons
 
     @staticmethod
-    def classify_by_behavior(classified_neurons, real_diff_vals, *behaviors):
+    def classify_by_behavior(classified_neurons, original_statistics, *behaviors):
         """Further classifies selective neurons by behavior.
 
             This function should be used to classify already classified neurons
@@ -295,11 +289,10 @@ class Resampler(object):
                     A dictionary of the initially classified neurons, i.e.,
                     classified as either selective or not-selective.
 
-                real_diff_vals: DataFrame
+                original_statistics: dictionary
 
-                    A pandas DataFrame with one row, containing the actual
-                    difference of means, D_hat, for each neuron, for a
-                    particular animal
+                    The actual difference of means, D_hat, for each neuron, of a
+                    particular animal.
 
                 behaviors:
 
@@ -312,15 +305,14 @@ class Resampler(object):
         deeper_classification = classified_neurons.copy()
 
         for neuron in deeper_classification:
-            if real_diff_vals[neuron].values > 0:
+            if original_statistics[neuron] > 0:
                 if deeper_classification[neuron] == "selective":
                     deeper_classification[neuron] = behaviors[0]
-            elif real_diff_vals[neuron].values < 0:
+            elif original_statistics[neuron] < 0:
                 if deeper_classification[neuron] == "selective":
                     deeper_classification[neuron] = behaviors[1]
 
         return deeper_classification
-
 
     def compute_two_tailed_test(resampled_df, real_d_df, neuron, kwargs):
         """Classifies a given neuron via a two-tailed hypothesis test.
