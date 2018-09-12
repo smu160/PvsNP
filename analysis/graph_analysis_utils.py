@@ -7,8 +7,7 @@ generating and plotting visualizations of neuron networks.
 
 import os
 import sys
-from multiprocessing import Process
-from multiprocessing import Queue
+import itertools
 import numpy as np
 import networkx as nx
 from networkx.algorithms.approximation import clique
@@ -24,15 +23,6 @@ class NeuronNetwork(object):
         self.neurons = list(neurons)
         self.connections = connections
         self.network = self.create_graph(self.neurons, self.connections)
-        # self.mean_degree_centrality = self.compute_mean_degree_cent()
-        # self.connection_density = self.compute_connection_density()
-        # self.global_efficiency = nx.global_efficiency(self.network)
-        # self.clustering_coefficient = nx.average_clustering(self.network, weight="weight")
-        # self.max_clique_size = self.compute_max_clique_size()
-        # self.mean_clique_size = self.compute_mean_clique_size()
-        # self.mean_betw_centrality = self.compute_mean_betw_cent()
-        # self.avg_shortest_path_len = self.compute_avg_shortest_path_len()
-        # self.small_worldness = self.compute_small_worldness()
 
     def create_graph(self, nodes, edges):
         """Wrapper function for creating a NetworkX graph
@@ -134,7 +124,7 @@ class NeuronNetwork(object):
         possible_num_of_edges = (num_of_neurons * (num_of_neurons-1)) / 2
         return len(list(self.network.edges())) / possible_num_of_edges
 
-    def compute_mean_betw_cent(self):
+    def mean_betw_cent(self, weight="weight"):
         """Computes the mean betweeness centrality of a network of neurons.
 
            The centrality of a node measures how many of the shortest paths
@@ -144,8 +134,8 @@ class NeuronNetwork(object):
 
            https://en.wikipedia.org/wiki/Betweenness_centrality
         """
-        graph_centrality = nx.betweenness_centrality(self.network, weight="weight")
-        return np.mean(list(graph_centrality.values()))
+        betw_centrality = nx.betweenness_centrality(self.network, weight=weight)
+        return np.mean(list(betw_centrality.values()))
 
     def compute_mean_degree_cent(self):
         """Computes the mean degree centrality of a network of neurons.
@@ -229,7 +219,7 @@ class NeuronNetwork(object):
         mean = running_sum / size
         return mean
 
-    def compute_avg_shortest_path_len(self):
+    def avg_shortest_path_len(self, weight="weight"):
         """Computes the average path shortest path length.
 
         This function compute the average path length L, as the average
@@ -242,21 +232,29 @@ class NeuronNetwork(object):
 
         """
         graph = self.network
-        shortest_path_lengths = list()
-        node_list = list(graph.nodes)
+        node_list = self.neurons
+        shortest_path_lengths = []
 
-        for i in range(0, len(node_list)):
-            for j in range(i+1, len(node_list)):
-                source = node_list[i]
-                target = node_list[j]
-                if not nx.has_path(graph, source, target):
-                    continue
+        for node_pair in itertools.combinations(node_list, 2):
+            source = node_pair[0]
+            target = node_pair[1]
+            if not nx.has_path(graph, source, target):
+                continue
 
-                shortest_path_lengths.append(nx.shortest_path_length(graph, source=source, target=target, weight="weight"))
+            shortest_path_lengths.append(nx.shortest_path_length(graph, source=source, target=target, weight=weight))
 
         avg_shortest_path_len = np.mean(shortest_path_lengths)
         return avg_shortest_path_len
 
-    def compute_small_worldness(self):
-        small_worldness = self.clustering_coefficient/self.avg_shortest_path_len
+    def small_worldness(self, weight="weight"):
+        """Computes the small worldness of the neuron network.
+
+        Returns:
+            small_worldness: float
+                The clustering coefficient divided by the average shortest path
+                length of the neuron network.
+        """
+        cluster_coeff = nx.average_clustering(self.network, weight=weight)
+        avg_shortest_path_len = self.avg_shortest_path_len(weight=weight)
+        small_worldness = cluster_coeff / avg_shortest_path_len
         return small_worldness
