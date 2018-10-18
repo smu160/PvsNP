@@ -20,31 +20,31 @@ class StaticText(wx.StaticText):
 
 class VideoPanel(wx.Panel):
 
-    def __init__(self, parent):
+    def __init__(self, parent, coupled_graph=None):
         wx.Panel.__init__(self, parent=parent)
+
+        self.coupled_graph = coupled_graph
 
         # Create some controls
         try:
             self.mc = wx.media.MediaCtrl(self, style=wx.SIMPLE_BORDER, size=(350,350))
+        
         except NotImplementedError:
             self.Destroy()
             raise
 
         self.Bind(wx.media.EVT_MEDIA_LOADED, self.OnMediaLoaded)
 
-        btn1 = wx.Button(self, -1, "Load File")
-        self.Bind(wx.EVT_BUTTON, self.OnLoadFile, btn1)
+        load_file_button = wx.Button(self, -1, "Load File")
+        self.Bind(wx.EVT_BUTTON, self.OnLoadFile, load_file_button)
 
         self.play_button = wx.Button(self, -1, "Play")
         self.Bind(wx.EVT_BUTTON, self.OnPlay, self.play_button)
         self.Bind(wx.EVT_UPDATE_UI, self.on_update_play_button, self.play_button)
         self.playing = False
 
-        btn3 = wx.Button(self, -1, "Pause")
-        self.Bind(wx.EVT_BUTTON, self.OnPause, btn3)
-
-        btn4 = wx.Button(self, -1, "Stop")
-        self.Bind(wx.EVT_BUTTON, self.OnStop, btn4)
+        stop_button = wx.Button(self, -1, "Stop")
+        self.Bind(wx.EVT_BUTTON, self.OnStop, stop_button)
 
         slider = wx.Slider(self, -1, 0, 0, 0)
         self.slider = slider
@@ -58,10 +58,9 @@ class VideoPanel(wx.Panel):
         # setup the layout
         sizer = wx.GridBagSizer(5,5)
         sizer.Add(self.mc, (0,1), span=(5,1))#, flag=wx.EXPAND)
-        sizer.Add(btn1, (1,3))
+        sizer.Add(load_file_button, (5,0))
         sizer.Add(self.play_button, (6,0))
-        sizer.Add(btn3, (3,3))
-        sizer.Add(btn4, (4,3))
+        sizer.Add(stop_button, (7,0))
         sizer.Add(slider, (6,1), flag=wx.EXPAND)
         sizer.Add(self.st_size, (1, 5))
         sizer.Add(self.st_len,  (2, 5))
@@ -86,7 +85,7 @@ class VideoPanel(wx.Panel):
         self.play_button.Disable()
 
         if not self.mc.Load(path):
-            wx.MessageBox("Unable to load {}: Unsupported format?".format(path), "ERROR", wx.ICON_ERROR | wx.OK)
+            wx.MessageBox("Unable to load {}".format(path), "ERROR", wx.ICON_ERROR | wx.OK)
         else:
             self.mc.GetBestSize()
             self.GetSizer().Layout()
@@ -97,17 +96,19 @@ class VideoPanel(wx.Panel):
 
     def OnPlay(self, evt):
         if not self.mc.Play():
-            wx.MessageBox("Unable to Play media : Unsupported format?", "ERROR", wx.ICON_ERROR | wx.OK)
+            wx.MessageBox("Unable to play video file!", "ERROR", wx.ICON_ERROR | wx.OK)
         else:
             self.mc.GetBestSize()
             self.GetSizer().Layout()
             self.slider.SetRange(0, self.mc.Length())
-            if not self.playing:
+            if not self.playing and self.coupled_graph:
                 self.mc.Play()
                 self.playing = True
+                self.coupled_graph.paused = False
             else:
                 self.mc.Pause()
                 self.playing = False
+                self.coupled_graph.paused = True
 
             self.on_update_play_button(evt)
 
@@ -115,11 +116,17 @@ class VideoPanel(wx.Panel):
         label = "Pause" if self.playing else "Play"
         self.play_button.SetLabel(label)
 
-    def OnPause(self, evt):
-        self.mc.Pause()
+    # def OnPause(self, evt):
+    #    self.mc.Pause()
 
     def OnStop(self, evt):
         self.mc.Stop()
+        self.playing = False
+        self.on_update_play_button(evt)
+
+        if self.coupled_graph:
+            self.coupled_graph.paused = True
+            self.coupled_graph.reset_plot()
 
     def OnSeek(self, evt):
         offset = self.slider.GetValue()

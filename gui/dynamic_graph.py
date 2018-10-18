@@ -73,37 +73,25 @@ class BoundControlBox(wx.Panel):
         return self.value
 
 
-class GraphFrame(wx.Frame):
+class GraphPanel(wx.Panel):
     """The main frame of the application"""
 
-    title = "Calcium Imaging Visualizer"
+    def __init__(self, parent, coupled=False):
+        wx.Panel.__init__(self, parent=parent)
 
-    def __init__(self):
-        wx.Frame.__init__(self, None, -1, self.title, size=(1024, 768))
-
-        splitter = wx.SplitterWindow(self, -1)
-        # splitter.SetMinimumPaneSize(200)
-
-        # sizer = wx.BoxSizer(wx.HORIZONTAL)
-        # sizer.Add(splitter, 1, wx.EXPAND)
-        # self.SetSizer(sizer)
+        self.coupled = coupled
 
         self.datagen = DataGen()
         self.data = [self.datagen.next()]
         self.paused = True
 
-        self.panel = wx.Panel(splitter, -1)
-        self.create_menu()
-        self.create_status_bar()
+        # self.create_menu()
+        # self.create_status_bar()
         self.create_main_panel()
-
-        self.video_panel = VideoPanel(parent=splitter)
-        splitter.SplitVertically(self.video_panel, self.panel, sashPosition=0)
 
         self.redraw_timer = wx.Timer(self)
         self.Bind(wx.EVT_TIMER, self.on_redraw_timer, self.redraw_timer)
         self.redraw_timer.Start(100)
-        self.Show()
 
     def create_menu(self):
         self.menubar = wx.MenuBar()
@@ -122,27 +110,28 @@ class GraphFrame(wx.Frame):
         # self.panel = wx.Panel(self)
 
         self.init_plot()
-        self.canvas = FigCanvas(self.panel, -1, self.fig)
+        self.canvas = FigCanvas(self, -1, self.fig)
 
-        self.xmin_control = BoundControlBox(self.panel, -1, "X min", 0)
-        self.xmax_control = BoundControlBox(self.panel, -1, "X max", 100)
-        self.ymin_control = BoundControlBox(self.panel, -1, "Y min", 0)
-        self.ymax_control = BoundControlBox(self.panel, -1, "Y max", 100)
+        self.xmin_control = BoundControlBox(self, -1, "X min", 0)
+        self.xmax_control = BoundControlBox(self, -1, "X max", 100)
+        self.ymin_control = BoundControlBox(self, -1, "Y min", 0)
+        self.ymax_control = BoundControlBox(self, -1, "Y max", 100)
 
-        self.pause_button = wx.Button(self.panel, -1, "Pause")
-        self.Bind(wx.EVT_BUTTON, self.on_pause_button, self.pause_button)
-        self.Bind(wx.EVT_UPDATE_UI, self.on_update_pause_button, self.pause_button)
+        if not self.coupled:
+            self.pause_button = wx.Button(self, -1, "Pause")
+            self.Bind(wx.EVT_BUTTON, self.on_pause_button, self.pause_button)
+            self.Bind(wx.EVT_UPDATE_UI, self.on_update_pause_button, self.pause_button)
 
-        self.cb_grid = wx.CheckBox(self.panel, -1, "Show Grid", style=wx.ALIGN_RIGHT)
+        self.cb_grid = wx.CheckBox(self, -1, "Show Grid", style=wx.ALIGN_RIGHT)
         self.Bind(wx.EVT_CHECKBOX, self.on_cb_grid, self.cb_grid)
         self.cb_grid.SetValue(True)
 
-        self.cb_xlab = wx.CheckBox(self.panel, -1, "Show X labels", style=wx.ALIGN_RIGHT)
+        self.cb_xlab = wx.CheckBox(self, -1, "Show X labels", style=wx.ALIGN_RIGHT)
         self.Bind(wx.EVT_CHECKBOX, self.on_cb_xlab, self.cb_xlab)
         self.cb_xlab.SetValue(True)
 
         self.hbox1 = wx.BoxSizer(wx.HORIZONTAL)
-        self.hbox1.Add(self.pause_button, border=5, flag=wx.ALL | wx.ALIGN_CENTER_VERTICAL)
+        # self.hbox1.Add(self.pause_button, border=5, flag=wx.ALL | wx.ALIGN_CENTER_VERTICAL)
         self.hbox1.AddSpacer(20)
         self.hbox1.Add(self.cb_grid, border=5, flag=wx.ALL | wx.ALIGN_CENTER_VERTICAL)
         self.hbox1.AddSpacer(10)
@@ -160,18 +149,18 @@ class GraphFrame(wx.Frame):
         self.vbox.Add(self.hbox1, 0, flag=wx.ALIGN_LEFT | wx.TOP)
         self.vbox.Add(self.hbox2, 0, flag=wx.ALIGN_LEFT | wx.TOP)
 
-        self.panel.SetSizer(self.vbox)
+        self.SetSizer(self.vbox)
         self.vbox.Fit(self)
 
-    def create_status_bar(self):
-        self.statusbar = self.CreateStatusBar()
+    # def create_status_bar(self):
+      #  self.statusbar = self.CreateStatusBar()
 
     def init_plot(self):
         self.dpi = 100
         self.fig = Figure((3.0, 3.0), dpi=self.dpi)
 
         self.axes = self.fig.add_subplot(111)
-        self.axes.set_facecolor("lightgrey")
+        self.axes.set_facecolor("white")
         self.axes.set_title("Neuron 0", size=8)
 
         pylab.setp(self.axes.get_xticklabels(), fontsize=6)
@@ -179,6 +168,7 @@ class GraphFrame(wx.Frame):
 
         # Plot data as line series, and save reference to the plotted line series.
         self.plot_data = self.axes.plot(self.data, linewidth=1.0, color=(1, 0, 0))[0]
+        self.axes.axvspan(20, 50, alpha=0.1, color="red")
 
     def draw_plot(self):
         """Redraws the plot"""
@@ -257,7 +247,7 @@ class GraphFrame(wx.Frame):
         if dlg.ShowModal() == wx.ID_OK:
             path = dlg.GetPath()
             self.canvas.print_figure(path, dpi=self.dpi)
-            self.flash_status_message("Saved to %s" % path)
+            self.flash_status_message("Saved to {}".format(path))
 
     def on_redraw_timer(self, event):
         # if paused do not add data, but still redraw the plot
@@ -270,6 +260,10 @@ class GraphFrame(wx.Frame):
 
     def on_exit(self, event):
         self.Destroy()
+
+    def reset_plot(self):
+        self.axes.cla()
+        self.draw_plot()
 
     def flash_status_message(self, msg, flash_len_ms=1500):
         self.statusbar.SetStatusText(msg)
