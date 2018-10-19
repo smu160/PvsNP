@@ -93,43 +93,6 @@ class Mouse(object):
         dataframe.reset_index(inplace=True, drop=True)
         return dataframe
 
-    def neuron_line_plot(self, *neurons, **kwargs):
-        """Plots a line plot of neuron activity over time.
-
-        This is a wrapper function for the plotly library line plot
-        functionality. This function takes any amount of neurons, and plots
-        their time series data over a single line, each.
-
-        Args:
-            neurons: str
-                the name(s) of the column vectors in the dataframe.
-
-            dataframe: str, optional
-                The name of one of the available pandas dataframes to use as the
-                source of neuron column vectors to plot; default is the
-                cell_transients_df. E.g. pass-in dataframe=object.auc_df to use
-                the area under the curve dataframe.
-        """
-        if not neurons:
-            raise ValueError("You need to provide the name of at least one"
-                             + " neuron column vector in the dataframe.")
-
-        dataframe = kwargs.get("dataframe", None)
-        if dataframe is None:
-            warnings.warn("You did not specify which dataframe to use for"
-                          + " plotting, so the cell transients dataframe"
-                          + " was used.", Warning)
-
-            dataframe = self.cell_transients
-
-        data = list()
-        for neuron in neurons:
-            x_axis = list(dataframe[neuron].index)
-            y_axis = dataframe[neuron]
-            data.append(go.Scatter(x=x_axis, y=y_axis, name=neuron))
-
-        plotly.offline.iplot(data)
-
     def plot_correlation_heatmap(self, dataframe, **kwargs):
         """Seaborn correlation heatmap wrapper function
 
