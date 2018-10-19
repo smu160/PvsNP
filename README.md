@@ -41,15 +41,11 @@ git clone https://github.com/jaberry/Hen_Lab.git
 cd Hen_Lab
 conda create -n henlabenv anaconda python=3.6
 conda activate henlabenv
-conda install -c anaconda plotly
-jupyter labextension install @jupyterlab/plotly-extension
 ```
 
 #### (Python 3.x)
 
 * Download and install [Anaconda](https://docs.anaconda.com/anaconda/install/) (Python 3.6) We recommend telling conda to modify your PATH variable (it is a checkbox during Anaconda install, off by default).
-
-* Downloads and install [Node.js](https://nodejs.org/en/download/)
 
 * Launch an anaconda-enabled command prompt as follows: start --> Anaconda3 --> Anaconda Prompt
 
@@ -61,8 +57,6 @@ cd Hen_Lab
 conda list --export > conda_packages.txt
 conda create --name henlabenv --file conda_packages.txt
 conda activate henlabenv
-conda install -c anaconda plotly
-jupyter labextension install @jupyterlab/plotly-extension
 ```
 
 
@@ -75,7 +69,6 @@ For any issues, feel free to email Saveliy Yusufov at sy2685@columbia.edu
 * [pandas](http://pandas.pydata.org)
 * [NetworkX](https://networkx.github.io)
 * [seaborn](http://seaborn.pydata.org)
-* [plotly](https://plot.ly)
 
 ## Authors
 
