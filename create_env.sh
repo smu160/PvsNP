@@ -1,27 +1,48 @@
 #!/usr/bin/env bash
 
-printf "\e[36;1mNow updating conda... \e[0m \n"
+printf "\e[36;1mNow updating conda's root env... \e[0m \n"
 conda update -n root conda
+if [ $? -eq 0 ]; then
+    printf "\e[36;1mconda update SUCCESSFUL \e[0m \n"
+else
+    printf "\e[36;1mconda update FAILED \e[0m \n"
+    exit 1
+fi
 
 printf "\e[36;1mNow updating Anaconda... \e[0m \n"
 conda update --all
+if [ $? -eq 0 ]; then
+    printf "\e[36;1mconda update SUCCESSFUL \e[0m \n"
+else
+    printf "\e[36;1mconda update FAILED \e[0m \n"
+    exit 1
+fi
 
 printf "\e[36;1mCreating an environment for Hen Lab code base... \e[0m \n"
-conda create --name henlabenv --clone base 
+conda create --name henlabenv anaconda
+if [ $? -eq 0 ]; then
+    printf "\e[36;1mNew conda env creation SUCCESSFUL \e[0m \n"
+else
+    printf "\e[36;1mNew conda env creation FAILED \e[0m \n"
+    exit 1
+fi
 
 printf "\e[36;1mActivating newly created conda environment... \e[0m \n"
 source activate henlabenv
-
-printf "\e[36;1mInstalling plotly... \e[0m \n"
-conda install -c anaconda plotly 
-
-printf "\e[36;1mInstalling Node.js, requirement for plotly... \e[0m \n"
-conda install -c conda-forge nodejs
-
-printf "\e[36;1mInstalling plotly extension for JupyterLab... \e[0m \n"
-jupyter labextension install @jupyterlab/plotly-extension
+if [ $? -eq 0 ]; then
+    printf "\e[36;1mSUCCESS \e[0m \n"
+else
+    printf "\e[36;1mhenlabenv activation FAILED \e[0m \n"
+    exit 1
+fi
 
 printf "\e[36;1mUpdating Anaconda once more... \e[0m \n"
 conda update --all
+if [ $? -eq 0 ]; then
+    printf "\e[36;1mconda update SUCCESSFUL \e[0m \n"
+else
+    printf "\e[36;1mconda update FAILED \e[0m \n"
+    exit 1
+fi
 
 printf "\e[36;1mEnvironment creation and dependency installation complete! \e[0m \n"
