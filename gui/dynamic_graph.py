@@ -1,19 +1,13 @@
 import os
-import pprint
-import random
-import sys
+from matplotlib.figure import Figure
+from matplotlib.backends.backend_wxagg import FigureCanvasWxAgg as FigCanvas, NavigationToolbar2WxAgg as NavigationToolbar
+import pylab
+import numpy as np
 import wx
 import wx.media
 import pandas as pd
-
 import matplotlib
 matplotlib.use('WXAgg')
-from matplotlib.figure import Figure
-from matplotlib.backends.backend_wxagg import FigureCanvasWxAgg as FigCanvas, NavigationToolbar2WxAgg as NavigationToolbar
-import numpy as np
-import pylab
-
-from video_player import VideoPanel
 
 class DataGen(object):
     """Data Generator/Extractor class"""
@@ -29,7 +23,7 @@ class DataGen(object):
         return self.data
 
     def _recalc_data(self):
-        self.data = self.y[self.index]
+        # self.data = self.y[self.index]
         self.index += 1
 
 class BoundControlBox(wx.Panel):
@@ -46,7 +40,7 @@ class BoundControlBox(wx.Panel):
 
         self.radio_auto = wx.RadioButton(self, -1, label="Auto", style=wx.RB_GROUP)
         self.radio_manual = wx.RadioButton(self, -1, label="Manual")
-        self.manual_text = wx.TextCtrl(self, -1, size=(35,-1), value=str(initval), style=wx.TE_PROCESS_ENTER)
+        self.manual_text = wx.TextCtrl(self, -1, size=(35, -1), value=str(initval), style=wx.TE_PROCESS_ENTER)
 
         self.Bind(wx.EVT_UPDATE_UI, self.on_update_manual_text, self.manual_text)
         self.Bind(wx.EVT_TEXT_ENTER, self.on_text_enter, self.manual_text)
@@ -107,15 +101,13 @@ class GraphPanel(wx.Panel):
         self.SetMenuBar(self.menubar)
 
     def create_main_panel(self):
-        # self.panel = wx.Panel(self)
-
         self.init_plot()
         self.canvas = FigCanvas(self, -1, self.fig)
 
         self.xmin_control = BoundControlBox(self, -1, "X min", 0)
         self.xmax_control = BoundControlBox(self, -1, "X max", 100)
         self.ymin_control = BoundControlBox(self, -1, "Y min", 0)
-        self.ymax_control = BoundControlBox(self, -1, "Y max", 100)
+        self.ymax_control = BoundControlBox(self, -1, "Y max", self.datagen.y.max())
 
         if not self.coupled:
             self.pause_button = wx.Button(self, -1, "Pause")
@@ -124,7 +116,7 @@ class GraphPanel(wx.Panel):
 
         self.cb_grid = wx.CheckBox(self, -1, "Show Grid", style=wx.ALIGN_RIGHT)
         self.Bind(wx.EVT_CHECKBOX, self.on_cb_grid, self.cb_grid)
-        self.cb_grid.SetValue(True)
+        self.cb_grid.SetValue(False)
 
         self.cb_xlab = wx.CheckBox(self, -1, "Show X labels", style=wx.ALIGN_RIGHT)
         self.Bind(wx.EVT_CHECKBOX, self.on_cb_xlab, self.cb_xlab)
@@ -156,8 +148,8 @@ class GraphPanel(wx.Panel):
       #  self.statusbar = self.CreateStatusBar()
 
     def init_plot(self):
-        self.dpi = 100
-        self.fig = Figure((3.0, 3.0), dpi=self.dpi)
+        self.dpi = 300
+        self.fig = Figure((1.0, 1.0), dpi=self.dpi)
 
         self.axes = self.fig.add_subplot(111)
         self.axes.set_facecolor("white")
@@ -167,7 +159,8 @@ class GraphPanel(wx.Panel):
         pylab.setp(self.axes.get_yticklabels(), fontsize=6)
 
         # Plot data as line series, and save reference to the plotted line series.
-        self.plot_data = self.axes.plot(self.data, linewidth=1.0, color=(1, 0, 0))[0]
+        self.axes.plot(self.datagen.y, linewidth=0.8)
+        self.plot_data = self.axes.plot(self.data, color=(1, 0, 0))[0]
         self.axes.axvspan(20, 50, alpha=0.1, color="red")
 
     def draw_plot(self):
@@ -215,9 +208,9 @@ class GraphPanel(wx.Panel):
         # over which one needs to explicitly iterate, and setp already handles
         # this.
         pylab.setp(self.axes.get_xticklabels(), visible=self.cb_xlab.IsChecked())
-        self.plot_data.set_xdata(np.arange(len(self.data)))
-        self.plot_data.set_ydata(np.array(self.data))
-
+        #self.plot_data.set_xdata(np.arange(len(self.data)))
+        #self.plot_data.set_ydata(np.array(self.data))
+        self.plot_data.set_data([self.datagen.index, self.datagen.index], [0, 100])
         self.canvas.draw()
 
     def on_pause_button(self, event):
@@ -252,7 +245,6 @@ class GraphPanel(wx.Panel):
     def on_redraw_timer(self, event):
         # if paused do not add data, but still redraw the plot
         # (to respond to scale modifications, grid change, etc.)
-        #
         if not self.paused:
             self.data.append(self.datagen.next())
 
@@ -262,8 +254,7 @@ class GraphPanel(wx.Panel):
         self.Destroy()
 
     def reset_plot(self):
-        self.axes.cla()
-        self.draw_plot()
+        self.datagen.index = 0
 
     def flash_status_message(self, msg, flash_len_ms=1500):
         self.statusbar.SetStatusText(msg)
