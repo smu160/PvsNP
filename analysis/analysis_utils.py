@@ -5,6 +5,7 @@ feature engineering, data visualization, and data analysis.
 @author: Saveliy Yusufov, Columbia University, sy2685@columbia.edu
 """
 import os
+import sys
 import warnings
 import matplotlib.pyplot as plt
 import numpy as np
@@ -176,13 +177,7 @@ class Mouse(object):
         for behavior in behaviors:
             if behavior in concated_df.columns:
                 activity_df.loc[:, behavior] = frame_rate * concated_df.loc[concated_df[behavior] != 0, neuron_names].mean()
-            elif '&' in behavior:
-                beh1 = behavior.split('&')[0]
-                beh2 = behavior.split('&')[1]
-                activity_df.loc[:, behavior] = frame_rate * concated_df.loc[(concated_df[beh1] != 0) & ((concated_df[beh2] != 0)), neuron_names].mean()
-            elif '|' in behavior:
-                beh1 = behavior.split('|')[0]
-                beh2 = behavior.split('|')[1]
-                activity_df.loc[:, behavior] = frame_rate * concated_df.loc[(concated_df[beh1] != 0) | ((concated_df[beh2] != 0)), neuron_names].mean()
-
+            else:
+                raise ValueError("{} is not a column in the provided dataframe.".format(behavior))
         return activity_df
+
