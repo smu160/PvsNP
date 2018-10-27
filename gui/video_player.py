@@ -24,6 +24,7 @@ class VideoPanel(wx.Panel):
         wx.Panel.__init__(self, parent=parent)
 
         self.coupled_graph = coupled_graph
+        self.redraw = 0
 
         # Create some controls
         try:
@@ -130,7 +131,13 @@ class VideoPanel(wx.Panel):
 
     def OnSeek(self, evt):
         offset = self.slider.GetValue()
+        # print(offset)
         self.mc.Seek(offset)
+        self.redraw += 1
+        if self.coupled_graph and self.redraw == 1:
+            self.redraw = 0
+            self.coupled_graph.datagen.index = offset // 100
+            self.coupled_graph.draw_plot()
 
     def OnTimer(self, evt):
         offset = self.mc.Tell()
