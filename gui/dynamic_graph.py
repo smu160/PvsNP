@@ -14,18 +14,16 @@ class DataGen(object):
 
     def __init__(self, init=0):
         self.data = self.init = init
-        dataset = pd.read_csv("~/Desktop/drd87_test_file.csv")
-        dataset.fillna(0)
-        self.y = dataset["1"].values
+        self.dataset = pd.read_csv("~/Desktop/drd87_test_file.csv")
+        self.dataset.fillna(0)
         self.index = 0
-        self.all_behavior_intervals = self.get_behavior(dataset) 
+        self.all_behavior_intervals = self.get_behavior(self.dataset)
 
     def next(self):
         self._recalc_data()
         return self.data
 
     def _recalc_data(self):
-        # self.data = self.y[self.index]
         self.index += 1
 
     def get_behavior(self, dataset):
@@ -40,7 +38,7 @@ class DataGen(object):
 
         center_epochs = self.extract_epochs(dataset, "Center")
         center_intervals = self.filter_epochs(center_epochs[1], framerate=1, seconds=1)
-    
+
         all_behavior_intervals = [center_intervals, open_intervals, closed_intervals, head_dip_intervals]
         return all_behavior_intervals
 
@@ -116,9 +114,9 @@ class GraphPanel(wx.Panel):
         # self.create_status_bar()
         self.create_main_panel()
 
-        self.redraw_timer = wx.Timer(self)
-        self.Bind(wx.EVT_TIMER, self.on_redraw_timer, self.redraw_timer)
-        self.redraw_timer.Start(100)
+        # self.redraw_timer = wx.Timer(self)
+        # self.Bind(wx.EVT_TIMER, self.on_redraw_timer, self.redraw_timer)
+        # self.redraw_timer.Start(100)
 
     def create_menu(self):
         self.menubar = wx.MenuBar()
@@ -139,9 +137,10 @@ class GraphPanel(wx.Panel):
 
         self.xmin_control = BoundControlBox(self, -1, "X min", 0)
         self.xmax_control = BoundControlBox(self, -1, "X max", 200)
-        self.ymin_control = BoundControlBox(self, -1, "Y min", 0)
         self.ymax_control = BoundControlBox(self, -1, "Y max", 200)
-        self.window_width = wx.TextCtrl(self, -1, "Window Width")
+        self.window_width = BoundControlBox(self, -1, "Window width", 0)
+
+        # self.window_width = wx.TextCtrl(self, -1, "Window Width")
 
         if not self.coupled:
             self.pause_button = wx.Button(self, -1, "Pause")
@@ -157,18 +156,17 @@ class GraphPanel(wx.Panel):
         self.cb_xlab.SetValue(True)
 
         self.hbox1 = wx.BoxSizer(wx.HORIZONTAL)
-        self.hbox1.Add(self.window_width, border=5, flag=wx.ALL | wx.ALIGN_CENTER_VERTICAL)
         self.hbox1.AddSpacer(20)
         self.hbox1.Add(self.cb_grid, border=5, flag=wx.ALL | wx.ALIGN_CENTER_VERTICAL)
         self.hbox1.AddSpacer(10)
         self.hbox1.Add(self.cb_xlab, border=5, flag=wx.ALL | wx.ALIGN_CENTER_VERTICAL)
 
         self.hbox2 = wx.BoxSizer(wx.HORIZONTAL)
-        self.hbox2.Add(self.xmin_control, border=5, flag=wx.ALL)
-        self.hbox2.Add(self.xmax_control, border=5, flag=wx.ALL)
-        self.hbox2.AddSpacer(24)
-        self.hbox2.Add(self.ymin_control, border=5, flag=wx.ALL)
-        self.hbox2.Add(self.ymax_control, border=5, flag=wx.ALL)
+        self.hbox2.Add(self.xmin_control, border=3, flag=wx.ALL)
+        self.hbox2.Add(self.xmax_control, border=3, flag=wx.ALL)
+        self.hbox2.AddSpacer(10)
+        self.hbox2.Add(self.ymax_control, border=3, flag=wx.ALL)
+        self.hbox2.Add(self.window_width, border=3, flag=wx.ALL)
 
         self.vbox = wx.BoxSizer(wx.VERTICAL)
         self.vbox.Add(self.canvas, 1, flag=wx.LEFT | wx.TOP | wx.GROW)
@@ -182,78 +180,85 @@ class GraphPanel(wx.Panel):
       #  self.statusbar = self.CreateStatusBar()
 
     def init_plot(self):
-        self.dpi = 300
-        self.fig = Figure((1.0, 1.0), dpi=self.dpi)
-
-        self.axes = self.fig.add_subplot(111)
-        self.axes.set_facecolor("white")
-        self.axes.set_title("Neuron 0", size=4)
-
-        pylab.setp(self.axes.get_xticklabels(), fontsize=2)
-        pylab.setp(self.axes.get_yticklabels(), fontsize=2)
-
-        # Plot data as line series, and save reference to the plotted line series.
-        self.axes.plot(self.datagen.y, linewidth=0.8)
-        # self.axes.vlines(0, 0, 100, linewidth=0.8, color="black")
-        self.plot_data = self.axes.plot([0], linewidth=0.8, color="red")[0]
-
-        all_behavior_intervals = self.datagen.all_behavior_intervals
+        self.dpi = 400
+        self.fig = Figure((3.0, 3.0), dpi=self.dpi)
+        self.axes = self.fig.subplots(7, 1, sharex=True)
+        self.fig.subplots_adjust(hspace=0.1)
         background_colors = ["red", "orange", "cyan", "grey"]
-        
-        for i, behavior_intervals in enumerate(all_behavior_intervals):
-            for interval in behavior_intervals:
-                self.axes.axvspan(interval[0], interval[-1], alpha=0.1, color=background_colors[i])
-        
+        self.plots_data = []
+
+        for i, ax in enumerate(self.axes):
+            # Plot data as line series, and save reference to the plotted line series.
+            ax.plot(self.datagen.dataset[str(i+1)], linewidth=0.5)
+            # ax.set_ybound(lower=-1, upper=self.datagen.dataset[str(i+1)].max())
+            self.plots_data.append(ax.plot([0], linewidth=0.5, color="red")[0])
+            pylab.setp(ax.get_xticklabels(), fontsize=3)
+            pylab.setp(ax.get_yticklabels(), fontsize=2)
+
+            for i, behavior_intervals in enumerate(self.datagen.all_behavior_intervals):
+                for interval in behavior_intervals:
+                    ax.axvspan(interval[0], interval[-1], alpha=0.1, color=background_colors[i])
+
+            ax.spines["top"].set_visible(False)
+            ax.spines["right"].set_visible(False)
+            ax.spines["bottom"].set_visible(False)
+
+        # self.axes1.set_facecolor("white")
         # self.axes.axvspan(20, 50, alpha=0.1, color="red")
 
     def draw_plot(self):
         """Redraws the plot"""
 
+        if self.window_width.is_auto():
+            window_width = 100
+        else:
+            window_width = int(self.window_width.manual_value())
+
         # When xmin is on auto, it "follows" xmax to produce a sliding window
         # effect. therefore, xmin is assigned after xmax.
         if self.xmax_control.is_auto():
-            xmax = len(self.data) if len(self.data) > 100 else 100
+            xmax = self.datagen.index if self.datagen.index > window_width else window_width
         else:
             xmax = int(self.xmax_control.manual_value())
 
         if self.xmin_control.is_auto():
-            xmin = xmax - 100
+            xmin = xmax - window_width
         else:
             xmin = int(self.xmin_control.manual_value())
+        
+        for i, ax in enumerate(self.axes):
+            ax.set_xbound(lower=xmin, upper=xmax)
+        
 
         # for ymin and ymax, find the minimal and maximal values
         # in the data set and add a mininal margin.
         # Note: it's easy to change this scheme to the minimal/maximal value
         # in the current display, and not the whole data set.
-        if self.ymin_control.is_auto():
-            ymin = round(min(self.data), 0) - 1
-        else:
-            ymin = int(self.ymin_control.manual_value())
-
         if self.ymax_control.is_auto():
-            ymax = round(max(self.data), 0) + 1
+            for i, ax in enumerate(self.axes):
+                ax.set_ybound(lower=-1, upper=self.datagen.dataset[str(i+1)].max())
         else:
             ymax = int(self.ymax_control.manual_value())
-
-        self.axes.set_xbound(lower=xmin, upper=xmax)
-        self.axes.set_ybound(lower=ymin, upper=ymax)
+            for i, ax in enumerate(self.axes):
+                ax.set_ybound(lower=-1, upper=ymax)
 
         # anecdote: axes.grid assumes b=True if any other flag is
         # given even if b is set to False.
         # so just passing the flag into the first statement won't
         # work.
-        if self.cb_grid.IsChecked():
-            self.axes.grid(True, color='gray')
-        else:
-            self.axes.grid(False)
+        # if self.cb_grid.IsChecked():
+        #    self.axes1.grid(True, color='gray')
+        # else:
+        #    self.axes1.grid(False)
 
         # Using setp here is convenient, because get_xticklabels returns a list
         # over which one needs to explicitly iterate, and setp already handles
         # this.
-        pylab.setp(self.axes.get_xticklabels(), visible=self.cb_xlab.IsChecked())
-        #self.plot_data.set_xdata(np.arange(len(self.data)))
-        #self.plot_data.set_ydata(np.array(self.data))
-        self.plot_data.set_data([self.datagen.index, self.datagen.index], [0, 100])
+        # pylab.setp(self.axes1.get_xticklabels(), visible=self.cb_xlab.IsChecked())
+        # self.plot_data.set_xdata(np.arange(len(self.data)))
+        # self.plot_data.set_ydata(np.array(self.data))
+        for plot_data in self.plots_data:
+            plot_data.set_data([self.datagen.index, self.datagen.index], [0, 100])
         self.canvas.draw()
 
     def on_pause_button(self, event):
@@ -285,11 +290,12 @@ class GraphPanel(wx.Panel):
             self.canvas.print_figure(path, dpi=self.dpi)
             self.flash_status_message("Saved to {}".format(path))
 
-    def on_redraw_timer(self, event):
+    def on_redraw_timer(self, new_index):
         # if paused do not add data, but still redraw the plot
         # (to respond to scale modifications, grid change, etc.)
         if not self.paused:
-            self.data.append(self.datagen.next())
+            # self.data.append(self.datagen.next())
+            self.datagen.index = new_index
 
         self.draw_plot()
 
