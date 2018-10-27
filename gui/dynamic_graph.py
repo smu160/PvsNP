@@ -14,9 +14,11 @@ class DataGen(object):
 
     def __init__(self, init=0):
         self.data = self.init = init
-        s = pd.read_csv("~/Hen_Lab/Mice/drd87/Drd87_EPM_C_thresh.csv", header=None)
-        self.y = s[0].values
+        dataset = pd.read_csv("~/Desktop/drd87_test_file.csv")
+        dataset.fillna(0)
+        self.y = dataset["1"].values
         self.index = 0
+        self.all_behavior_intervals = self.get_behavior(dataset) 
 
     def next(self):
         self._recalc_data()
@@ -25,6 +27,37 @@ class DataGen(object):
     def _recalc_data(self):
         # self.data = self.y[self.index]
         self.index += 1
+
+    def get_behavior(self, dataset):
+        head_dips = self.extract_epochs(dataset, "Head_Dips")
+        head_dip_intervals = self.filter_epochs(head_dips[1], framerate=1, seconds=1)
+
+        open_arms = self.extract_epochs(dataset, "OpenArms_centerpoint")
+        open_intervals = self.filter_epochs(open_arms[1], framerate=1, seconds=1)
+
+        closed_arms = self.extract_epochs(dataset, "ClosedArms_centerpoint")
+        closed_intervals = self.filter_epochs(closed_arms[1], framerate=1, seconds=1)
+
+        center_epochs = self.extract_epochs(dataset, "Center")
+        center_intervals = self.filter_epochs(center_epochs[1], framerate=1, seconds=1)
+    
+        all_behavior_intervals = [center_intervals, open_intervals, closed_intervals, head_dip_intervals]
+        return all_behavior_intervals
+
+    def extract_epochs(self, dataset, behavior):
+        dataframe = dataset
+        dataframe["block"] = (dataframe[behavior].shift(1) != dataframe[behavior]).astype(int).cumsum()
+        df = dataframe.reset_index().groupby([behavior, "block"])["index"].apply(np.array)
+        return df
+
+    def filter_epochs(self, interval_series, framerate=10, seconds=1):
+        intervals = []
+
+        for interval in interval_series:
+            if len(interval) >= framerate*seconds:
+                intervals.append(interval)
+
+        return intervals
 
 class BoundControlBox(wx.Panel):
     """A static box with radio buttons and a text box. Allows to switch between
@@ -105,9 +138,10 @@ class GraphPanel(wx.Panel):
         self.canvas = FigCanvas(self, -1, self.fig)
 
         self.xmin_control = BoundControlBox(self, -1, "X min", 0)
-        self.xmax_control = BoundControlBox(self, -1, "X max", 100)
+        self.xmax_control = BoundControlBox(self, -1, "X max", 200)
         self.ymin_control = BoundControlBox(self, -1, "Y min", 0)
-        self.ymax_control = BoundControlBox(self, -1, "Y max", self.datagen.y.max())
+        self.ymax_control = BoundControlBox(self, -1, "Y max", 200)
+        self.window_width = wx.TextCtrl(self, -1, "Window Width")
 
         if not self.coupled:
             self.pause_button = wx.Button(self, -1, "Pause")
@@ -123,7 +157,7 @@ class GraphPanel(wx.Panel):
         self.cb_xlab.SetValue(True)
 
         self.hbox1 = wx.BoxSizer(wx.HORIZONTAL)
-        # self.hbox1.Add(self.pause_button, border=5, flag=wx.ALL | wx.ALIGN_CENTER_VERTICAL)
+        self.hbox1.Add(self.window_width, border=5, flag=wx.ALL | wx.ALIGN_CENTER_VERTICAL)
         self.hbox1.AddSpacer(20)
         self.hbox1.Add(self.cb_grid, border=5, flag=wx.ALL | wx.ALIGN_CENTER_VERTICAL)
         self.hbox1.AddSpacer(10)
@@ -153,15 +187,24 @@ class GraphPanel(wx.Panel):
 
         self.axes = self.fig.add_subplot(111)
         self.axes.set_facecolor("white")
-        self.axes.set_title("Neuron 0", size=8)
+        self.axes.set_title("Neuron 0", size=4)
 
-        pylab.setp(self.axes.get_xticklabels(), fontsize=6)
-        pylab.setp(self.axes.get_yticklabels(), fontsize=6)
+        pylab.setp(self.axes.get_xticklabels(), fontsize=2)
+        pylab.setp(self.axes.get_yticklabels(), fontsize=2)
 
         # Plot data as line series, and save reference to the plotted line series.
         self.axes.plot(self.datagen.y, linewidth=0.8)
-        self.plot_data = self.axes.plot(self.data, color=(1, 0, 0))[0]
-        self.axes.axvspan(20, 50, alpha=0.1, color="red")
+        # self.axes.vlines(0, 0, 100, linewidth=0.8, color="black")
+        self.plot_data = self.axes.plot([0], linewidth=0.8, color="red")[0]
+
+        all_behavior_intervals = self.datagen.all_behavior_intervals
+        background_colors = ["red", "orange", "cyan", "grey"]
+        
+        for i, behavior_intervals in enumerate(all_behavior_intervals):
+            for interval in behavior_intervals:
+                self.axes.axvspan(interval[0], interval[-1], alpha=0.1, color=background_colors[i])
+        
+        # self.axes.axvspan(20, 50, alpha=0.1, color="red")
 
     def draw_plot(self):
         """Redraws the plot"""
