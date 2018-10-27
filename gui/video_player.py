@@ -20,7 +20,7 @@ class StaticText(wx.StaticText):
 
 class VideoPanel(wx.Panel):
 
-    def __init__(self, parent, coupled_graph=None):
+    def __init__(self, parent, coupled_graph=None, timer=None):
         wx.Panel.__init__(self, parent=parent)
 
         self.coupled_graph = coupled_graph
@@ -69,7 +69,11 @@ class VideoPanel(wx.Panel):
         self.SetSizer(sizer)
 
         # wx.CallAfter(self.DoLoadFile, os.path.abspath("~/Desktop/Drd87_EPM_bgremoved_demo.avi"))
-        self.timer = wx.Timer(self)
+        if timer:
+            self.timer = timer
+        else:
+            self.timer = wx.Timer(self)
+        
         self.Bind(wx.EVT_TIMER, self.OnTimer)
         self.timer.Start(100)
 
@@ -142,9 +146,13 @@ class VideoPanel(wx.Panel):
     def OnTimer(self, evt):
         offset = self.mc.Tell()
         self.slider.SetValue(offset)
-        self.st_size.SetLabel("size: {}".format(self.mc.GetBestSize()))
-        self.st_len.SetLabel('length: %d seconds' % (self.mc.Length()/1000))
-        self.st_pos.SetLabel('position: %d' % offset)
+        # self.st_size.SetLabel("size: {}".format(self.mc.GetBestSize()))
+        # self.st_len.SetLabel("length: {} seconds".format((self.mc.Length() / 1000)))
+        # self.st_pos.SetLabel("position: {}".format(offset))
+        if self.coupled_graph:
+            self.coupled_graph.on_redraw_timer(offset//100)
+            # self.coupled_graph.datagen.index = offset // 100
+            # print("plot(s) index: {}, video time: {}".format(self.coupled_graph.datagen.index, offset//100))
 
     def ShutdownDemo(self):
         self.timer.Stop()
