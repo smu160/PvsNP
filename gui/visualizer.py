@@ -7,7 +7,7 @@ import wx.media
 import pandas as pd
 
 import matplotlib
-# matplotlib.use('WXAgg')
+matplotlib.use('WXAgg')
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_wxagg import FigureCanvasWxAgg as FigCanvas, NavigationToolbar2WxAgg as NavigationToolbar
 import numpy as np
