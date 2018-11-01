@@ -3,7 +3,7 @@ import wx.media
 import os
 
 import matplotlib       # Provides the graph figures
-# matplotlib.use('WXAgg') # matplotlib needs a GUI (layout), we use wxPython
+matplotlib.use('WXAgg') # matplotlib needs a GUI (layout), we use wxPython
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_wxagg import FigureCanvasWxAgg as FigCanvas
 from multiprocessing import Process
@@ -23,14 +23,12 @@ class VideoPanel(wx.Panel):
 
     def __init__(self, parent, coupled_graph=None, timer=None):
         wx.Panel.__init__(self, parent=parent)
-
         self.coupled_graph = coupled_graph
-        self.redraw = 0
 
         # Create some controls
         try:
-            self.mc = wx.media.MediaCtrl(self, style=wx.SIMPLE_BORDER, size=(350,350))
-            self.mc2 = wx.media.MediaCtrl(self, style=wx.SIMPLE_BORDER, size=(350,350))
+            self.mc = wx.media.MediaCtrl(self, style=wx.BORDER_THEME, size=(400,400))
+            self.mc2 = wx.media.MediaCtrl(self, style=wx.SIMPLE_BORDER, size=(400,400))
         except NotImplementedError:
             self.Destroy()
             raise
@@ -52,25 +50,19 @@ class VideoPanel(wx.Panel):
 
         slider = wx.Slider(self, -1, 0, 0, 0)
         self.slider = slider
-        slider.SetMinSize((150, -1))
+        slider.SetMinSize((250, -1))
         self.Bind(wx.EVT_SLIDER, self.OnSeek, slider)
-
-        # self.st_size = StaticText(self, -1, size=(100,-1))
-        # self.st_len  = StaticText(self, -1, size=(100,-1))
-        # self.st_pos  = StaticText(self, -1, size=(100,-1))
-
-        # setup the layout
-        sizer = wx.GridBagSizer(10, 10)
-        sizer.Add(self.mc, (1, 1), span=(5, 1)) #, flag=wx.EXPAND)
-        sizer.Add(self.mc2, (10, 1), span=(5, 1))
-        sizer.Add(load_vid1_button, (8, 0))
+        
+        # Setup the layout
+        sizer = wx.GridBagSizer(0, 0)
+        sizer.Add(self.mc, (1, 0), span=(5, 5)) #, flag=wx.EXPAND)
+        sizer.Add(self.mc2, (9, 0), span=(5, 5))
+        sizer.Add(load_vid1_button, (0, 1))
         sizer.Add(load_vid2_button, (8, 1))
         sizer.Add(self.play_button, (6, 0))
         sizer.Add(stop_button, (7, 0))
         sizer.Add(slider, (6, 1), flag=wx.EXPAND)
-        # sizer.Add(self.st_size, (1, 5))
-        # sizer.Add(self.st_len, (2, 5))
-        # sizer.Add(self.st_pos, (3, 5))
+        sizer.AddGrowableCol(0, 0)
         self.SetSizer(sizer)
 
         self.init_contours()
@@ -147,23 +139,16 @@ class VideoPanel(wx.Panel):
             self.coupled_graph.reset_plot()
 
     def OnSeek(self, evt):
-        self.OnPlay(None)
         offset = self.slider.GetValue()
         self.mc.Seek(offset)
         self.mc2.Seek(offset)
         if self.coupled_graph:
            self.coupled_graph.datagen.index = offset // 100
-           self.coupled_graph.draw_plot()
-
-        self.OnPlay(None)
-
+           # self.coupled_graph.draw_plot()
 
     def OnTimer(self, evt):
         offset = self.mc.Tell()
         self.slider.SetValue(offset)
-        # self.st_size.SetLabel("size: {}".format(self.mc.GetBestSize()))
-        # self.st_len.SetLabel("length: {} seconds".format((self.mc.Length() / 1000)))
-        # self.st_pos.SetLabel("position: {}".format(offset))
         if self.coupled_graph:
             self.coupled_graph.on_redraw_timer(offset//100)
             self.coupled_graph.datagen.index = offset // 100
