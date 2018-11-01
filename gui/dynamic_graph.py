@@ -267,7 +267,14 @@ class GraphPanel(wx.Panel):
             plot_data.set_data([self.datagen.index, self.datagen.index], [0, 400])
 
         self.canvas.draw()
-        self.canvas.flush_events()
+
+        # Make sure that the GUI framework has a chance to run its event loop &
+        # clear any GUI events. This needs to be in a try/except block since the
+        # default implementation of this method is to raise NotImplementedError
+        try:
+            self.canvas.flush_events()
+        except NotImplementedError:
+            pass
 
     def on_pause_button(self, event):
         self.paused = not self.paused
