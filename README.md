@@ -30,8 +30,6 @@ bash create_env.sh
 
 * Download and install [Anaconda](https://docs.anaconda.com/anaconda/install/) (Python 2.7) We recommend telling conda to modify your PATH variable (it is a checkbox during Anaconda install, off by default).
 
-* Downloads and install [Node.js](https://nodejs.org/en/download/)
-
 * Launch an anaconda-enabled command prompt as follows: start --> Anaconda2 --> Anaconda Prompt
 
 * Use conda to install git as follows: `conda install git`
