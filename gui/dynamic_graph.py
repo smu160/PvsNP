@@ -25,8 +25,10 @@ class DataGen(object):
             wx.MessageBox("Unable to load {}".format(self.file_path), "ERROR", wx.ICON_ERROR | wx.OK)
             sys.exit(1)
 
+        # self.choose_data()
         self.dataset.fillna(0)
         self.index = 0
+        self.global_ymax = self.dataset.max().max()
         self.all_behavior_intervals = self.get_behavior(self.dataset)
 
     def get_file_path(self):
@@ -43,9 +45,8 @@ class DataGen(object):
         # The dialog is not in the screen anymore, but it's still in memory
         file_dialog.Destroy()
 
-    def next(self):
-        self.index += 1
-        return self.index
+    def choose_data(self):
+        pass
 
     def get_behavior(self, dataset):
         head_dips = self.extract_epochs(dataset, "Head_Dips")
@@ -86,14 +87,19 @@ class BoundControlBox(wx.Panel):
         wx.Panel.__init__(self, parent, ID)
 
         self.value = initval
+        self.auto_radio_button_state = True
+        self.manual_radio_button_state = False
 
         box = wx.StaticBox(self, -1, label)
         sizer = wx.StaticBoxSizer(box, wx.VERTICAL)
 
         self.radio_auto = wx.RadioButton(self, -1, label="Auto", style=wx.RB_GROUP)
-        self.radio_manual = wx.RadioButton(self, -1, label="Manual")
-        self.manual_text = wx.TextCtrl(self, -1, size=(35, -1), value=str(initval), style=wx.TE_PROCESS_ENTER)
+        self.radio_auto.SetValue(True)
 
+        self.radio_manual = wx.RadioButton(self, -1, label="Manual")
+        self.radio_manual.SetValue(False)
+
+        self.manual_text = wx.TextCtrl(self, -1, size=(35, -1), value=str(initval), style=wx.TE_PROCESS_ENTER)
         self.Bind(wx.EVT_UPDATE_UI, self.on_update_manual_text, self.manual_text)
         self.Bind(wx.EVT_TEXT_ENTER, self.on_text_enter, self.manual_text)
 
@@ -111,6 +117,7 @@ class BoundControlBox(wx.Panel):
 
     def on_text_enter(self, event):
         self.value = self.manual_text.GetValue()
+        self.manual_radio_button_state = False
 
     def is_auto(self):
         return self.radio_auto.GetValue()
@@ -118,12 +125,21 @@ class BoundControlBox(wx.Panel):
     def manual_value(self):
         return self.value
 
+    def state_changed(self):
+        if self.auto_radio_button_state != self.radio_auto.GetValue():
+            self.auto_radio_button_state = self.radio_auto.GetValue()
+            return True
+        if not self.manual_radio_button_state:
+            self.manual_radio_button_state = True
+            return True
+        else:
+            return False
 
 class GraphPanel(wx.Panel):
     """The main frame of the application"""
 
     def __init__(self, parent, coupled=False):
-        wx.Panel.__init__(self, parent=parent)
+        wx.Panel.__init__(self, parent=parent, size=wx.Size(800, 800))
 
         self.coupled = coupled
         self.datagen = DataGen()
@@ -158,40 +174,21 @@ class GraphPanel(wx.Panel):
         self.xmin_control = BoundControlBox(self, -1, "X min", 0)
         self.xmax_control = BoundControlBox(self, -1, "X max", 1000)
         self.ymax_control = BoundControlBox(self, -1, "Y max", 200)
-        # self.window_width = BoundControlBox(self, -1, "Window width", 0)
 
         if not self.coupled:
             self.pause_button = wx.Button(self, -1, "Pause")
             self.Bind(wx.EVT_BUTTON, self.on_pause_button, self.pause_button)
             self.Bind(wx.EVT_UPDATE_UI, self.on_update_pause_button, self.pause_button)
 
-        # self.cb_grid = wx.CheckBox(self, -1, "Show Grid", style=wx.ALIGN_RIGHT)
-        # self.Bind(wx.EVT_CHECKBOX, self.on_cb_grid, self.cb_grid)
-        # self.cb_grid.SetValue(False)
-
-        # self.cb_xlab = wx.CheckBox(self, -1, "Show X labels", style=wx.ALIGN_RIGHT)
-        # self.Bind(wx.EVT_CHECKBOX, self.on_cb_xlab, self.cb_xlab)
-        # self.cb_xlab.SetValue(True)
-
-        # self.load_file_button = wx.Button(self, -1, "Load Data File")
-        # self.Bind(wx.EVT_BUTTON, self.on_load_file, self.load_file_button)
-
-        # self.hbox1 = wx.BoxSizer(wx.HORIZONTAL)
-        # self.hbox1.AddSpacer(20)
-        # self.hbox1.Add(self.cb_grid, border=5, flag=wx.ALL | wx.ALIGN_CENTER_VERTICAL)
-        # self.hbox1.AddSpacer(10)
-        # self.hbox1.Add(self.cb_xlab, border=5, flag=wx.ALL | wx.ALIGN_CENTER_VERTICAL)
 
         self.hbox2 = wx.BoxSizer(wx.HORIZONTAL)
         self.hbox2.Add(self.xmin_control, border=3, flag=wx.ALL)
         self.hbox2.Add(self.xmax_control, border=3, flag=wx.ALL)
         self.hbox2.AddSpacer(10)
         self.hbox2.Add(self.ymax_control, border=3, flag=wx.ALL)
-        # self.hbox2.Add(self.window_width, border=3, flag=wx.ALL)
 
         self.vbox = wx.BoxSizer(wx.VERTICAL)
         self.vbox.Add(self.canvas, 1, flag=wx.LEFT | wx.TOP | wx.GROW)
-        # self.vbox.Add(self.hbox1, 0, flag=wx.ALIGN_LEFT | wx.TOP)
         self.vbox.Add(self.hbox2, 0, flag=wx.ALIGN_LEFT | wx.TOP)
 
         self.SetSizer(self.vbox)
@@ -204,7 +201,7 @@ class GraphPanel(wx.Panel):
         self.dpi = 400
         self.fig = Figure((3.0, 3.0), dpi=self.dpi)
         self.axes = self.fig.subplots(10, 1)
-        self.fig.subplots_adjust(hspace=0.1)
+        self.fig.subplots_adjust(left=0.02, bottom=0.0, right=0.98, top=1.0, hspace=0.0)
         background_colors = ["red", "orange", "cyan", "grey"]
         self.plots_data = []
 
@@ -220,51 +217,52 @@ class GraphPanel(wx.Panel):
                 for interval in behavior_intervals:
                     ax.axvspan(interval[0], interval[-1], alpha=0.1, color=background_colors[i])
 
-            ax.spines["top"].set_visible(False)
-            ax.spines["right"].set_visible(False)
-            ax.spines["bottom"].set_visible(False)
+            ax.axis("off")
 
         for plot_data in self.plots_data:
             plot_data.set_data([self.datagen.index, self.datagen.index], [0, 400])
+
+    def bounds_changed(self):
+        if self.xmin_control.state_changed():
+            return True
+        elif self.xmax_control.state_changed():
+            return True
+        elif self.ymax_control.state_changed():
+            return True
+        else:
+            return False
+
+    def set_new_bounds(self):
+        if self.bounds_changed():
+
+            if self.xmin_control.is_auto():
+                xmin = 0
+            else:
+                xmin = int(self.xmin_control.manual_value())
+
+            if self.xmax_control.is_auto():
+                xmax = len(self.datagen.dataset.index)
+            else:
+                xmax = int(self.xmax_control.manual_value())
+
+            if self.ymax_control.is_auto():
+                ymax = self.datagen.global_ymax
+            else:
+                ymax = int(self.ymax_control.manual_value())
+
+            # TEST
+            print("set_new_bounds was called!, xmin={} xmax={} ymax={}".format(xmin, xmax, ymax))
+
+            for i, ax in enumerate(self.axes):
+                ax.set_xbound(lower=xmin, upper=xmax)
+                ax.set_ybound(lower=-1, upper=ymax)
 
     def draw_plot(self):
         """Redraws the plot"""
+        self.set_new_bounds()
 
-        # When xmin is on auto, it "follows" xmax to produce a sliding window
-        # effect. therefore, xmin is assigned after xmax.
-        if self.xmax_control.is_auto():
-            xmax = len(self.datagen.dataset.index) # self.datagen.index if self.datagen.index > window_width else window_width
-        else:
-            xmax = int(self.xmax_control.manual_value())
-
-        if self.xmin_control.is_auto():
-            xmin = 0
-        else:
-            xmin = int(self.xmin_control.manual_value())
-
-        # for ymin and ymax, find the minimal and maximal values
-        # in the data set and add a mininal margin.
-        # Note: it's easy to change this scheme to the minimal/maximal value
-        # in the current display, and not the whole data set.
-        if self.ymax_control.is_auto():
-            ymax = self.datagen.dataset[[str(i+1) for i, _ in enumerate(self.axes)]].max().max()
-        else:
-            ymax = int(self.ymax_control.manual_value())
-
-        for i, ax in enumerate(self.axes):
-            ax.set_xbound(lower=xmin, upper=xmax)
-            ax.set_ybound(lower=-1, upper=ymax)
-
-        # if self.cb_grid.IsChecked():
-        #    self.axes1.grid(True, color='gray')
-        # else:
-        #    self.axes1.grid(False)
-
-        # pylab.setp(self.axes1.get_xticklabels(), visible=self.cb_xlab.IsChecked())
-        # self.plot_data.set_xdata(np.arange(len(self.data)))
-        # self.plot_data.set_ydata(np.array(self.data))
-        for plot_data in self.plots_data:
-            plot_data.set_data([self.datagen.index, self.datagen.index], [0, 400])
+        for plot in self.plots_data:
+            plot.set_data([self.datagen.index, self.datagen.index], [0, 400])
 
         self.canvas.draw()
 
@@ -282,12 +280,6 @@ class GraphPanel(wx.Panel):
     def on_update_pause_button(self, event):
         label = "Resume" if self.paused else "Pause"
         self.pause_button.SetLabel(label)
-
-    def on_cb_grid(self, event):
-        self.draw_plot()
-
-    def on_cb_xlab(self, event):
-        self.draw_plot()
 
     def on_save_plot(self, event):
         file_choices = "PNG (*.png)|*.png"
