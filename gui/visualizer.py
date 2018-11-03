@@ -22,7 +22,7 @@ class GraphFrame(wx.Frame):
     title = "Calcium Imaging Visualizer"
 
     def __init__(self):
-        wx.Frame.__init__(self, None, -1, self.title, size=(1024, 768))
+        wx.Frame.__init__(self, None, -1, self.title, size=(1280, 800))
 
         splitter = wx.SplitterWindow(self, -1)
         self.graph_panel = GraphPanel(parent=splitter, coupled=True)
