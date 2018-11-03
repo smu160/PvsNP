@@ -27,7 +27,7 @@ class VideoPanel(wx.Panel):
 
         # Create some controls
         try:
-            self.mc = wx.media.MediaCtrl(self, style=wx.BORDER_THEME, size=(400,400))
+            self.mc = wx.media.MediaCtrl(self, style=wx.SIMPLE_BORDER, size=(400,400))
             self.mc2 = wx.media.MediaCtrl(self, style=wx.SIMPLE_BORDER, size=(400,400))
         except NotImplementedError:
             self.Destroy()
@@ -145,7 +145,7 @@ class VideoPanel(wx.Panel):
         if self.coupled_graph:
            self.coupled_graph.datagen.index = offset // 100
            # self.coupled_graph.draw_plot()
-
+        
     def OnTimer(self, evt):
         offset = self.mc.Tell()
         self.slider.SetValue(offset)
