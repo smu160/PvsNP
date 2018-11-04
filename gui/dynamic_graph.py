@@ -65,7 +65,7 @@ class DataGen(object):
     def parse_data_selection(self):
         if "range" in self.neurons:
             begin = int(self.neurons["range"][0])
-            end = int(self.neurons["range"][0])
+            end = int(self.neurons["range"][1])
             self.neurons = [str(i) for i in range(begin, end+1)]
         elif "custom" in self.neurons:
             self.neurons = self.neurons["custom"]
@@ -223,7 +223,7 @@ class GraphPanel(wx.Panel):
         self.fig = Figure((3.0, 3.0), dpi=self.dpi)
         self.axes = self.fig.subplots(len(self.datagen.neurons), 1)
         self.fig.subplots_adjust(left=0.02, bottom=0.0, right=0.98, top=1.0, hspace=0.0)
-        background_colors = ["red", "orange", "blue", "green"]
+        background_colors = ["blue", "orange", "red", "green"]
         self.plots_data = []
 
         for i, ax in enumerate(self.axes):
