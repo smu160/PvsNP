@@ -61,7 +61,7 @@ class VideoPanel(wx.Panel):
         sizer.Add(load_vid2_button, (8, 1))
         sizer.Add(self.play_button, (6, 0))
         sizer.Add(stop_button, (7, 0))
-        sizer.Add(slider, (6, 1), flag=wx.EXPAND)
+        sizer.Add(slider, (6, 1))
         sizer.AddGrowableCol(0, 0)
         self.SetSizer(sizer)
 
