@@ -8,6 +8,7 @@ import wx
 import pandas as pd
 import matplotlib
 matplotlib.use('WXAgg')
+from dialog import MyDialog
 
 class DataGen(object):
     """Data Generator/Extractor class"""
@@ -25,11 +26,18 @@ class DataGen(object):
             wx.MessageBox("Unable to load {}".format(self.file_path), "ERROR", wx.ICON_ERROR | wx.OK)
             sys.exit(1)
 
-        # self.choose_data()
+        self.prompt_for_data_selection()
+        self.parse_data_selection()
+        print(self.neurons)
+        print(self.behaviors)
+        print(type(self.behaviors))
         self.dataset.fillna(0)
+        self.neuron_col_vectors = self.dataset[self.neurons]
+
         self.index = 0
-        self.global_ymax = self.dataset.max().max()
+        self.global_ymax = self.neuron_col_vectors.max().max()
         self.all_behavior_intervals = self.get_behavior(self.dataset)
+        del self.dataset
 
     def get_file_path(self):
         file_dialog = wx.FileDialog(None, message="Select directory to open", defaultDir=os.getcwd(), defaultFile="", style=wx.FD_OPEN | wx.FD_CHANGE_DIR)
@@ -45,23 +53,36 @@ class DataGen(object):
         # The dialog is not in the screen anymore, but it's still in memory
         file_dialog.Destroy()
 
-    def choose_data(self):
-        pass
+    def prompt_for_data_selection(self):
+        dlg = MyDialog(None, "Dialog")
+
+        if dlg.ShowModal() == wx.ID_OK:
+            user_input = dlg.get_user_input()
+            self.neurons, self.behaviors = user_input
+
+        dlg.Destroy()
+
+    def parse_data_selection(self):
+        if "range" in self.neurons:
+            begin = int(self.neurons["range"][0])
+            end = int(self.neurons["range"][0])
+            self.neurons = [str(i) for i in range(begin, end+1)]
+        elif "custom" in self.neurons:
+            self.neurons = self.neurons["custom"]
+            self.neurons = self.neurons.replace(' ', '')
+            self.neurons = self.neurons.split(',')
+
+        self.behaviors = self.behaviors.replace(' ', '')
+        self.behaviors = self.behaviors.split(',')
 
     def get_behavior(self, dataset):
-        head_dips = self.extract_epochs(dataset, "Head_Dips")
-        head_dip_intervals = self.filter_epochs(head_dips[1], framerate=1, seconds=1)
+        all_behavior_intervals = []
 
-        open_arms = self.extract_epochs(dataset, "OpenArms_centerpoint")
-        open_intervals = self.filter_epochs(open_arms[1], framerate=1, seconds=1)
+        for behavior in self.behaviors:
+            curr_beh_epochs = self.extract_epochs(dataset, behavior)
+            curr_beh_intervals = self.filter_epochs(curr_beh_epochs[1], framerate=1, seconds=1)
+            all_behavior_intervals.append(curr_beh_intervals)
 
-        closed_arms = self.extract_epochs(dataset, "ClosedArms_centerpoint")
-        closed_intervals = self.filter_epochs(closed_arms[1], framerate=1, seconds=1)
-
-        center_epochs = self.extract_epochs(dataset, "Center")
-        center_intervals = self.filter_epochs(center_epochs[1], framerate=1, seconds=1)
-
-        all_behavior_intervals = [center_intervals, open_intervals, closed_intervals, head_dip_intervals]
         return all_behavior_intervals
 
     def extract_epochs(self, dataset, behavior):
@@ -200,15 +221,15 @@ class GraphPanel(wx.Panel):
     def init_plot(self):
         self.dpi = 400
         self.fig = Figure((3.0, 3.0), dpi=self.dpi)
-        self.axes = self.fig.subplots(10, 1)
+        self.axes = self.fig.subplots(len(self.datagen.neurons), 1)
         self.fig.subplots_adjust(left=0.02, bottom=0.0, right=0.98, top=1.0, hspace=0.0)
-        background_colors = ["red", "orange", "cyan", "grey"]
+        background_colors = ["red", "orange", "blue", "green"]
         self.plots_data = []
 
         for i, ax in enumerate(self.axes):
 
             # Plot data as line series, and save reference to the plotted line series.
-            ax.plot(self.datagen.dataset[str(i+1)], linewidth=0.5)
+            ax.plot(self.datagen.neuron_col_vectors[str(self.datagen.neurons[i])], linewidth=0.5)
             self.plots_data.append(ax.plot([0], linewidth=0.5, color="red")[0])
             pylab.setp(ax.get_xticklabels(), fontsize=3)
             pylab.setp(ax.get_yticklabels(), fontsize=2)
@@ -241,7 +262,7 @@ class GraphPanel(wx.Panel):
                 xmin = int(self.xmin_control.manual_value())
 
             if self.xmax_control.is_auto():
-                xmax = len(self.datagen.dataset.index)
+                xmax = len(self.datagen.neuron_col_vectors.index)
             else:
                 xmax = int(self.xmax_control.manual_value())
 
