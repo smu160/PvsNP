@@ -112,13 +112,17 @@ class Client(object):
     def __init__(self, address, port, q):
         self.q = q
 
-        # Create a TCP/IP socket
-        self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        # Create a UDS socket
+        self.sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
 
         # Connect the socket to the port where the server is listening
-        server_address = (address, port)
-        print("Connecting to: {}".format(server_address))
-        self.sock.connect(server_address)
+        server_address = './uds_socket'
+        print("connecting to {}".format(server_address))
+        try:
+            self.sock.connect(server_address)
+        except socket.error as msg:
+            print(msg, file=sys.stderr)
+            sys.exit(1)
 
         t = threading.Thread(target=self.data_receiver, args=())
         t.daemon = True
