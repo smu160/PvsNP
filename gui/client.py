@@ -40,9 +40,7 @@ class DataGen(object):
 
         self.dataset.fillna(0)
         self.neuron_col_vectors = self.dataset[self.neurons]
-
-        self.global_ymax = self.neuron_col_vectors.max().max()
-        self.all_behavior_intervals = self.get_behavior(self.dataset)
+        self.behavior_intervals = self.get_behavior(self.dataset)
         del self.dataset
 
     def get_file_path(self):
@@ -157,16 +155,16 @@ if __name__ == "__main__":
     datagen = DataGen()
     plots = datagen.get_neuron_plots()
     plot_names = datagen.neurons
-
+    
     q = queue.Queue()
     client = Client("localhost", 10000, q)
 
     app = QtWidgets.QApplication([])
     pg.setConfigOptions(antialias=False) # True seems to work as well
 
-    win = MyWidget(q, plots, plot_names)
+    win = MyWidget(q, plots, plot_names, beh_intervals=datagen.behavior_intervals)
     win.show()
-    win.resize(800,600)
+    win.resize(800, 600)
     win.raise_()
     app.exec_()
     sys.exit(app.exec_())
