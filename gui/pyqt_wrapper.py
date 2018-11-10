@@ -17,7 +17,7 @@ class MyWidget(pg.GraphicsWindow):
         self.setLayout(self.mainLayout)
 
         self.timer = QtCore.QTimer(self)
-        self.timer.setInterval(10) # in milliseconds
+        self.timer.setInterval(10) 
         self.timer.start()
         self.timer.timeout.connect(self.onNewData)
 
@@ -28,8 +28,11 @@ class MyWidget(pg.GraphicsWindow):
         self.data_q = data_q
 
     def onNewData(self):
-        val = self.data_q.get()
-        
+        try:
+            val = self.data_q.get(block=False)
+        except:
+            return 
+
         for v_line in self.vertical_lines:
             v_line.setValue(val)
             QtCore.QCoreApplication.processEvents() 
@@ -43,11 +46,15 @@ class MyWidget(pg.GraphicsWindow):
             plotItem.plot(self.plots[i], pen=pg.mkPen('b', width=2))
             self.vertical_line = plotItem.addLine(x=0, pen=pen)
             self.vertical_lines.append(self.vertical_line)
+        
+        # Add background colors (color coded by behavior) to plots
+        for k in range(100, 500):
+            plotItem.addLine(x=k, pen=pg.mkPen((0, 150, 0, 10), width=2))
+
 
 def main():
     app = QtWidgets.QApplication([])
-
-    pg.setConfigOptions(antialias=True) # True seems to work as well
+    pg.setConfigOptions(antialias=True)
 
     win = MyWidget()
     win.show()
