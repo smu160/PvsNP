@@ -37,6 +37,7 @@ class MyWidget(pg.GraphicsWindow):
             QtCore.QCoreApplication.processEvents()
 
     def add_plots(self, plot_names, all_beh_intervals):
+        x_max = len(self.plots[0])
         pen = pg.mkPen('r', width=2)
         colors = [(0, 0, 255, 10), (255, 165, 0, 10), (255, 0, 0, 10), (0, 255, 0, 10)]
         beh_brushes = [pg.mkBrush(color) for color in colors]
@@ -45,6 +46,10 @@ class MyWidget(pg.GraphicsWindow):
             print(self.plots[i])
             plotItem = self.addPlot(title="plot {}".format(plot_names[i]), row=i, col=0)
             plotItem.plot(self.plots[i], pen=pg.mkPen('b', width=2))
+
+            # Set the domain and range for each plot
+            y_max = self.plots[i].max()
+            plotItem.setRange(xRange=[0, x_max], yRange=[0, y_max], padding=0)
 
             # Add background color(s) (color coded by behavior) to each plot
             if all_beh_intervals:
