@@ -37,6 +37,7 @@ import sys
 import queue
 import threading
 import time
+import subprocess
 
 try:
     unicode        # Python 2
@@ -55,11 +56,17 @@ class Player(wx.Frame):
         # File Menu
         self.frame_menubar = wx.MenuBar()
         self.file_menu = wx.Menu()
-        self.file_menu.Append(1, "&Open", "Open from file..")
+        self.file_menu.Append(1, "&Open vid", "Open from file..")
         self.file_menu.AppendSeparator()
-        self.file_menu.Append(2, "&Close", "Quit")
+        self.file_menu.Append(2, "&New Plot", "Create new plot..")
+        self.file_menu.AppendSeparator()
+        self.file_menu.Append(3, "&Add Video", "Add another vid..")
+        self.file_menu.AppendSeparator()
+        self.file_menu.Append(4, "&Close", "Quit")
         self.Bind(wx.EVT_MENU, self.OnOpen, id=1)
-        self.Bind(wx.EVT_MENU, self.OnExit, id=2)
+        self.Bind(wx.EVT_MENU, self.OnNewPlot, id=2)
+        self.Bind(wx.EVT_MENU, self.OnStream, id=3)
+        self.Bind(wx.EVT_MENU, self.OnExit, id=4)
         self.frame_menubar.Append(self.file_menu, "File")
         self.SetMenuBar(self.frame_menubar)
 
@@ -68,9 +75,6 @@ class Player(wx.Frame):
         self.videopanel = wx.Panel(self, -1)
         self.videopanel.SetBackgroundColour(wx.BLACK)
 
-        self.videopanel2 = wx.Panel(self, -1)
-        self.videopanel2.SetBackgroundColour(wx.BLACK)
-    
         # The second panel holds controls
         ctrlpanel = wx.Panel(self, -1 )
         self.timeslider = wx.Slider(ctrlpanel, -1, 0, 0, 1000)
@@ -114,7 +118,6 @@ class Player(wx.Frame):
         sizer = wx.BoxSizer(wx.VERTICAL)
         sizer.Add(self.videopanel, 1, flag=wx.EXPAND)
         sizer.Add(ctrlpanel, flag=wx.EXPAND | wx.BOTTOM | wx.TOP, border=10)
-        sizer.Add(self.videopanel2, 1, flag=wx.EXPAND)
         self.SetSizer(sizer)
         self.SetMinSize((350, 300))
 
@@ -128,6 +131,12 @@ class Player(wx.Frame):
         self.player = self.Instance.media_player_new()
 
         self.q = queue.Queue()
+
+    def OnStream(self, evt):
+        subprocess.Popen(["pythonw", "mini_player.py"])
+
+    def OnNewPlot(self, evt):
+        subprocess.Popen(["pythonw", "client.py"])
 
     def OnExit(self, evt):
         """Closes the window.
