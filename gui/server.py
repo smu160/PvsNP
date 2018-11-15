@@ -28,6 +28,7 @@ class Server:
         self.q = q
         self.client_threads = []
         listener_thread = threading.Thread(target=self.listen_for_clients, args=())
+        listener_thread.daemon = True
         listener_thread.start()
 
     def listen_for_clients(self):
@@ -38,6 +39,7 @@ class Server:
             # print("Accepted Connection from: {}: {}".format(addr[0], addr[1]))
             t = threading.Thread(target=self.data_sender, args=())
             self.client_threads.append((t, client, addr))
+            t.daemon = True
             t.start()
 
     def data_sender(self):
@@ -49,4 +51,4 @@ class Server:
                         # print("Sending {} to {}".format(data, addr), file=sys.stderr)
                         client.send(data.encode())
             except:
-                pass
+                return 

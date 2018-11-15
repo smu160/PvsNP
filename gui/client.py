@@ -4,15 +4,14 @@ import socket
 import queue
 import threading
 import time
-import atexit
 import numpy as np
 import random
 import pandas as pd
 import matplotlib.pyplot as plt
 import tkinter as tk
+from pyqt_wrapper import MyWidget
 from tkinter import filedialog
 from tkinter import simpledialog
-
 from PyQt5 import QtCore, QtWidgets
 import pyqtgraph as pg
 
@@ -142,20 +141,14 @@ class Client(object):
                                 self.q.queue.clear()
                             else:
                                 self.q.put(int(num))
-        finally:
-            print("closing socket")
-            self.sock.close()
-        
-    def close_socket(self):
-        self.sock.close()
+        except:
+            return
 
-from pyqt_wrapper import MyWidget
-
-if __name__ == "__main__":
+def main()
     datagen = DataGen()
     plots = datagen.get_neuron_plots()
     plot_names = datagen.neurons
-    
+
     q = queue.Queue()
     client = Client("localhost", 10000, q)
 
@@ -166,5 +159,9 @@ if __name__ == "__main__":
     win.show()
     win.resize(800, 600)
     win.raise_()
-    app.exec_()
     sys.exit(app.exec_())
+
+
+if __name__ == "__main__":
+    main()
+

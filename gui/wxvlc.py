@@ -295,13 +295,12 @@ if __name__ == "__main__":
     # Create a wx.App(), which handles the windowing system event loop
     app = wx.App()
 
-    # Create the window containing our small media player
-    player = Player("Simple PyVLC Player")
+    # Create the window containing video player
+    player = Player("Video Player")
 
     server = Server("localhost", 10000, player.q)
 
-    # show the player window centred and run the application
+    # Show the video player window centred and run the application
     player.Centre()
     player.Show()
     app.MainLoop()
-

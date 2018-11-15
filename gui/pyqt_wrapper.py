@@ -1,6 +1,5 @@
 # import pyqtgraph.examples
 # pyqtgraph.examples.run()
-
 from PyQt5 import QtCore, QtWidgets
 import pyqtgraph as pg
 import numpy as np
@@ -64,7 +63,6 @@ class MyWidget(pg.GraphicsWindow):
             self.vertical_lines.append(self.vertical_line)
 
 
-
 def main():
     app = QtWidgets.QApplication([])
     pg.setConfigOptions(antialias=True)
@@ -73,7 +71,7 @@ def main():
     win.show()
     win.resize(800, 600)
     win.raise_()
-    app.exec_()
+    sys.exit(app.exec_())
 
 if __name__ == "__main__":
     main()
