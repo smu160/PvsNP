@@ -144,7 +144,7 @@ class Client(object):
         except:
             return
 
-def main()
+def main():
     datagen = DataGen()
     plots = datagen.get_neuron_plots()
     plot_names = datagen.neurons
