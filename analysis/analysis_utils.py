@@ -45,6 +45,46 @@ def find_file(root_directory, target_file):
 
     print("{} not found!".format(target_file), file=sys.stderr)
 
+def extract_epochs(mouse, behavior):
+    """Extract all epochs of continuous behaviors/events.
+
+    Args:
+        mouse: Mouse
+
+        behavior: str
+
+    Returns:
+        df: DataFrame
+
+    """
+    dataframe = mouse.spikes_and_beh.copy()
+    dataframe["block"] = (dataframe[behavior].shift(1) != dataframe[behavior]).astype(int).cumsum()
+    df = dataframe.reset_index().groupby([behavior, "block"])["index"].apply(np.array)
+    return df
+
+def filter_epochs(interval_series, framerate=10, seconds=1):
+    """Helper function for extract_epochs.
+
+    Args:
+        interval_series: list
+
+        framerate: int, optional
+
+        seconds: int, optional
+
+    Returns:
+        intervals: list
+
+    """
+
+    intervals = []
+
+    for interval in interval_series:
+        if len(interval) >= framerate*seconds:
+            intervals.append(interval)
+
+    return intervals
+
 class Mouse(object):
     """A base class for keeping all relevant & corresponding objects, i.e.,
     spikes, cell transients, & behavior dataframes, with their respective
