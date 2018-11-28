@@ -1,13 +1,10 @@
-import os
 import sys
+import platform
 import socket
 import queue
 import threading
-import time
 import numpy as np
-import random
 import pandas as pd
-import matplotlib.pyplot as plt
 import tkinter as tk
 from pyqt_wrapper import MyWidget
 from tkinter import filedialog
@@ -108,18 +105,29 @@ class Client(object):
 
     def __init__(self, address, port, q):
         self.q = q
-
-        # Create a UDS socket
-        self.sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
-
-        # Connect the socket to the port where the server is listening
-        server_address = './uds_socket'
-        print("connecting to {}".format(server_address))
-        try:
+            
+        if platform.system() == "Windows":
+            
+            # Create a TCP/IP socket
+            self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            
+            # Connect the socket to the port where the server is listening
+            server_address = ("127.0.0.1", 10000)
+            print("connecting to {} port {}".format(server_address[0], server_address[1]))
             self.sock.connect(server_address)
-        except socket.error as msg:
-            print(msg, file=sys.stderr)
-            sys.exit(1)
+        else:
+            
+            # Create a UDS socket
+            self.sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+    
+            # Connect the socket to the port where the server is listening
+            server_address = './uds_socket'
+            print("connecting to {}".format(server_address))
+            try:
+                self.sock.connect(server_address)
+            except socket.error as msg:
+                print(msg, file=sys.stderr)
+                sys.exit(1)
 
         t = threading.Thread(target=self.data_receiver, args=())
         t.daemon = True
@@ -150,7 +158,7 @@ def main():
     plot_names = datagen.neurons
 
     q = queue.Queue()
-    client = Client("localhost", 10000, q)
+    client = Client("127.0.0.1", 10000, q)
 
     app = QtWidgets.QApplication([])
     pg.setConfigOptions(antialias=False) # True seems to work as well

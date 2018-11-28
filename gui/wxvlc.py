@@ -35,7 +35,6 @@ from server import Server
 import os
 import sys
 import queue
-import threading
 import time
 import subprocess
 
@@ -133,10 +132,12 @@ class Player(wx.Frame):
         self.q = queue.Queue()
 
     def OnStream(self, evt):
-        subprocess.Popen(["pythonw", "mini_player.py"])
+        print(os.getcwd())
+        subprocess.Popen(["python", "C:/Users/berryja/Hen_Lab/gui/mini_player.py"], shell=True)
 
     def OnNewPlot(self, evt):
-        subprocess.Popen(["pythonw", "client.py"])
+        print("on new plot called!")
+        subprocess.Popen(["python", "C:/Users/berryja/Hen_Lab/gui/client.py"], shell=True)
 
     def OnExit(self, evt):
         """Closes the window.
@@ -207,13 +208,10 @@ class Player(wx.Frame):
 
     def OnPause(self, evt):
         """Pause the player."""
-
-        pos = self.player.get_position()
         self.player.pause()
 
     def OnStop(self, evt):
-        """Stop the player.
-        """
+        """Stop the player."""
         self.player.stop()
 
         # reset the queue
@@ -298,7 +296,7 @@ if __name__ == "__main__":
     # Create the window containing video player
     player = Player("Video Player")
 
-    server = Server("localhost", 10000, player.q)
+    server = Server("127.0.0.1", 10000, player.q)
 
     # Show the video player window centred and run the application
     player.Centre()
