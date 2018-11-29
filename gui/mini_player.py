@@ -57,7 +57,7 @@ class MiniPlayer(wx.Frame):
 
         # Create the timer, which updates the video by reading from the queue
         self.timer = wx.Timer(self)
-        self.timer.Start(100)
+        self.timer.Start(95)
         self.Bind(wx.EVT_TIMER, self.OnTimer, self.timer)
 
     def OnExit(self, evt):
