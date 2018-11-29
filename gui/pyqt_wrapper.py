@@ -50,10 +50,10 @@ class MyWidget(pg.GraphicsWindow):
 
             # Add background color(s) (color coded by behavior) to each plot
             if all_beh_intervals:
-                for _, behavior_intervals in enumerate(all_beh_intervals):
+                for j, behavior_intervals in enumerate(all_beh_intervals):
                     for interval in behavior_intervals:
                         rgn = pg.LinearRegionItem([interval[0], interval[-1]], movable=False)
-                        rgn.setBrush(beh_brushes[i])
+                        rgn.setBrush(beh_brushes[j])
                         plot_item.addItem(rgn)
 
             # Create and add vertical line that scrolls

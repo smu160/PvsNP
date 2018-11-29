@@ -26,17 +26,18 @@ Author: Michele Orrù
 Date: 23-11-2010
 """
 
+# import standard libraries
+import os
+import sys
+import platform
+import queue
+import time
+import subprocess
+
 # import external libraries
 import wx # 2.8
 import vlc
 from server import Server
-
-# import standard libraries
-import os
-import sys
-import queue
-import time
-import subprocess
 
 try:
     unicode        # Python 2
@@ -75,7 +76,7 @@ class Player(wx.Frame):
         self.videopanel.SetBackgroundColour(wx.BLACK)
 
         # The second panel holds controls
-        ctrlpanel = wx.Panel(self, -1 )
+        ctrlpanel = wx.Panel(self, -1)
         self.timeslider = wx.Slider(ctrlpanel, -1, 0, 0, 1000)
         self.timeslider.SetRange(0, 1000)
         pause = wx.Button(ctrlpanel, label="Pause")
@@ -132,16 +133,16 @@ class Player(wx.Frame):
         self.q = queue.Queue()
 
     def OnStream(self, evt):
-        print(os.getcwd())
-        subprocess.Popen(["python", "C:/Users/berryja/Hen_Lab/gui/mini_player.py"], shell=True)
+        if platform.system() == "Darwin":
+            subprocess.Popen(["pythonw", "mini_player.py"])
+        else:
+            subprocess.Popen(["python", "mini_player.py"])
 
     def OnNewPlot(self, evt):
-        print("on new plot called!")
-        subprocess.Popen(["python", "C:/Users/berryja/Hen_Lab/gui/client.py"], shell=True)
+        subprocess.Popen(["python", "client.py"])
 
     def OnExit(self, evt):
-        """Closes the window.
-        """
+        """Closes the window."""
         self.Close()
 
     def OnOpen(self, evt):
@@ -150,9 +151,8 @@ class Player(wx.Frame):
         # if a file is already running, then stop it.
         self.OnStop(None)
 
-        # Create a file dialog opened in the current home directory, where
-        # you can display all kind of files, having as title "Choose a file".
-        # dlg = wx.FileDialog(self, "Choose a file", os.path.expanduser('~'), "", "*.*", wx.OPEN)
+        # Create a file dialog opened in the current home directory, where you
+        # can display all kind of files, having as title "Choose a file".
         dlg = wx.FileDialog(self, message="Choose a media file", defaultDir=os.getcwd(), defaultFile="", style=wx.FD_OPEN | wx.FD_CHANGE_DIR)
 
         if dlg.ShowModal() == wx.ID_OK:
@@ -180,13 +180,10 @@ class Player(wx.Frame):
             elif sys.platform == "darwin": # for MacOS
                 self.player.set_nsobject(handle)
 
-            # Starts playing the video as soon as it loads.
-            # self.OnPlay(None)
-
-            # set the volume slider to the current volume
+            # Set the volume slider to the current volume
             self.volslider.SetValue(self.player.audio_get_volume() / 2)
 
-        # finally destroy the dialog
+        # Finally, destroy the dialog
         dlg.Destroy()
 
     def OnPlay(self, evt):
@@ -224,7 +221,6 @@ class Player(wx.Frame):
         self.timer.Stop()
 
     def OnSeek(self, evt):
-        # offset = self.timeslider.GetValue()
         self.timer.Stop()
         offset = self.timeslider.GetValue()
 
@@ -233,40 +229,30 @@ class Player(wx.Frame):
             self.q.put("d")
             curr_time = self.player.get_time()
             curr_time //= 100
-            # print("seeking... current time: {}".format(curr_time))
-            time.sleep(0.05) 
+            time.sleep(0.005)
             self.q.put(curr_time)
 
-        # print("setting seeker to: {}".format(offset/1000))
         self.player.set_position(offset/1000)
         self.timer.Start(100)
 
     def OnTimer(self, evt):
-        """Update the time slider according to the current movie time.
-        """
-        # since the self.player.get_length can change while playing,
-        # re-set the timeslider to the correct range.
-        # length = self.player.get_length()
-        # self.timeslider.SetRange(-1, length)
+        """Update the time slider according to the current movie time."""
 
-        # update the time on the slider
+        # Update the time on the slider
         pos = self.player.get_position()
 
         if pos >= 0 and self.player.is_playing():
             curr_time = self.player.get_time()
             curr_time //= 100
-            # print("on timer... current time: {}".format(curr_time))
             self.q.put(curr_time)
         else:
             self.q.queue.clear()
 
-        # offset = self.player.get_position()
-        # print("set slider to: {}".format(pos*1000))
         self.timeslider.SetValue(pos*1000)
 
     def OnToggleVolume(self, evt):
         """Mute/Unmute according to the audio button."""
-        
+
         is_mute = self.player.audio_get_mute()
         self.player.audio_set_mute(not is_mute)
 
@@ -289,7 +275,9 @@ class Player(wx.Frame):
         edialog = wx.MessageDialog(self, errormessage, 'Error', wx.OK | wx.ICON_ERROR)
         edialog.ShowModal()
 
-if __name__ == "__main__":
+
+def main():
+
     # Create a wx.App(), which handles the windowing system event loop
     app = wx.App()
 
@@ -302,3 +290,6 @@ if __name__ == "__main__":
     player.Centre()
     player.Show()
     app.MainLoop()
+
+if __name__ == "__main__":
+    main()
