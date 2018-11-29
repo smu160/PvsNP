@@ -1,8 +1,6 @@
-# import pyqtgraph.examples
-# pyqtgraph.examples.run()
+import sys
 from PyQt5 import QtCore, QtWidgets
 import pyqtgraph as pg
-import numpy as np
 
 pg.setConfigOption('background', 'w')
 pg.setConfigOption('foreground', 'k')
@@ -12,20 +10,20 @@ class MyWidget(pg.GraphicsWindow):
     def __init__(self, data_q, plots, plot_names, beh_intervals=None, parent=None):
         super().__init__(parent=parent)
 
-        self.mainLayout = QtWidgets.QVBoxLayout()
-        self.setLayout(self.mainLayout)
+        self.main_layout = QtWidgets.QVBoxLayout()
+        self.setLayout(self.main_layout)
 
         self.timer = QtCore.QTimer(self)
         self.timer.setInterval(10)
         self.timer.start()
-        self.timer.timeout.connect(self.onNewData)
+        self.timer.timeout.connect(self.on_new_data)
 
         self.vertical_lines = []
         self.plots = plots
         self.add_plots(plot_names, beh_intervals)
         self.data_q = data_q
 
-    def onNewData(self):
+    def on_new_data(self):
         try:
             val = self.data_q.get(block=False)
         except:
@@ -42,24 +40,24 @@ class MyWidget(pg.GraphicsWindow):
         beh_brushes = [pg.mkBrush(color) for color in colors]
 
         for i in range(len(self.plots)):
-            print(self.plots[i])
-            plotItem = self.addPlot(title="plot {}".format(plot_names[i]), row=i, col=0)
-            plotItem.plot(self.plots[i], pen=pg.mkPen('b', width=2))
+            # print(self.plots[i])
+            plot_item = self.addPlot(title="plot {}".format(plot_names[i]), row=i, col=0)
+            plot_item.plot(self.plots[i], pen=pg.mkPen('b', width=2))
 
             # Set the domain and range for each plot
             y_max = self.plots[i].max()
-            plotItem.setRange(xRange=[0, x_max], yRange=[0, y_max], padding=0)
+            plot_item.setRange(xRange=[0, x_max], yRange=[0, y_max], padding=0)
 
             # Add background color(s) (color coded by behavior) to each plot
             if all_beh_intervals:
-                for i, behavior_intervals in enumerate(all_beh_intervals):
+                for _, behavior_intervals in enumerate(all_beh_intervals):
                     for interval in behavior_intervals:
                         rgn = pg.LinearRegionItem([interval[0], interval[-1]], movable=False)
                         rgn.setBrush(beh_brushes[i])
-                        plotItem.addItem(rgn)
+                        plot_item.addItem(rgn)
 
             # Create and add vertical line that scrolls
-            self.vertical_line = plotItem.addLine(x=0, pen=pen)
+            self.vertical_line = plot_item.addLine(x=0, pen=pen)
             self.vertical_lines.append(self.vertical_line)
 
 

@@ -3,19 +3,19 @@ import platform
 import socket
 import queue
 import threading
-import numpy as np
-import pandas as pd
-import tkinter as tk
-from pyqt_wrapper import MyWidget
 from tkinter import filedialog
 from tkinter import simpledialog
-from PyQt5 import QtCore, QtWidgets
+import tkinter as tk
+import numpy as np
+import pandas as pd
 import pyqtgraph as pg
+from PyQt5 import QtCore, QtWidgets
+from pyqt_wrapper import MyWidget
 
 pg.setConfigOption('background', 'w')
 pg.setConfigOption('foreground', 'k')
 
-class DataGen(object):
+class DataGen:
     """Data Generator/Extractor class"""
 
     def __init__(self):
@@ -23,16 +23,12 @@ class DataGen(object):
 
         try:
             self.dataset = pd.read_csv(file_path)
-
         except Exception:
             sys.exit(1)
 
         self.neurons = self.prompt_data_selection("Neurons", "Choose the neurons to plot")
         self.behaviors = self.prompt_data_selection("Behaviors", "Choose your behaviors")
         self.parse_data_selection()
-        print(self.neurons)
-        print(self.behaviors)
-        print(type(self.behaviors))
 
         self.dataset.fillna(0)
         self.neuron_col_vectors = self.dataset[self.neurons]
@@ -46,7 +42,6 @@ class DataGen(object):
             root = tk.Tk()
             root.withdraw()
             file_path = filedialog.askopenfilename()
-            print(file_path)
             root.destroy()
 
         return file_path
@@ -56,7 +51,6 @@ class DataGen(object):
         user_input = ""
         while not user_input:
             user_input = simpledialog.askstring(msg1, msg2, parent=root)
-            print(user_input)
 
         root.destroy()
         return user_input
@@ -101,28 +95,28 @@ class DataGen(object):
 
         return plots
 
-class Client(object):
+class Client:
 
     def __init__(self, address, port, q):
         self.q = q
-            
+
         if platform.system() == "Windows":
-            
+
             # Create a TCP/IP socket
             self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            
+
             # Connect the socket to the port where the server is listening
-            server_address = ("127.0.0.1", 10000)
+            server_address = (address, port)
             print("connecting to {} port {}".format(server_address[0], server_address[1]))
-            self.sock.connect(server_address)
         else:
-            
+
             # Create a UDS socket
             self.sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
-    
+
             # Connect the socket to the port where the server is listening
             server_address = './uds_socket'
-            print("connecting to {}".format(server_address))
+            print("New client connecting to {}".format(server_address))
+
             try:
                 self.sock.connect(server_address)
             except socket.error as msg:
@@ -134,7 +128,7 @@ class Client(object):
         t.start()
 
     def data_receiver(self):
-        print("new thread started")
+        print("New data receiver thread started...")
         try:
             while True:
                 data = self.sock.recv(4)
@@ -150,6 +144,8 @@ class Client(object):
                             else:
                                 self.q.put(int(num))
         except:
+            print("Closing socket...", file=sys.stderr)
+            self.sock.close()
             return
 
 def main():
@@ -161,7 +157,7 @@ def main():
     client = Client("127.0.0.1", 10000, q)
 
     app = QtWidgets.QApplication([])
-    pg.setConfigOptions(antialias=False) # True seems to work as well
+    pg.setConfigOptions(antialias=False) # set to True for higher quality plots
 
     win = MyWidget(q, plots, plot_names, beh_intervals=datagen.behavior_intervals)
     win.show()
@@ -172,4 +168,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
