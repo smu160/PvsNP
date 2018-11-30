@@ -83,8 +83,23 @@ class NeuronNetwork:
                 working directory with its title as the file name, in PDF
                 format.
 
-            title: str, optional, default: 'Neuron Network Title Goes Here'
+            title: str, optional, default: None
                 The title of the plotted graph/network.
+
+            a: float, optional
+                The transparency of the nodes
+                
+            label_nodes: bool, optional
+                Whether to display node labels. Default is True
+                
+            edge_a: float, optional
+                The transparency of the edges. Default is 1
+            
+            edge_weight: float, optional
+                The width of the edge. Default is 2
+                
+            label_edges: bool, optional
+                Whether to display edge labels. Default is False.
 
         Returns:
             pos: dict
@@ -105,19 +120,27 @@ class NeuronNetwork:
         # Nodes
         node_size = kwargs.get("node_size", 600)
         node_colors = kwargs.get("node_colors", self.neurons)
-        nx.draw_networkx_nodes(self.network, pos, node_size=node_size, cmap=plt.cm.Dark2, node_color=node_colors)
+        a = kwargs.get('a',.5)
+        disp_node_labels=kwargs.get('label_nodes',True)
+        nx.draw_networkx_nodes(self.network, pos, alpha=a, node_size=node_size, cmap=plt.cm.Dark2, node_color=node_colors)
 
         _, weights = zip(*nx.get_edge_attributes(self.network, "weight").items())
 
         # Draw edges
+        edgeweight=kwargs.get('edgeweight',2)
+        edge_a = kwargs.get('edge_a',1)
+        edge_color = kwargs.get('edgecolor',weights)
         if kwargs.get("draw_edges", True):
-            nx.draw_networkx_edges(self.network, pos, alpha=0.2, edge_color=weights)
-
+            nx.draw_networkx_edges(self.network, pos, alpha=edge_a, width=edgeweight,edge_color=edge_color)
+            
         # Labels
-        font_size = kwargs.get("font_size", 10)
-        nx.draw_networkx_labels(self.network, pos, font_size=font_size)
+        
+        label_edges=kwargs.get("label_edges",False)
+        if label_edges:
+            font_size = kwargs.get("font_size", 10)
+            nx.draw_networkx_labels(self.network, pos, font_size=font_size)
 
-        title = kwargs.get("title", "Neuron Network Title Goes Here")
+        title = kwargs.get("title", None)
         plt.title(title)
         plt.axis("off")
 
