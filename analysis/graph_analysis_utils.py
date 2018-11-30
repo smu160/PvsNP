@@ -5,7 +5,6 @@ generating and plotting visualizations of neuron networks.
 @author: Saveliy Yusufov, Columbia University, sy2685@columbia.edu
 """
 
-import os
 import sys
 import itertools
 import numpy as np
@@ -13,19 +12,20 @@ import networkx as nx
 from networkx.algorithms.approximation import clique
 from matplotlib.pylab import plt
 
-class NeuronNetwork(object):
+class NeuronNetwork:
     """
-    This is a wrapper class for the NetworkX graph data structure.
-    Use this class in order to conduct graph theory analysis on
-    networks of neurons that were recorded using Calcium Imaging.
+    This is a wrapper class for the NetworkX graph data structure. Use this
+    class in order to conduct graph theory analysis on networks of neurons
+    that were observed during experiments/trials.
     """
+
     def __init__(self, neurons, connections):
         self.neurons = list(neurons)
         self.connections = connections
         self.network = self.create_graph(self.neurons, self.connections)
 
     def create_graph(self, nodes, edges):
-        """Wrapper function for creating a NetworkX graph
+        """Wrapper function for creating a NetworkX graph.
 
         Each individual column of the provided DataFrame will be represented by
         a single node in the graph. Each pair of correlated nodes (neurons)
@@ -34,8 +34,12 @@ class NeuronNetwork(object):
 
         Args:
             nodes: list
+                A list of all the neurons/nodes in the network/graph.
 
-            edges: dictionary
+            edges: dict {(int, int): scalar, ..., (int, int): scalar}
+                A dictionary of key-value pairs, where each key is a tuple
+                representing an edge between two neurons/nodes, and each value
+                is a scalar value representing the weight of that edge.
 
         Returns:
             graph: NetworkX graph
@@ -45,7 +49,7 @@ class NeuronNetwork(object):
         graph.add_nodes_from(nodes)
 
         for edge in edges:
-            graph.add_edge(edge[0], edge[1], weight=abs(edges[edge]))
+            graph.add_edge(edge[0], edge[1], weight=edges.get(edge, None))
 
         return graph
 
@@ -56,8 +60,8 @@ class NeuronNetwork(object):
         spring layout algorithm, or by the positions provided.
 
         Args:
-            pos: dictionary, optional
-                 A dictionary of the network's neurons as keys and their (x ,y)
+            pos: dict, optional, default: networkx.drawing.layout.spring_layout
+                A dictionary of the network's neurons as keys and their (x, y)
                 coordinates as corresponding values.
 
             node_size: int, optional
@@ -66,59 +70,74 @@ class NeuronNetwork(object):
             node_colors: list, optional
                 The colors of the neurons to be plotted.
 
-            fontsize: int, optional
-                The size of the font in the plotted neurons.
+            fontsize: int, optional, default: 10
+                The size of the font labelling the plotted neurons.
+
+            draw_edges: bool, optional, default: True
+                When True, the edges between all nodes will be drawn. When
+                False, the edges between all nodes will be omitted from the
+                figure.
+
+            save: bool, optional, default: False
+                When True, the plotted figure will be saved to the current
+                working directory with its title as the file name, in PDF
+                format.
+
+            title: str, optional, default: 'Neuron Network Title Goes Here'
+                The title of the plotted graph/network.
+
+        Returns:
+            pos: dict
+                A dictionary of the network's neurons as keys and their (x, y)
+                coordinates as corresponding values.
         """
 
         # Get positions for all nodes
         pos = kwargs.get("pos", None)
         if pos is None:
-            print("You did not provide a neuron position dictionary, "
-                  + "so the Spring Layout algorithm will be used to "
-                  + "plot the network", file=sys.stderr)
+            print("You did not provide a neuron position dictionary. The spring layout function will be used to plot the network", file=sys.stderr)
             pos = nx.spring_layout(self.network, weight="weight")
 
         # Size of the plot
-        plt.figure(figsize=kwargs.get("figsize", (30, 30)))
+        figsize = kwargs.get("figsize", (30, 30))
+        plt.figure(figsize=figsize)
 
-        # nodes
+        # Nodes
         node_size = kwargs.get("node_size", 600)
         node_colors = kwargs.get("node_colors", self.neurons)
         nx.draw_networkx_nodes(self.network, pos, node_size=node_size, cmap=plt.cm.Dark2, node_color=node_colors)
 
-        edges, weights = zip(*nx.get_edge_attributes(self.network, "weight").items())
+        _, weights = zip(*nx.get_edge_attributes(self.network, "weight").items())
 
         # Draw edges
         if kwargs.get("draw_edges", True):
             nx.draw_networkx_edges(self.network, pos, alpha=0.2, edge_color=weights)
 
-        # labels = nx.get_edge_attributes(self.network, "weight")
-        # nx.draw_networkx_edge_labels(self.network, pos, edge_labels=labels)
-
-        # labels
+        # Labels
         font_size = kwargs.get("font_size", 10)
         nx.draw_networkx_labels(self.network, pos, font_size=font_size)
 
+        title = kwargs.get("title", "Neuron Network Title Goes Here")
+        plt.title(title)
         plt.axis("off")
 
         save_to_file = kwargs.get("save", False)
         if save_to_file:
-            title = kwargs.get("file_name", "Graph.png")
-            file_format = kwargs.get("format", "PNG")
-            plt.savefig(title, format=file_format, dpi=300)
+            plt.savefig(title, format="pdf", dpi=600)
 
         plt.show()
+        return pos
 
     def compute_connection_density(self):
         """Computes the connection density of a network of neurons.
 
-        Connection density is the actual number of edges in the graph as a
-        proportion of the total number of possible edges and is the simplest
-        estimator of the physical cost — for example, the energy or other
-        resource requirements — of a network. (Bullmore et al. 2009)
+            Connection density is the actual number of edges in the graph as a
+            proportion of the total number of possible edges and is the simplest
+            estimator of the physical cost — for example, the energy or other
+            resource requirements — of a network. (Bullmore et al. 2009)
 
-        total number of possible edges is: n(n-1) / 2,
-        where n is the number of nodes (neurons) in the graph.
+            Total number of possible edges is: n(n-1)/2,
+            where n is the number of nodes (neurons) in the graph.
         """
         num_of_neurons = len(self.neurons)
         possible_num_of_edges = (num_of_neurons * (num_of_neurons-1)) / 2
@@ -127,12 +146,12 @@ class NeuronNetwork(object):
     def mean_betw_cent(self, weight="weight"):
         """Computes the mean betweeness centrality of a network of neurons.
 
-           The centrality of a node measures how many of the shortest paths
-           between all other nodes pairs in the network pass through it. A node
-           with high centrality is thus crucial to efficient communication.
-           (Bullmore et. al. 2009)
+            The centrality of a node measures how many of the shortest paths
+            between all other nodes pairs in the network pass through it. A node
+            with high centrality is thus crucial to efficient communication.
+            (Bullmore et. al. 2009)
 
-           https://en.wikipedia.org/wiki/Betweenness_centrality
+            https://en.wikipedia.org/wiki/Betweenness_centrality
         """
         betw_centrality = nx.betweenness_centrality(self.network, weight=weight)
         return np.mean(list(betw_centrality.values()))
@@ -140,12 +159,12 @@ class NeuronNetwork(object):
     def compute_mean_degree_cent(self):
         """Computes the mean degree centrality of a network of neurons.
 
-           The centrality of a node measures how many of the shortest paths
-           between all other nodes pairs in the network pass through it. A node
-           with high centrality is thus crucial to efficient communication.
-           (Bullmore et. al. 2009)
+            The centrality of a node measures how many of the shortest paths
+            between all other nodes pairs in the network pass through it. A node
+            with high centrality is thus crucial to efficient communication.
+            (Bullmore et. al. 2009)
 
-           https://en.wikipedia.org/wiki/Centrality#Degree_centrality
+            https://en.wikipedia.org/wiki/Centrality#Degree_centrality
         """
         graph_centrality = nx.degree_centrality(self.network)
         return np.mean(list(graph_centrality.values()))
@@ -203,18 +222,17 @@ class NeuronNetwork(object):
         Finds all cliques in an undirected graph (network), and computes the
         mean size of all those cliques.
 
-            Returns:
-                mean: float
-
-                    the mean clique size of the network of neurons.,
+        Returns:
+            mean: float
+                The mean clique size of the network of neurons.
         """
         all_cliques = nx.enumerate_all_cliques(self.network)
 
         size = 0
         running_sum = 0
-        for l in all_cliques:
+        for cliq in all_cliques:
             size += 1
-            running_sum += len(l)
+            running_sum += len(cliq)
 
         mean = running_sum / size
         return mean
@@ -222,9 +240,15 @@ class NeuronNetwork(object):
     def avg_shortest_path_len(self, weight="weight"):
         """Computes the average path shortest path length.
 
-        This function compute the average path length L, as the average
+        This function computes the average path length L, as the average
         length of the shortest path connecting any paid of nodes in a
         network.
+
+        Args:
+            weight: str or None, optional, default: None
+                If None, every edge has weight/distance/cost 1. If a string, use
+                this edge attribute as the edge weight. Any edge attribute not
+                present defaults to 1.
 
         Returns:
             avg_shortest_path_len: float
