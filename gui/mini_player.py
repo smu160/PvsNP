@@ -1,24 +1,16 @@
-# import external libraries
-import wx # 2.8
+"""This module contains a bare-bones vlc player class to stream videos.
+"""
+
+import os
+import queue
+import platform
+
+import wx
 import vlc
 from client import Client
-from server import Server
-
-# import standard libraries
-import os
-import sys
-import queue
-import threading
-import time
-
-try:
-    unicode        # Python 2
-except NameError:
-    unicode = str  # Python 3
-
 
 class MiniPlayer(wx.Frame):
-    """The main window has to deal with events.
+    """Stripped-down PyVLC video player class to sync with a main video player.
     """
 
     def __init__(self, title, q):
@@ -32,8 +24,8 @@ class MiniPlayer(wx.Frame):
         self.file_menu.AppendSeparator()
         self.file_menu.Append(2, "&Close", "Quit")
         self.file_menu.AppendSeparator()
-        self.Bind(wx.EVT_MENU, self.OnOpen, id=1)
-        self.Bind(wx.EVT_MENU, self.OnExit, id=2)
+        self.Bind(wx.EVT_MENU, self.on_open, id=1)
+        self.Bind(wx.EVT_MENU, self.on_exit, id=2)
         self.frame_menubar.Append(self.file_menu, "File")
         self.SetMenuBar(self.frame_menubar)
 
@@ -49,23 +41,23 @@ class MiniPlayer(wx.Frame):
         self.SetMinSize((350, 300))
 
         # VLC player controls
-        self.Instance = vlc.Instance()
-        self.player = self.Instance.media_player_new()
+        self.instance = vlc.Instance()
+        self.player = self.instance.media_player_new()
 
-        self.OnOpen(None)
+        self.on_open(None)
         self.data_q = q
 
         # Create the timer, which updates the video by reading from the queue
         self.timer = wx.Timer(self)
         self.timer.Start(95)
-        self.Bind(wx.EVT_TIMER, self.OnTimer, self.timer)
+        self.Bind(wx.EVT_TIMER, self.on_timer, self.timer)
 
-    def OnExit(self, evt):
+    def on_exit(self, evt):
         """Closes the window.
         """
         self.Close()
 
-    def OnOpen(self, evt):
+    def on_open(self, evt):
         """Pop up a new dialow window to choose a file, then play the selected file.
         """
 
@@ -77,9 +69,10 @@ class MiniPlayer(wx.Frame):
         if dlg.ShowModal() == wx.ID_OK:
             dirname = dlg.GetDirectory()
             filename = dlg.GetFilename()
-            # Creation
-            self.Media = self.Instance.media_new(unicode(os.path.join(dirname, filename)))
-            self.player.set_media(self.Media)
+
+            # Create
+            self.media = self.instance.media_new(os.path.join(dirname, filename))
+            self.player.set_media(self.media)
 
             # Report the title of the file chosen
             title = self.player.get_title()
@@ -92,11 +85,11 @@ class MiniPlayer(wx.Frame):
 
             # set the window id where to render VLC's video output
             handle = self.videopanel.GetHandle()
-            if sys.platform.startswith("linux"): # for Linux using the X Server
+            if platform.system() == "Linux":
                 self.player.set_xwindow(handle)
-            elif sys.platform == "win32": # for Windows
+            elif platform.system() == "Windows":
                 self.player.set_hwnd(handle)
-            elif sys.platform == "darwin": # for MacOS
+            elif platform.system() == "Darwin":
                 self.player.set_nsobject(handle)
 
             # Start playing the video as soon as it loads.
@@ -105,7 +98,7 @@ class MiniPlayer(wx.Frame):
         # finally destroy the dialog
         dlg.Destroy()
 
-    def OnTimer(self, evt):
+    def on_timer(self, evt):
         try:
             curr_time = self.data_q.get(block=False)
             if not self.player.is_playing():
@@ -118,6 +111,7 @@ class MiniPlayer(wx.Frame):
 
 
 if __name__ == "__main__":
+
     # Create a wx.App(), which handles the windowing system event loop
     app = wx.App()
 
