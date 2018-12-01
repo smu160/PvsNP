@@ -9,6 +9,7 @@ import tkinter as tk
 import numpy as np
 import pandas as pd
 import pyqtgraph as pg
+import pyqtgraph.widgets.RemoteGraphicsView
 from PyQt5 import QtCore, QtWidgets
 from pyqt_wrapper import MyWidget
 
@@ -157,7 +158,9 @@ def main():
     client = Client("127.0.0.1", 10000, q)
 
     app = QtWidgets.QApplication([])
-    pg.setConfigOptions(antialias=False) # set to True for higher quality plots
+    # view = pg.widgets.RemoteGraphicsView.RemoteGraphicsView()
+    # view.pg.setConfigOptions(antialias=True)
+    pg.setConfigOptions(antialias=True) # set to True for higher quality plots
 
     win = MyWidget(q, plots, plot_names, beh_intervals=datagen.behavior_intervals)
     win.show()
