@@ -2,7 +2,7 @@ import os
 import platform
 import socket
 import threading
-
+import sys
 
 class Server:
 
@@ -39,7 +39,7 @@ class Server:
         self.sock.listen(5)
 
         self.q = q
-        self.client_threads = []
+        self.client_threads = {}
         listener_thread = threading.Thread(target=self.listen_for_clients, args=())
         listener_thread.daemon = True
         listener_thread.start()
@@ -49,9 +49,9 @@ class Server:
 
         while True:
             client, addr = self.sock.accept()
-            # print("Accepted Connection from: {}: {}".format(addr[0], addr[1]))
+            print("Accepted Connection from: {}".format(client))
             t = threading.Thread(target=self.data_sender, args=())
-            self.client_threads.append((t, client, addr))
+            self.client_threads[client] = (t, addr)
             t.daemon = True
             t.start()
 
@@ -60,7 +60,10 @@ class Server:
             try:
                 while True:
                     data = str(self.q.get()) + ','
-                    for _, client, _ in self.client_threads:
+                    for client, _ in self.client_threads.items():
                         client.sendall(data.encode())
-            except:
-                return
+            except BrokenPipeError:
+                print("Connection to client: {} was broken!".format(client), file=sys.stderr)
+                print(self.client_threads, file=sys.stderr)
+                client.close()
+                del self.client_threads[client]
