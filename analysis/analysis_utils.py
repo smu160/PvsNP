@@ -2,7 +2,8 @@
 This module contains all the functions necessary for
 feature engineering, data visualization, and data analysis.
 
-@author: Saveliy Yusufov, Columbia University, sy2685@columbia.edu
+@authors: Saveliy Yusufov, Columbia University, sy2685@columbia.edu
+          Jack Berry, Columbia University, jeb2242@columbia.edu
 """
 import os
 import sys
@@ -11,6 +12,70 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import seaborn as sns
+
+def preprocess_behavior(etho_filepath, observer_filepath):
+    """
+    Processes original ethovision and observer files (converted to .csv format)
+    
+    Args:
+        etho_filepath: file path to raw ethovision behavior .csv file (only 1 sheet)
+        observer_filepath: file path to raw observer .csv file
+    
+    Returns: 
+        behavior dataframe 
+    
+    """
+    #read ethovision data and rename columns
+    nrowsheader = pd.read_csv(etho_filepath, nrows=0, encoding = 'latin1',header=0)
+    nrowsheader=int(nrowsheader.columns[1])
+
+    behavior=pd.read_csv(etho, header=nrowsheader-2, encoding = 'latin1')
+    behavior=behavior.drop(behavior.index[0])
+
+    #rename columns
+    new_cols=[]
+    for s in behavior.columns:
+        s=s.replace(" ","_")
+        s=s.replace("In_zone(","")
+        s=s.replace("_/_center-point)","")
+        new_cols.append(s)
+    behavior.columns=new_cols
+    
+    #read observer data and format
+    
+    obs = pd.read_csv(observer_filepath)
+    obs=obs.drop(['Observation','Event Log',"Time"],axis=1)
+    obs.index=obs.index+1
+    obs.fillna(0,inplace=True)
+    
+    #merge behavior and observer dataframes, and return result
+    num_obs = len(obs.columns) #number of hand-scored observations
+    obs[obs != 0] = 1
+    behavior=pd.merge(behavior,obs,how='left',left_index=True,right_index=True)
+    behavior.update(behavior[behavior.columns[-num_obs:]].fillna(0))
+    
+    return behavior
+
+def z_score_data(data):
+    """This function simply z scores all the given neural signal data.
+
+    Args:
+        data:
+
+            Ca2 transient data in T x N format, where N is the # of neuron
+            column vectors, and T is the number of observations (rows),
+            all in raw format.
+
+    Returns:
+        z_scored_data: DataFrame
+
+            The z scored raw cell data in T x N format.
+    """
+    pop_offset = np.percentile(data.values, 50)
+    sigma = np.std(data.values, axis=0)
+    #mew = np.mean(data.values[data.values < pop_offset])
+    mew = 0 #if raw data comes from CNMFE, use 0 for baseline
+    return pd.DataFrame(data=((data.values - mew) / sigma))
 
 def find_file(root_directory, target_file):
     """Finds a file in a given root directory (folder).
@@ -217,7 +282,7 @@ class Mouse(object):
         for behavior in behaviors:
             if behavior in concated_df.columns:
                 activity_df.loc[:, behavior] = frame_rate * concated_df.loc[concated_df[behavior] != 0, neuron_names].mean()
-            else:
-                raise ValueError("{} is not a column in the provided dataframe.".format(behavior))
+            #else:
+                #raise ValueError("{} is not a column in the provided dataframe.".format(behavior))
         return activity_df
 
