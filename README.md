@@ -1,4 +1,4 @@
-Hen Lab 
+Hen Lab
 ======
 # <img src="neurons_pic.png" >
 
@@ -6,9 +6,10 @@ Hen Lab
 
 This code base was written with the intention of serving as a toolbox for:
 
-1. Signal Processing of neuron data collected via *in vivo* calcium imaging.
-2. Statistical Testing of neuron classification by behavior.
-3. Graph Theoretical Analysis of networks of neurons. 
+1. Statistical Testing of neuron classification by behavior.
+2. Graph Theoretical Analysis of networks of neurons.
+3. Calcium Imaging "live" data visualization
+4. Deconvolution of calcium imaging data.
 
 For any feature requests, feel free to email Saveliy Yusufov at sy2685@columbia.edu
 
@@ -16,57 +17,22 @@ For any feature requests, feel free to email Saveliy Yusufov at sy2685@columbia.
 
 ### Installation on Mac or Linux (Python 3.x)
 
-* Download and install [Anaconda](https://docs.anaconda.com/anaconda/install/) (Python 3.6) 
+* Download and install [Anaconda](https://docs.anaconda.com/anaconda/install/) (Python 3.6)
 
 ```bash
 git clone https://github.com/jaberry/Hen_Lab.git
 cd Hen_Lab
 bash create_env.sh
-```   
-
-### Installation on Windows 
-
-#### (Python 2.x)
-
-* Download and install [Anaconda](https://docs.anaconda.com/anaconda/install/) (Python 2.7) We recommend telling conda to modify your PATH variable (it is a checkbox during Anaconda install, off by default).
-
-* Launch an anaconda-enabled command prompt as follows: start --> Anaconda2 --> Anaconda Prompt
-
-* Use conda to install git as follows: `conda install git`
-
-```bash
-git clone https://github.com/jaberry/Hen_Lab.git
-cd Hen_Lab
-conda create -n henlabenv anaconda python=3.6
-conda activate henlabenv
 ```
 
-#### (Python 3.x)
+### Installation on Windows
 
-* Download and install [Anaconda](https://docs.anaconda.com/anaconda/install/) (Python 3.6) We recommend telling conda to modify your PATH variable (it is a checkbox during Anaconda install, off by default).
-
-* Launch an anaconda-enabled command prompt as follows: start --> Anaconda3 --> Anaconda Prompt
-
-* Use conda to install git as follows: `conda install git`
-
-```bash
-git clone https://github.com/jaberry/Hen_Lab.git
-cd Hen_Lab
-conda list --export > conda_packages.txt
-conda create --name henlabenv --file conda_packages.txt
-conda activate henlabenv
-```
-
+Instructions coming soon...
 
 ## Troubleshooting
 
-For any issues, feel free to email Saveliy Yusufov at sy2685@columbia.edu
-
-## Built With
-
-* [pandas](http://pandas.pydata.org)
-* [NetworkX](https://networkx.github.io)
-* [seaborn](http://seaborn.pydata.org)
+For members of the Hen Lab, message Saveliy on Slack.
+Otherwise, feel free to email Saveliy Yusufov at sy2685@columbia.edu
 
 ## Authors
 
