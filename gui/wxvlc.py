@@ -135,10 +135,13 @@ class Player(wx.Frame):
     def OnStream(self, evt):
         if platform.system() == "Darwin":
             subprocess.Popen(["pythonw", "mini_player.py"])
+        elif platform.system() == "Windows":
+            subprocess.Popen(["python", "mini_player.py"], shell=True)
         else:
             subprocess.Popen(["python", "mini_player.py"])
 
     def OnNewPlot(self, evt):
+        print(os.getcwd())
         subprocess.Popen(["python", "client.py"])
 
     def OnExit(self, evt):
@@ -153,7 +156,7 @@ class Player(wx.Frame):
 
         # Create a file dialog opened in the current home directory, where you
         # can display all kind of files, having as title "Choose a file".
-        dlg = wx.FileDialog(self, message="Choose a media file", defaultDir=os.getcwd(), defaultFile="", style=wx.FD_OPEN | wx.FD_CHANGE_DIR)
+        dlg = wx.FileDialog(self, message="Choose a media file", defaultDir=os.getcwd(), defaultFile="", style=wx.FD_OPEN)
 
         if dlg.ShowModal() == wx.ID_OK:
             dirname = dlg.GetDirectory()
@@ -284,7 +287,7 @@ def main():
     # Create the window containing video player
     player = Player("Video Player")
 
-    server = Server("127.0.0.1", 10000, player.q)
+    server = Server("localhost", 10000, player.q)
 
     # Show the video player window centred and run the application
     player.Centre()

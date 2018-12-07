@@ -9,8 +9,7 @@ import tkinter as tk
 import numpy as np
 import pandas as pd
 import pyqtgraph as pg
-import pyqtgraph.widgets.RemoteGraphicsView
-from PyQt5 import QtCore, QtWidgets
+from PyQt5 import QtWidgets
 from pyqt_wrapper import MyWidget
 
 pg.setConfigOption('background', 'w')
@@ -108,14 +107,15 @@ class Client:
 
             # Connect the socket to the port where the server is listening
             server_address = (address, port)
-            print("connecting to {} port {}".format(server_address[0], server_address[1]))
+            print("Connecting to {} port {}".format(server_address[0], server_address[1]))
+            self.sock.connect(server_address)
         else:
 
             # Create a UDS socket
             self.sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
 
             # Connect the socket to the port where the server is listening
-            server_address = './uds_socket'
+            server_address = "./uds_socket"
             print("New client connecting to {}".format(server_address))
 
             try:
@@ -155,7 +155,7 @@ def main():
     plot_names = datagen.neurons
 
     q = queue.Queue()
-    client = Client("127.0.0.1", 10000, q)
+    client = Client("localhost", 10000, q)
 
     app = QtWidgets.QApplication([])
     # view = pg.widgets.RemoteGraphicsView.RemoteGraphicsView()

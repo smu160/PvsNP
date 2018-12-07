@@ -49,8 +49,14 @@ class MiniPlayer(wx.Frame):
 
         # Create the timer, which updates the video by reading from the queue
         self.timer = wx.Timer(self)
-        self.timer.Start(95)
+        self.timer.Start(100)
         self.Bind(wx.EVT_TIMER, self.on_timer, self.timer)
+
+        try:
+            self.current_time = self.data_q.get(block=False)
+            self.current_time *= 100
+        except:
+            self.current_time = 0
 
     def on_exit(self, evt):
         """Closes the window.
@@ -100,14 +106,22 @@ class MiniPlayer(wx.Frame):
 
     def on_timer(self, evt):
         try:
-            curr_time = self.data_q.get(block=False)
-            if not self.player.is_playing():
-                self.player.set_time(curr_time*100)
-                self.player.play()
+            current_time = self.data_q.get(block=False)
+            if current_time != self.current_time:
+                self.current_time = current_time
+                update = True
+            else:
+                update = False
         except:
             if self.player.is_playing():
                 self.player.pause()
             return
+
+        if not self.player.is_playing():
+            self.player.set_time(self.current_time*100)
+            self.player.play()
+        elif update:
+            self.player.set_time(self.current_time*100)
 
 
 if __name__ == "__main__":

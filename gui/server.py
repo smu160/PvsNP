@@ -57,13 +57,27 @@ class Server:
 
     def data_sender(self):
         while True:
-            try:
-                while True:
-                    data = str(self.q.get()) + ','
-                    for client, _ in self.client_threads.items():
-                        client.sendall(data.encode())
-            except BrokenPipeError:
-                print("Connection to client: {} was broken!".format(client), file=sys.stderr)
-                print(self.client_threads, file=sys.stderr)
-                client.close()
-                del self.client_threads[client]
+            if platform.system() != "Windows":
+                try:
+                    while True:
+                        data = str(self.q.get()) + ','
+                        for client, _ in self.client_threads.items():
+                            client.sendall(data.encode())
+                except BrokenPipeError:
+                    print("Connection to client: {} was broken!".format(client), file=sys.stderr)
+                    print(self.client_threads, file=sys.stderr)
+                    client.close()
+                    del self.client_threads[client]
+                    
+            # An existing connection was forcibly closed by the remote 
+            else:
+                try:
+                    while True:
+                        data = str(self.q.get()) + ','
+                        for client, _ in self.client_threads.items():
+                            client.sendall(data.encode())
+                except socket.error as e:
+                    print(e, file=sys.stderr)
+                    print("Connection to client: {} was broken!".format(client), file=sys.stderr)
+                    print(self.client_threads, file=sys.stderr)
+                    del self.client_threads[client]
