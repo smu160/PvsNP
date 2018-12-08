@@ -36,11 +36,10 @@ class MyWidget(pg.GraphicsWindow):
     def add_plots(self, plot_names, all_beh_intervals):
         x_max = len(self.plots[0])
         pen = pg.mkPen('r', width=2)
-        colors = [(0, 0, 255, 10), (255, 165, 0, 10), (255, 0, 0, 10), (0, 255, 0, 10)]
+        colors = [(0, 0, 255, 50), (255, 165, 0, 50), (255, 0, 0, 50), (0, 255, 0, 50)]
         beh_brushes = [pg.mkBrush(color) for color in colors]
 
         for i in range(len(self.plots)):
-            # print(self.plots[i])
             plot_item = self.addPlot(title="plot {}".format(plot_names[i]), row=i, col=0)
             plot_item.plot(self.plots[i], pen=pg.mkPen('b', width=2))
 
@@ -52,7 +51,9 @@ class MyWidget(pg.GraphicsWindow):
             if all_beh_intervals:
                 for j, behavior_intervals in enumerate(all_beh_intervals):
                     for interval in behavior_intervals:
-                        rgn = pg.LinearRegionItem([interval[0], interval[-1]], movable=False)
+                        rgn = pg.LinearRegionItem(values=[interval[0], interval[-1]], movable=False)
+                        rgn.lines[0].setPen((255, 255, 255, 5))
+                        rgn.lines[1].setPen((255, 255, 255, 5))
                         rgn.setBrush(beh_brushes[j])
                         plot_item.addItem(rgn)
 
