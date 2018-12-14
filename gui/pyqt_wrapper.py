@@ -5,7 +5,40 @@ import pyqtgraph as pg
 pg.setConfigOption('background', 'w')
 pg.setConfigOption('foreground', 'k')
 
-class MyWidget(pg.GraphicsWindow):
+class MainWindow(QtWidgets.QMainWindow):
+    def __init__(self, data_q, plots, plot_names, beh_intervals=None, parent=None):
+        super().__init__(parent)
+
+        # creating EmailBlast widget & setting it as central
+        self.plot_window = PlotWindow(data_q, plots, plot_names, beh_intervals=beh_intervals, parent=self)
+        self.setCentralWidget(self.plot_window)
+
+        exitAct = QtWidgets.QAction("&setXrange", self)
+        exitAct.setShortcut("Ctrl+x")
+        exitAct.setStatusTip("Set a new range for the x-axis of all plots")
+        exitAct.triggered.connect(self.change_x_axis)
+
+        menubar = self.menuBar()
+        fileMenu = menubar.addMenu('&File')
+        fileMenu.addAction(exitAct)
+
+    def change_x_axis(self):
+        lower_bound, ok = QtWidgets.QInputDialog.getInt(self, "X-axis", "lower bound:")
+
+        if ok:
+            upper_bound, ok_2 = QtWidgets.QInputDialog.getInt(self, "X-axis", "upper bound:")
+            if ok_2:
+                if lower_bound <= upper_bound:
+                    for plot_item in self.plot_window.plot_items:
+                        plot_item.setRange(xRange=[lower_bound, upper_bound], padding=0)
+
+                    print("Changed x axis", file=sys.stderr)
+            else:
+                return
+        else:
+            return
+
+class PlotWindow(pg.GraphicsWindow):
 
     def __init__(self, data_q, plots, plot_names, beh_intervals=None, parent=None):
         super().__init__(parent=parent)
@@ -18,6 +51,7 @@ class MyWidget(pg.GraphicsWindow):
         self.timer.start()
         self.timer.timeout.connect(self.on_new_data)
 
+        self.plot_items = []
         self.vertical_lines = []
         self.plots = plots
         self.add_plots(plot_names, beh_intervals)
@@ -34,17 +68,22 @@ class MyWidget(pg.GraphicsWindow):
             QtCore.QCoreApplication.processEvents()
 
     def add_plots(self, plot_names, all_beh_intervals):
+
+        # Find the maximum value of the x-axis for all plots
         x_max = len(self.plots[0])
+
+        # Pen to be used for vertical lines
         pen = pg.mkPen('r', width=2)
+
         colors = [(0, 0, 255, 50), (255, 165, 0, 50), (255, 0, 0, 50), (0, 255, 0, 50)]
         beh_brushes = [pg.mkBrush(color) for color in colors]
 
-        for i in range(len(self.plots)):
+        for i, plot in enumerate(self.plots):
             plot_item = self.addPlot(title="plot {}".format(plot_names[i]), row=i, col=0)
-            plot_item.plot(self.plots[i], pen=pg.mkPen('b', width=2))
+            plot_item.plot(plot, pen=pg.mkPen('b', width=2))
 
             # Set the domain and range for each plot
-            y_max = self.plots[i].max()
+            y_max = plot.max()
             plot_item.setRange(xRange=[0, x_max], yRange=[0, y_max], padding=0)
 
             # Add background color(s) (color coded by behavior) to each plot
@@ -61,16 +100,9 @@ class MyWidget(pg.GraphicsWindow):
             self.vertical_line = plot_item.addLine(x=0, pen=pen)
             self.vertical_lines.append(self.vertical_line)
 
+            # Store references to each PlotItem
+            self.plot_items.append(plot_item)
 
-def main():
-    app = QtWidgets.QApplication([])
-    pg.setConfigOptions(antialias=True)
-
-    win = MyWidget()
-    win.show()
-    win.resize(800, 600)
-    win.raise_()
-    sys.exit(app.exec_())
 
 if __name__ == "__main__":
-    main()
+    pass
