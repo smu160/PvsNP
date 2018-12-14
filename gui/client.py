@@ -10,10 +10,10 @@ import numpy as np
 import pandas as pd
 import pyqtgraph as pg
 from PyQt5 import QtWidgets
-from pyqt_wrapper import MyWidget
+from pyqt_wrapper import MainWindow
 
-pg.setConfigOption('background', 'w')
-pg.setConfigOption('foreground', 'k')
+pg.setConfigOption("background", 'w')
+pg.setConfigOption("foreground", 'k')
 
 class DataGen:
     """Data Generator/Extractor class"""
@@ -157,17 +157,14 @@ def main():
     q = queue.Queue()
     client = Client("localhost", 10000, q)
 
-    app = QtWidgets.QApplication([])
-    # view = pg.widgets.RemoteGraphicsView.RemoteGraphicsView()
-    # view.pg.setConfigOptions(antialias=True)
+    # Create new plot window
+    app = QtWidgets.QApplication(sys.argv)
     pg.setConfigOptions(antialias=True) # set to True for higher quality plots
-
-    win = MyWidget(q, plots, plot_names, beh_intervals=datagen.behavior_intervals)
-    win.show()
-    win.resize(800, 600)
-    win.raise_()
+    main_window = MainWindow(q, plots, plot_names, beh_intervals=datagen.behavior_intervals)
+    main_window.show()
+    main_window.resize(800, 600)
+    main_window.raise_()
     sys.exit(app.exec_())
-
 
 if __name__ == "__main__":
     main()
