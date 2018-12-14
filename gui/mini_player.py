@@ -83,7 +83,7 @@ class MiniPlayer(wx.Frame):
             # Report the title of the file chosen
             title = self.player.get_title()
 
-            #  if an error was encountred while retriving the title, then use filename
+            # If an error was encountred while retriving the title, then use filename
             if title == -1:
                 title = filename
 
@@ -124,7 +124,7 @@ class MiniPlayer(wx.Frame):
             self.player.set_time(self.current_time*100)
 
 
-if __name__ == "__main__":
+def main():
 
     # Create a wx.App(), which handles the windowing system event loop
     app = wx.App()
@@ -139,3 +139,6 @@ if __name__ == "__main__":
     player.Centre()
     player.Show()
     app.MainLoop()
+
+if __name__ == "__main__":
+    main()
