@@ -39,12 +39,6 @@ import wx # 2.8
 import vlc
 from server import Server
 
-try:
-    unicode        # Python 2
-except NameError:
-    unicode = str  # Python 3
-
-
 class Player(wx.Frame):
     """The main window has to deal with events.
     """
@@ -162,7 +156,7 @@ class Player(wx.Frame):
             dirname = dlg.GetDirectory()
             filename = dlg.GetFilename()
             # Creation
-            self.Media = self.Instance.media_new(unicode(os.path.join(dirname, filename)))
+            self.Media = self.Instance.media_new(os.path.join(dirname, filename))
             self.player.set_media(self.Media)
 
             # Report the title of the file chosen
