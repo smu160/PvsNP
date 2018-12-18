@@ -4,7 +4,7 @@ from PyQt5 import QtWidgets, QtCore
 
 class BehaviorDialog(QtWidgets.QDialog):
 
-    def __init__(self, parent=None):
+    def __init__(self, column_names, parent=None):
         super(BehaviorDialog, self).__init__(parent)
 
         self.layout = QtWidgets.QVBoxLayout()
@@ -12,8 +12,9 @@ class BehaviorDialog(QtWidgets.QDialog):
         self.listWidget.setSelectionMode(QtWidgets.QAbstractItemView.ExtendedSelection)
         self.listWidget.setGeometry(QtCore.QRect(10, 10, 211, 291))
 
-        for i in range(10):
-            item = QtWidgets.QListWidgetItem("Behavior_{}".format(i))
+        # Fill QList with column names that were passed in  
+        for column_name in column_names:
+            item = QtWidgets.QListWidgetItem(column_name)
             self.listWidget.addItem(item)
 
         self.ok_button = QtWidgets.QPushButton("Ok")
