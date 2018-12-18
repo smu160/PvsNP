@@ -3,17 +3,15 @@ import platform
 import socket
 import queue
 import threading
+
 from tkinter import filedialog
-from tkinter import simpledialog
 import tkinter as tk
 import numpy as np
 import pandas as pd
 from PyQt5 import QtWidgets, QtGui
 import pyqtgraph as pg
 from pyqt_wrapper import MainWindow
-
-pg.setConfigOption("background", 'w')
-pg.setConfigOption("foreground", 'k')
+from behavior_dialogs import BehaviorDialog
 
 class DataGen:
     """Data Generator/Extractor class"""
@@ -32,8 +30,12 @@ class DataGen:
         if self.neurons is None:
             sys.exit(1)
 
-        self.behaviors = self.prompt_data_selection("Behaviors", "Choose your behaviors")
         self.parse_data_selection()
+
+        # Prompt user to select behaviors. If the user cancels or closes the
+        # dialogs, then it's assumed no behaviors were chosen/needed.
+        self.behaviors = []
+        self.show_behavior_dialog()
 
         self.dataset.fillna(0)
         self.neuron_col_vectors = self.dataset[self.neurons]
@@ -61,20 +63,18 @@ class DataGen:
         if ok and text != "":
             return text
 
-    def prompt_data_selection(self, msg1, msg2):
-        root = tk.Tk()
-        user_input = ""
-        while not user_input:
-            user_input = simpledialog.askstring(msg1, msg2, parent=root)
-
-        root.destroy()
-        return user_input
+    def show_behavior_dialog(self):
+        """Display the behavior dialog to the user & let user choose behaviors.
+        """
+        app = QtWidgets.QApplication(sys.argv)
+        behavior_dialog = BehaviorDialog(list(self.dataset.columns))
+        behavior_dialog.show()
+        app.exec_()
+        self.behaviors = behavior_dialog.selected_items
 
     def parse_data_selection(self):
         self.neurons = self.neurons.replace(' ', '')
         self.neurons = self.neurons.split(',')
-        self.behaviors = self.behaviors.replace(' ', '')
-        self.behaviors = self.behaviors.split(',')
 
     def get_behavior(self, dataset):
         all_behavior_intervals = []
@@ -169,7 +169,7 @@ def main():
     plot_names = datagen.neurons
 
     q = queue.Queue()
-    client = Client("localhost", 10000, q)
+    _ = Client("localhost", 10000, q)
 
     # Create new plot window
     app = QtWidgets.QApplication(sys.argv)
@@ -181,4 +181,6 @@ def main():
     sys.exit(app.exec_())
 
 if __name__ == "__main__":
+    pg.setConfigOption("background", 'w')
+    pg.setConfigOption("foreground", 'k')
     main()
