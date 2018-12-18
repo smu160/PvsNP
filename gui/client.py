@@ -21,7 +21,16 @@ class DataGen:
 
         try:
             self.dataset = pd.read_csv(file_path)
-        except Exception:
+        except (UnicodeDecodeError, pd.errors.ParserError) as exception:
+            print(exception, file=sys.stderr)
+            app = QtWidgets.QApplication([])
+            msg = QtWidgets.QMessageBox()
+            msg.setIcon(QtWidgets.QMessageBox.Critical)
+            msg.setText("Error")
+            msg.setInformativeText(str(exception) + "\nMake sure you choose a csv file! Try again.")
+            msg.setWindowTitle("Error")
+            msg.show()
+            app.exec_()
             sys.exit(1)
 
         # Prompt user to select neurons. If the user cancels the dialog, or the
