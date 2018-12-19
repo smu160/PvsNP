@@ -8,12 +8,12 @@ from tkinter import simpledialog
 import tkinter as tk
 import numpy as np
 import pandas as pd
+from PyQt5 import QtWidgets, QtGui
 import pyqtgraph as pg
-from PyQt5 import QtWidgets
-from pyqt_wrapper import MyWidget
+from pyqt_wrapper import MainWindow
 
-pg.setConfigOption('background', 'w')
-pg.setConfigOption('foreground', 'k')
+pg.setConfigOption("background", 'w')
+pg.setConfigOption("foreground", 'k')
 
 class DataGen:
     """Data Generator/Extractor class"""
@@ -26,7 +26,12 @@ class DataGen:
         except Exception:
             sys.exit(1)
 
-        self.neurons = self.prompt_data_selection("Neurons", "Choose the neurons to plot")
+        # Prompt user to select neurons. If the user cancels the dialog, or the
+        # the user closes the prompt without inputting anything, exit.
+        self.neurons = self.show_neuron_dialog()
+        if self.neurons is None:
+            sys.exit(1)
+
         self.behaviors = self.prompt_data_selection("Behaviors", "Choose your behaviors")
         self.parse_data_selection()
 
@@ -46,6 +51,16 @@ class DataGen:
 
         return file_path
 
+    def show_neuron_dialog(self):
+        """Display the neuron dialog to the user and let user enter selection.
+        """
+        app = QtGui.QApplication([])
+        app.dialog = QtGui.QInputDialog()
+        text, ok = app.dialog.getText(None, "Neuron Input Dialog", "Enter the neurons:", QtGui.QLineEdit.Normal, "")
+        app.quit()
+        if ok and text != "":
+            return text
+
     def prompt_data_selection(self, msg1, msg2):
         root = tk.Tk()
         user_input = ""
@@ -58,7 +73,6 @@ class DataGen:
     def parse_data_selection(self):
         self.neurons = self.neurons.replace(' ', '')
         self.neurons = self.neurons.split(',')
-
         self.behaviors = self.behaviors.replace(' ', '')
         self.behaviors = self.behaviors.split(',')
 
@@ -157,17 +171,14 @@ def main():
     q = queue.Queue()
     client = Client("localhost", 10000, q)
 
-    app = QtWidgets.QApplication([])
-    # view = pg.widgets.RemoteGraphicsView.RemoteGraphicsView()
-    # view.pg.setConfigOptions(antialias=True)
+    # Create new plot window
+    app = QtWidgets.QApplication(sys.argv)
     pg.setConfigOptions(antialias=True) # set to True for higher quality plots
-
-    win = MyWidget(q, plots, plot_names, beh_intervals=datagen.behavior_intervals)
-    win.show()
-    win.resize(800, 600)
-    win.raise_()
+    main_window = MainWindow(q, plots, plot_names, beh_intervals=datagen.behavior_intervals)
+    main_window.show()
+    main_window.resize(800, 600)
+    main_window.raise_()
     sys.exit(app.exec_())
-
 
 if __name__ == "__main__":
     main()
