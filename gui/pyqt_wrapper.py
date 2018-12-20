@@ -1,11 +1,17 @@
+"""
+This module contains the classes to create a plot(s) window.
+
+@author: Saveliy Yusufov, Columbia University, sy2685@columbia.edu
+"""
+
+import queue
 import sys
 from PyQt5 import QtCore, QtWidgets
 import pyqtgraph as pg
 
-pg.setConfigOption('background', 'w')
-pg.setConfigOption('foreground', 'k')
-
 class MainWindow(QtWidgets.QMainWindow):
+    """This class wraps the PlotWindow class to add extra functionality."""
+
     def __init__(self, data_q, plots, plot_names, beh_intervals=None, parent=None):
         super().__init__(parent)
 
@@ -39,6 +45,7 @@ class MainWindow(QtWidgets.QMainWindow):
             return
 
 class PlotWindow(pg.GraphicsWindow):
+    """This class holds plots and should be nested in a MainWindow."""
 
     def __init__(self, data_q, plots, plot_names, beh_intervals=None, parent=None):
         super().__init__(parent=parent)
@@ -58,9 +65,11 @@ class PlotWindow(pg.GraphicsWindow):
         self.data_q = data_q
 
     def on_new_data(self):
+        """Called on timer interval to get data from queue & update all plots.
+        """
         try:
             val = self.data_q.get(block=False)
-        except:
+        except queue.Empty:
             return
 
         for v_line in self.vertical_lines:
@@ -68,15 +77,13 @@ class PlotWindow(pg.GraphicsWindow):
             QtCore.QCoreApplication.processEvents()
 
     def add_plots(self, plot_names, all_beh_intervals):
+        """Creates and set all the plots"""
 
         # Find the maximum value of the x-axis for all plots
         x_max = len(self.plots[0])
 
         # Pen to be used for vertical lines
         pen = pg.mkPen('r', width=2)
-
-        colors = [(0, 0, 255, 50), (255, 165, 0, 50), (255, 0, 0, 50), (0, 255, 0, 50)]
-        beh_brushes = [pg.mkBrush(color) for color in colors]
 
         for i, plot in enumerate(self.plots):
             plot_item = self.addPlot(title="plot {}".format(plot_names[i]), row=i, col=0)
@@ -88,12 +95,12 @@ class PlotWindow(pg.GraphicsWindow):
 
             # Add background color(s) (color coded by behavior) to each plot
             if all_beh_intervals:
-                for j, behavior_intervals in enumerate(all_beh_intervals):
+                for behavior_intervals, color in all_beh_intervals:
                     for interval in behavior_intervals:
                         rgn = pg.LinearRegionItem(values=[interval[0], interval[-1]], movable=False)
                         rgn.lines[0].setPen((255, 255, 255, 5))
                         rgn.lines[1].setPen((255, 255, 255, 5))
-                        rgn.setBrush(beh_brushes[j])
+                        rgn.setBrush(pg.mkBrush(color))
                         plot_item.addItem(rgn)
 
             # Create and add vertical line that scrolls
@@ -105,4 +112,5 @@ class PlotWindow(pg.GraphicsWindow):
 
 
 if __name__ == "__main__":
-    pass
+    pg.setConfigOption("background", 'w')
+    pg.setConfigOption("foreground", 'k')

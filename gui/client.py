@@ -1,3 +1,9 @@
+"""
+This module contains the classes for receiving, extracting, and plotting data.
+
+@author: Saveliy Yusufov, Columbia University, sy2685@columbia.edu
+"""
+
 import sys
 import platform
 import socket
@@ -11,7 +17,7 @@ import pandas as pd
 from PyQt5 import QtWidgets, QtGui
 import pyqtgraph as pg
 from pyqt_wrapper import MainWindow
-from behavior_dialogs import BehaviorDialog
+from data_dialogs import DataDialog, ColorsDialog
 
 class DataGen:
     """Data Generator/Extractor class"""
@@ -34,17 +40,38 @@ class DataGen:
             sys.exit(1)
 
         # Prompt user to select neurons. If the user cancels the dialog, or the
-        # the user closes the prompt without inputting anything, exit.
-        self.neurons = self.show_neuron_dialog()
-        if self.neurons is None:
+        # the user closes the dialog without selecting anything, exit.
+        self.neurons = self.show_data_dialog()
+        if not self.neurons:
             sys.exit(1)
-
-        self.parse_data_selection()
 
         # Prompt user to select behaviors. If the user cancels or closes the
         # dialogs, then it's assumed no behaviors were chosen/needed.
-        self.behaviors = []
-        self.show_behavior_dialog()
+        self.behaviors = self.show_data_dialog(checkbox=True)
+
+        # If behaviors of interest were selected, then create a dictionary with
+        # each behavior coupled with a corresponding color.
+        if self.behaviors:
+
+            # If user checked box to choose custom colors, display the dialog
+            # for the user to choose custom colors for each behavior. Finally,
+            # ammend each color with a transparency value.
+            if self.choose_colors:
+                self.behaviors = self.show_behavior_colors_dialog()
+                for behavior, color in self.behaviors.items():
+                    temp = list(color)
+                    temp[3] = 40
+                    print(temp)
+                    self.behaviors[behavior] = temp
+            else:
+                temp = {}
+                for behavior in self.behaviors:
+                    rgb = list(np.random.randint(256, size=3))
+                    rgb.append(40)
+                    rgba = tuple(rgb)
+                    temp[behavior] = rgba
+
+                self.behaviors = temp
 
         self.dataset.fillna(0)
         self.neuron_col_vectors = self.dataset[self.neurons]
@@ -62,36 +89,37 @@ class DataGen:
 
         return file_path
 
-    def show_neuron_dialog(self):
-        """Display the neuron dialog to the user and let user enter selection.
-        """
-        app = QtGui.QApplication([])
-        app.dialog = QtGui.QInputDialog()
-        text, ok = app.dialog.getText(None, "Neuron Input Dialog", "Enter the neurons:", QtGui.QLineEdit.Normal, "")
-        app.quit()
-        if ok and text != "":
-            return text
-
-    def show_behavior_dialog(self):
-        """Display the behavior dialog to the user & let user choose behaviors.
+    def show_data_dialog(self, checkbox=False):
+        """Display a dialog to the user & let user choose neurons or behaviors.
         """
         app = QtWidgets.QApplication(sys.argv)
-        behavior_dialog = BehaviorDialog(list(self.dataset.columns))
-        behavior_dialog.show()
+        data_dialog = DataDialog(list(self.dataset.columns), checkbox=checkbox)
+        data_dialog.show()
         app.exec_()
-        self.behaviors = behavior_dialog.selected_items
 
-    def parse_data_selection(self):
-        self.neurons = self.neurons.replace(' ', '')
-        self.neurons = self.neurons.split(',')
+        # If checkbox was added to dialog for choosing behaviors, then show
+        # dialog for user to choose color for each behavior.
+        if checkbox:
+            self.choose_colors = data_dialog.choose_colors
+
+        return data_dialog.selected_items
+
+    def show_behavior_colors_dialog(self):
+        """Display the behavior dialog to the user & let user choose colors.
+        """
+        app = QtWidgets.QApplication(sys.argv)
+        colors_dialog = ColorsDialog(self.behaviors)
+        colors_dialog.show()
+        app.exec_()
+        return colors_dialog.behavior_colors
 
     def get_behavior(self, dataset):
         all_behavior_intervals = []
 
-        for behavior in self.behaviors:
+        for behavior, color in self.behaviors.items():
             curr_beh_epochs = self.extract_epochs(dataset, behavior)
             curr_beh_intervals = self.filter_epochs(curr_beh_epochs[1], framerate=1, seconds=1)
-            all_behavior_intervals.append(curr_beh_intervals)
+            all_behavior_intervals.append((curr_beh_intervals, color))
 
         return all_behavior_intervals
 
