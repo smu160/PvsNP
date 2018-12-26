@@ -18,7 +18,7 @@ class Player(QtWidgets.QMainWindow):
 
     def __init__(self, master=None):
         QtWidgets.QMainWindow.__init__(self, master)
-        self.setWindowTitle("Media Player")
+        self.setWindowTitle("Main Media Player")
 
         # Create a basic vlc instance
         self.instance = vlc.Instance()
@@ -84,7 +84,7 @@ class Player(QtWidgets.QMainWindow):
         file_menu = menu_bar.addMenu("File")
 
         # Create submenu to start new processes from file menu
-        new_menu = QtWidgets.QMenu("New", self)
+        new_menu = QtWidgets.QMenu("Launch", self)
         file_menu.addMenu(new_menu)
         new_plot_action = QtWidgets.QAction("New Plot Window", self)
         new_video_action = QtWidgets.QAction("New Video", self)
@@ -148,7 +148,7 @@ class Player(QtWidgets.QMainWindow):
         self.media.parse()
 
         # Set the title of the track as window title
-        self.setWindowTitle(self.media.get_meta(0))
+        self.setWindowTitle("Main Media Player: {}".format(self.media.get_meta(0)))
 
         # The media player has to be 'connected' to the QFrame (otherwise the
         # video would be displayed in it's own window). This is platform
