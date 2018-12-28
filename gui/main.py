@@ -6,11 +6,15 @@ Date: 25 December 2018
 """
 
 import platform
+import queue
 import os
+import subprocess
 import sys
+import time
 
 from PyQt5 import QtWidgets, QtGui, QtCore
 import vlc
+from server import Server
 
 class Player(QtWidgets.QMainWindow):
     """A simple Media Player using VLC and Qt
@@ -66,7 +70,7 @@ class Player(QtWidgets.QMainWindow):
         self.hbuttonbox.addStretch(1)
         self.volumeslider = QtWidgets.QSlider(QtCore.Qt.Horizontal, self)
         self.volumeslider.setMaximum(100)
-        self.volumeslider.setValue(self.mediaplayer.audio_get_volume())
+        self.volumeslider.setValue(0)
         self.volumeslider.setToolTip("Volume")
         self.hbuttonbox.addWidget(self.volumeslider)
         self.volumeslider.valueChanged.connect(self.set_volume)
@@ -90,8 +94,8 @@ class Player(QtWidgets.QMainWindow):
         new_video_action = QtWidgets.QAction("New Video", self)
         new_menu.addAction(new_plot_action)
         new_menu.addAction(new_video_action)
-        # new_plot_action.triggered.connect()
-        # new_video_action.triggered.connect()
+        new_plot_action.triggered.connect(self.on_new_plot)
+        new_video_action.triggered.connect(self.on_new_video)
 
         # Create actions to load a new media file and to close the app
         open_action = QtWidgets.QAction("Load Video", self)
@@ -100,6 +104,8 @@ class Player(QtWidgets.QMainWindow):
         file_menu.addAction(close_action)
         open_action.triggered.connect(self.open_file)
         close_action.triggered.connect(sys.exit)
+
+        self.data_queue = queue.Queue()
 
         self.timer = QtCore.QTimer(self)
         self.timer.setInterval(100)
@@ -128,6 +134,16 @@ class Player(QtWidgets.QMainWindow):
         """
         self.mediaplayer.stop()
         self.playbutton.setText("Play")
+
+        # reset the queue
+        self.data_queue.queue.clear()
+        self.data_queue.put('d')
+        self.data_queue.put('0')
+
+        # reset the media position slider
+        self.positionslider.setValue(0)
+
+        self.timer.stop()
 
     def open_file(self):
         """Open a media file in a MediaPlayer
@@ -179,6 +195,15 @@ class Player(QtWidgets.QMainWindow):
         # Set the media position to where the slider was dragged
         self.timer.stop()
         pos = self.positionslider.value()
+
+        if pos >= 0:
+            self.data_queue.queue.clear()
+            self.data_queue.put('d')
+            current_time = self.mediaplayer.get_time()
+            current_time //= 100
+            time.sleep(0.005)
+            self.data_queue.put(current_time)
+
         self.mediaplayer.set_position(pos / 1000.0)
         self.timer.start()
 
@@ -191,6 +216,12 @@ class Player(QtWidgets.QMainWindow):
         media_pos = int(self.mediaplayer.get_position() * 1000)
         self.positionslider.setValue(media_pos)
 
+        if media_pos >= 0 and self.mediaplayer.is_playing():
+            current_time = self.mediaplayer.get_time()
+            self.data_queue.put(current_time // 100)
+        else:
+            self.data_queue.queue.clear()
+
         # No need to call this function if nothing is played
         if not self.mediaplayer.is_playing():
             self.timer.stop()
@@ -201,11 +232,29 @@ class Player(QtWidgets.QMainWindow):
             if not self.is_paused:
                 self.stop()
 
+    def on_new_plot(self):
+        """Launches a new PyQtGraph plot(s) window
+        """
+        subprocess.Popen(["python", "client.py"])
+
+    def on_new_video(self):
+        """Launches a new PyQt5-based "mini" media player
+        """
+        if platform.system() == "Darwin":
+            subprocess.Popen(["pythonw", "mini_player.py"])
+        elif platform.system() == "Windows":
+            subprocess.Popen(["python", "mini_player.py"], shell=True)
+        elif platform.system() == "Linux":
+            subprocess.Popen(["python", "mini_player.py"])
+
 def main():
     """Entry point for our simple vlc player
     """
     app = QtWidgets.QApplication(sys.argv)
     player = Player()
+
+    _ = Server("localhost", 10000, player.data_queue)
+
     player.show()
     player.resize(640, 480)
     sys.exit(app.exec_())
