@@ -33,8 +33,13 @@ class Player(QtWidgets.QMainWindow):
         self.mediaplayer = self.instance.media_player_new()
 
         self.create_ui()
-
+        self.data_queue = queue.Queue()
         self.is_paused = False
+
+        self.timer = QtCore.QTimer(self)
+        self.timer.setInterval(100)
+        self.timer.timeout.connect(self.update_ui)
+
 
     def create_ui(self):
         """Set up the user interface, signals & slots
@@ -105,12 +110,6 @@ class Player(QtWidgets.QMainWindow):
         file_menu.addAction(close_action)
         open_action.triggered.connect(self.open_file)
         close_action.triggered.connect(sys.exit)
-
-        self.data_queue = queue.Queue()
-
-        self.timer = QtCore.QTimer(self)
-        self.timer.setInterval(100)
-        self.timer.timeout.connect(self.update_ui)
 
     def play_pause(self):
         """Toggle play/pause status
