@@ -1,23 +1,18 @@
+# Data Visualization tool
+![screenshot](gui_screenshot.png)
+
 ## Getting Started
 
-* Download and install [VLC media player](https://www.videolan.org/vlc/index.html)
+1. Download and install [VLC media player](https://www.videolan.org/vlc/index.html)
 
-* Navigate to the `gui` directory
+2. Navigate to the `gui` directory
 
-### macOS
-
-```Bash
-conda env create -f environment.yml
-source activate data_vis_env
-pythonw wxvlc.py
-```
-
-### Linux
+### macOS & Linux
 
 ```Bash
 conda env create -f environment.yml
 source activate data_vis_env
-python wxvlc.py
+python main.py
 ```
 
 ### Windows
@@ -25,6 +20,6 @@ python wxvlc.py
 ```Bash
 conda env create -f environment.yml
 activate data_vis_env
-python wxvlc.py
+python main.py
 ```
 
