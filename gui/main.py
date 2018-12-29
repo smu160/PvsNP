@@ -33,6 +33,7 @@ class Player(QtWidgets.QMainWindow):
         self.mediaplayer = self.instance.media_player_new()
 
         self.create_ui()
+
         self.is_paused = False
 
     def create_ui(self):
@@ -240,11 +241,9 @@ class Player(QtWidgets.QMainWindow):
     def on_new_video(self):
         """Launches a new PyQt5-based "mini" media player
         """
-        if platform.system() == "Darwin":
-            subprocess.Popen(["pythonw", "mini_player.py"])
-        elif platform.system() == "Windows":
+        if platform.system() == "Windows":
             subprocess.Popen(["python", "mini_player.py"], shell=True)
-        elif platform.system() == "Linux":
+        else:
             subprocess.Popen(["python", "mini_player.py"])
 
 def main():
