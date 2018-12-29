@@ -2,11 +2,9 @@ name: data_vis_env
 channels:
   - defaults
 dependencies:
-  - backports=1.0=py37_1
-  - backports.lzma=0.0.13=py37hd0afa68_0
   - blas=1.0=mkl
   - ca-certificates=2018.03.07=0
-  - certifi=2018.10.15=py37_0
+  - certifi=2018.11.29=py37_0
   - dbus=1.13.2=h760590f_1
   - expat=2.2.6=h0a44026_0
   - gettext=0.19.8.1=h15daf44_3
@@ -21,31 +19,29 @@ dependencies:
   - libgfortran=3.0.1=h93005f0_2
   - libiconv=1.15=hdd342a3_7
   - libpng=1.6.35=ha441bb4_0
-  - mkl=2018.0.3=1
-  - mkl_fft=1.0.6=py37hb8a8100_0
-  - mkl_random=1.0.1=py37h5d10147_1
+  - mkl=2019.1=144
+  - mkl_fft=1.0.6=py37h27c97d8_0
+  - mkl_random=1.0.2=py37h27c97d8_0
   - ncurses=6.1=h0a44026_1
-  - numpy=1.15.4=py37h6a91979_0
-  - numpy-base=1.15.4=py37h8a80b8c_0
+  - numpy=1.15.4=py37hacdab7b_0
+  - numpy-base=1.15.4=py37h6575580_0
   - openssl=1.1.1a=h1de35cc_0
   - pandas=0.23.4=py37h6440ff4_0
   - pcre=8.42=h378b8a2_0
   - pip=18.1=py37_0
   - pyqt=5.9.2=py37h655552a_2
   - pyqtgraph=0.10.0=py37h28b3542_3
-  - python=3.7.1=haf84260_3
+  - python=3.7.1=haf84260_7
   - python-dateutil=2.7.5=py37_0
-  - python.app=2=py37_9
   - pytz=2018.7=py37_0
-  - qt=5.9.6=h45cd832_2
+  - qt=5.9.7=h468cd18_1
   - readline=7.0=h1de35cc_5
-  - setuptools=40.6.2=py37_0
+  - setuptools=40.6.3=py37_0
   - sip=4.19.8=py37h0a44026_0
-  - six=1.11.0=py37_1
-  - sqlite=3.25.3=ha441bb4_0
+  - six=1.12.0=py37_0
+  - sqlite=3.26.0=ha441bb4_0
   - tk=8.6.8=ha441bb4_0
   - wheel=0.32.3=py37_0
-  - wxpython=4.0.3=py37hebc47a7_0
   - xz=5.2.4=h1de35cc_4
   - zlib=1.2.11=h1de35cc_3
 prefix: /anaconda3/envs/data_vis_env
