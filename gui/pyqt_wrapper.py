@@ -15,20 +15,31 @@ class MainWindow(QtWidgets.QMainWindow):
     def __init__(self, data_q, plots, plot_names, beh_intervals=None, parent=None):
         super().__init__(parent)
 
-        # creating EmailBlast widget & setting it as central
+        # Create plot window widget & set it as central the central widget
         self.plot_window = PlotWindow(data_q, plots, plot_names, beh_intervals=beh_intervals, parent=self)
         self.setCentralWidget(self.plot_window)
 
-        exitAct = QtWidgets.QAction("&setXrange", self)
-        exitAct.setShortcut("Ctrl+x")
-        exitAct.setStatusTip("Set a new range for the x-axis of all plots")
-        exitAct.triggered.connect(self.change_x_axis)
+        menu_bar = self.menuBar()
 
-        menubar = self.menuBar()
-        fileMenu = menubar.addMenu('&File')
-        fileMenu.addAction(exitAct)
+        # File menu
+        file_menu = menu_bar.addMenu("File")
 
-    def change_x_axis(self):
+        # Create submenu to start new processes from file menu
+        adjust_plots = QtWidgets.QMenu("Adjust plots", self)
+        file_menu.addMenu(adjust_plots)
+        set_x_axis = QtWidgets.QAction("set x axis", self)
+        set_y_axis = QtWidgets.QAction("set y axis", self)
+        adjust_plots.addAction(set_x_axis)
+        adjust_plots.addAction(set_y_axis)
+        set_x_axis.triggered.connect(self.on_set_x_axis)
+        set_y_axis.triggered.connect(self.on_set_y_axis)
+
+        # Create and connect action to close the plot window
+        close_action = QtWidgets.QAction("Close", self)
+        file_menu.addAction(close_action)
+        close_action.triggered.connect(sys.exit)
+
+    def on_set_x_axis(self):
         lower_bound, ok = QtWidgets.QInputDialog.getInt(self, "X-axis", "lower bound:")
 
         if ok:
@@ -44,14 +55,19 @@ class MainWindow(QtWidgets.QMainWindow):
         else:
             return
 
+    def on_set_y_axis(self):
+        print("Set y-axis... yay!")
+
 class PlotWindow(pg.GraphicsWindow):
     """This class holds plots and should be nested in a MainWindow."""
 
     def __init__(self, data_q, plots, plot_names, beh_intervals=None, parent=None):
         super().__init__(parent=parent)
 
-        self.main_layout = QtWidgets.QVBoxLayout()
-        self.setLayout(self.main_layout)
+        self.graphics_layout = pg.GraphicsLayout(border=(0, 0, 0))
+        self.graphics_layout.layout.setSpacing(0)
+        self.graphics_layout.layout.setContentsMargins(0, 0, 0, 0)
+        self.setCentralItem(self.graphics_layout)
 
         self.timer = QtCore.QTimer(self)
         self.timer.setInterval(10)
@@ -86,7 +102,7 @@ class PlotWindow(pg.GraphicsWindow):
         pen = pg.mkPen('r', width=2)
 
         for i, plot in enumerate(self.plots):
-            plot_item = self.addPlot(title="plot {}".format(plot_names[i]), row=i, col=0)
+            plot_item = self.graphics_layout.addPlot(title="plot {}".format(plot_names[i]), row=i, col=0)
             plot_item.plot(plot, pen=pg.mkPen('b', width=2))
 
             # Set the domain and range for each plot
