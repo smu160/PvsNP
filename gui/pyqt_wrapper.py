@@ -7,6 +7,7 @@ This module contains the classes to create a plot(s) window.
 import queue
 import sys
 from PyQt5 import QtCore, QtWidgets
+from data_dialogs import AxisDialog
 import pyqtgraph as pg
 
 class MainWindow(QtWidgets.QMainWindow):
@@ -31,7 +32,7 @@ class MainWindow(QtWidgets.QMainWindow):
         set_y_axis = QtWidgets.QAction("set y axis", self)
         adjust_plots.addAction(set_x_axis)
         adjust_plots.addAction(set_y_axis)
-        set_x_axis.triggered.connect(self.on_set_x_axis)
+        set_x_axis.triggered.connect(self.on_set_axis)
         set_y_axis.triggered.connect(self.on_set_y_axis)
 
         # Create and connect action to close the plot window
@@ -39,24 +40,34 @@ class MainWindow(QtWidgets.QMainWindow):
         file_menu.addAction(close_action)
         close_action.triggered.connect(sys.exit)
 
-    def on_set_x_axis(self):
-        lower_bound, ok = QtWidgets.QInputDialog.getInt(self, "X-axis", "lower bound:")
+    def on_set_axis(self, axis=0):
+        """Handles both actions in the 'Adjust plots' submenu"""
 
-        if ok:
-            upper_bound, ok_2 = QtWidgets.QInputDialog.getInt(self, "X-axis", "upper bound:")
-            if ok_2:
-                if lower_bound <= upper_bound:
-                    for plot_item in self.plot_window.plot_items:
-                        plot_item.setRange(xRange=[lower_bound, upper_bound], padding=0)
+        lower_bound, upper_bound = self.show_axis_dialog()
 
-                    print("Changed x axis", file=sys.stderr)
-            else:
-                return
-        else:
-            return
+        if lower_bound and upper_bound:
+
+            # lineedit returns str, so first convert both to int
+            lower_bound = int(lower_bound)
+            upper_bound = int(upper_bound)
+
+            for plot_item in self.plot_window.plot_items:
+                if axis:
+                    plot_item.setRange(yRange=[lower_bound, upper_bound], padding=0)
+                else:
+                    plot_item.setRange(xRange=[lower_bound, upper_bound], padding=0)
 
     def on_set_y_axis(self):
-        print("Set y-axis... yay!")
+        self.on_set_axis(axis=1)
+
+    def show_axis_dialog(self):
+        """Display the behavior dialog to the user & let user choose colors.
+        """
+        # app = QtWidgets.QApplication(sys.argv)
+        axis_dialog = AxisDialog()
+        axis_dialog.exec_()
+        axis_dialog.show()
+        return axis_dialog.lower_bound, axis_dialog.upper_bound
 
 class PlotWindow(pg.GraphicsWindow):
     """This class holds plots and should be nested in a MainWindow."""
@@ -90,7 +101,7 @@ class PlotWindow(pg.GraphicsWindow):
 
         for v_line in self.vertical_lines:
             v_line.setValue(val)
-            QtCore.QCoreApplication.processEvents()
+            # QtCore.QCoreApplication.processEvents()
 
     def add_plots(self, plot_names, all_beh_intervals):
         """Creates and set all the plots"""
