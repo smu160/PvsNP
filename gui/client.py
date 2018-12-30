@@ -75,7 +75,14 @@ class DataGen:
 
         self.dataset.fillna(0)
         self.neuron_col_vectors = self.dataset[self.neurons]
-        self.behavior_intervals = self.get_behavior(self.dataset)
+
+        # Make sure the user actually chose colors
+        if self.behaviors:
+            self.behavior_intervals = self.get_behavior(self.dataset)
+        else:
+            self.behavior_intervals = None
+
+        # We no longer need the dataframe
         del self.dataset
 
     def get_file_path(self):
