@@ -7,6 +7,7 @@ This module contains the classes to create a plot(s) window.
 import queue
 import sys
 from PyQt5 import QtCore, QtWidgets
+from data_dialogs import AxisDialog
 import pyqtgraph as pg
 
 class MainWindow(QtWidgets.QMainWindow):
@@ -15,34 +16,60 @@ class MainWindow(QtWidgets.QMainWindow):
     def __init__(self, data_q, plots, plot_names, beh_intervals=None, parent=None):
         super().__init__(parent)
 
-        # creating EmailBlast widget & setting it as central
+        # Create plot window widget & set it as central the central widget
         self.plot_window = PlotWindow(data_q, plots, plot_names, beh_intervals=beh_intervals, parent=self)
         self.setCentralWidget(self.plot_window)
 
-        exitAct = QtWidgets.QAction("&setXrange", self)
-        exitAct.setShortcut("Ctrl+x")
-        exitAct.setStatusTip("Set a new range for the x-axis of all plots")
-        exitAct.triggered.connect(self.change_x_axis)
+        # self.statusBar().showMessage("behavior x")
 
-        menubar = self.menuBar()
-        fileMenu = menubar.addMenu('&File')
-        fileMenu.addAction(exitAct)
+        menu_bar = self.menuBar()
 
-    def change_x_axis(self):
-        lower_bound, ok = QtWidgets.QInputDialog.getInt(self, "X-axis", "lower bound:")
+        # File menu
+        file_menu = menu_bar.addMenu("File")
 
-        if ok:
-            upper_bound, ok_2 = QtWidgets.QInputDialog.getInt(self, "X-axis", "upper bound:")
-            if ok_2:
-                if lower_bound <= upper_bound:
-                    for plot_item in self.plot_window.plot_items:
-                        plot_item.setRange(xRange=[lower_bound, upper_bound], padding=0)
+        # Create submenu to start new processes from file menu
+        adjust_plots = QtWidgets.QMenu("Adjust plots", self)
+        file_menu.addMenu(adjust_plots)
+        set_x_axis = QtWidgets.QAction("set x axis", self)
+        set_y_axis = QtWidgets.QAction("set y axis", self)
+        adjust_plots.addAction(set_x_axis)
+        adjust_plots.addAction(set_y_axis)
+        set_x_axis.triggered.connect(self.on_set_axis)
+        set_y_axis.triggered.connect(self.on_set_y_axis)
 
-                    print("Changed x axis", file=sys.stderr)
-            else:
-                return
-        else:
-            return
+        # Create and connect action to close the plot window
+        close_action = QtWidgets.QAction("Close", self)
+        file_menu.addAction(close_action)
+        close_action.triggered.connect(sys.exit)
+
+    def on_set_axis(self, axis=0):
+        """Handles both actions in the 'Adjust plots' submenu"""
+
+        lower_bound, upper_bound = self.show_axis_dialog()
+
+        if lower_bound and upper_bound:
+
+            # lineedit returns str, so first convert both to int
+            lower_bound = int(lower_bound)
+            upper_bound = int(upper_bound)
+
+            for plot_item in self.plot_window.plot_items:
+                if axis:
+                    plot_item.setRange(yRange=[lower_bound, upper_bound], padding=0)
+                else:
+                    plot_item.setRange(xRange=[lower_bound, upper_bound], padding=0)
+
+    def on_set_y_axis(self):
+        self.on_set_axis(axis=1)
+
+    def show_axis_dialog(self):
+        """Display the behavior dialog to the user & let user choose colors.
+        """
+        # app = QtWidgets.QApplication(sys.argv)
+        axis_dialog = AxisDialog()
+        axis_dialog.exec_()
+        axis_dialog.show()
+        return axis_dialog.lower_bound, axis_dialog.upper_bound
 
 class PlotWindow(pg.GraphicsWindow):
     """This class holds plots and should be nested in a MainWindow."""
@@ -50,8 +77,10 @@ class PlotWindow(pg.GraphicsWindow):
     def __init__(self, data_q, plots, plot_names, beh_intervals=None, parent=None):
         super().__init__(parent=parent)
 
-        self.main_layout = QtWidgets.QVBoxLayout()
-        self.setLayout(self.main_layout)
+        self.graphics_layout = pg.GraphicsLayout(border=(0, 0, 0))
+        self.graphics_layout.layout.setSpacing(0)
+        self.graphics_layout.layout.setContentsMargins(0, 0, 0, 0)
+        self.setCentralItem(self.graphics_layout)
 
         self.timer = QtCore.QTimer(self)
         self.timer.setInterval(10)
@@ -74,7 +103,7 @@ class PlotWindow(pg.GraphicsWindow):
 
         for v_line in self.vertical_lines:
             v_line.setValue(val)
-            QtCore.QCoreApplication.processEvents()
+            # QtCore.QCoreApplication.processEvents()
 
     def add_plots(self, plot_names, all_beh_intervals):
         """Creates and set all the plots"""
@@ -86,12 +115,8 @@ class PlotWindow(pg.GraphicsWindow):
         pen = pg.mkPen('r', width=2)
 
         for i, plot in enumerate(self.plots):
-            plot_item = self.addPlot(title="plot {}".format(plot_names[i]), row=i, col=0)
-            plot_item.plot(plot, pen=pg.mkPen((0, 0, 0), width=2))
-
-            # Set the domain and range for each plot
-            y_max = plot.max()
             plot_item.setRange(xRange=[0, x_max], yRange=[0, y_max], padding=0)
+            plot_item = self.graphics_layout.addPlot(title="plot {}".format(plot_names[i]), row=i, col=0)
 
             # Add background color(s) (color coded by behavior) to each plot
             if all_beh_intervals:
@@ -102,6 +127,14 @@ class PlotWindow(pg.GraphicsWindow):
                         rgn.lines[1].setPen((255, 255, 255, 5))
                         rgn.setBrush(pg.mkBrush(color))
                         plot_item.addItem(rgn)
+
+            plot_item.plot(plot, pen=pg.mkPen((0, 0, 0), width=2))
+
+            # Get the max value in the time series to set the yRange, below
+            y_max = plot.max()
+
+            # Set the domain and range for each plot
+            plot_item.setRange(xRange=[0, x_max], yRange=[0, y_max], padding=0)
 
             # Create and add vertical line that scrolls
             self.vertical_line = plot_item.addLine(x=0, pen=pen)
