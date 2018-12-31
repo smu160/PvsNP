@@ -87,7 +87,7 @@ class PlotWindow(pg.GraphicsWindow):
 
         for i, plot in enumerate(self.plots):
             plot_item = self.addPlot(title="plot {}".format(plot_names[i]), row=i, col=0)
-            plot_item.plot(plot, pen=pg.mkPen('b', width=2))
+            plot_item.plot(plot, pen=pg.mkPen((0, 0, 0), width=2))
 
             # Set the domain and range for each plot
             y_max = plot.max()

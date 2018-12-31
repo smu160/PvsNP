@@ -186,17 +186,15 @@ class Client:
                 data = self.sock.recv(4)
                 if data:
                     data = data.decode()
-
-                data = data.split(',')
-                if data:
-                    for num in data:
+                    
+                    for num in data.split(','):
                         if num:
                             if num == 'd':
                                 self.q.queue.clear()
                             else:
                                 self.q.put(int(num))
         except:
-            print("Closing socket...", file=sys.stderr)
+            print("Closing socket: {}".format(self.sock), file=sys.stderr)
             self.sock.close()
             return
 
@@ -218,6 +216,6 @@ def main():
     sys.exit(app.exec_())
 
 if __name__ == "__main__":
-    pg.setConfigOption("background", 'w')
-    pg.setConfigOption("foreground", 'k')
+    pg.setConfigOption("background", (230, 230, 230))
+    pg.setConfigOption("foreground", (30, 30, 30))
     main()
