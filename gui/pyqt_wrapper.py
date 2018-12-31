@@ -20,6 +20,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self.plot_window = PlotWindow(data_q, plots, plot_names, beh_intervals=beh_intervals, parent=self)
         self.setCentralWidget(self.plot_window)
 
+        # self.statusBar().showMessage("behavior x")
+
         menu_bar = self.menuBar()
 
         # File menu
@@ -114,11 +116,6 @@ class PlotWindow(pg.GraphicsWindow):
 
         for i, plot in enumerate(self.plots):
             plot_item = self.graphics_layout.addPlot(title="plot {}".format(plot_names[i]), row=i, col=0)
-            plot_item.plot(plot, pen=pg.mkPen('b', width=2))
-
-            # Set the domain and range for each plot
-            y_max = plot.max()
-            plot_item.setRange(xRange=[0, x_max], yRange=[0, y_max], padding=0)
 
             # Add background color(s) (color coded by behavior) to each plot
             if all_beh_intervals:
@@ -129,6 +126,14 @@ class PlotWindow(pg.GraphicsWindow):
                         rgn.lines[1].setPen((255, 255, 255, 5))
                         rgn.setBrush(pg.mkBrush(color))
                         plot_item.addItem(rgn)
+
+            plot_item.plot(plot, pen=pg.mkPen('b', width=2))
+
+            # Get the max value in the time series to set the yRange, below
+            y_max = plot.max()
+
+            # Set the domain and range for each plot
+            plot_item.setRange(xRange=[0, x_max], yRange=[0, y_max], padding=0)
 
             # Create and add vertical line that scrolls
             self.vertical_line = plot_item.addLine(x=0, pen=pen)
