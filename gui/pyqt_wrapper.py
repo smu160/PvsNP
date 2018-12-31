@@ -96,9 +96,12 @@ class PlotWindow(pg.GraphicsWindow):
         self.vertical_lines = []
         self.plots = plots
         self.add_plots(plot_names, beh_intervals)
-       
+
         # Convert all sets to strings
-        self.behavior_time = {time: ', '.join(behavior) for time, behavior in self.behavior_time.items()}
+        if beh_intervals:
+            self.behavior_time = {time: ', '.join(behavior) for time, behavior in self.behavior_time.items()}
+        else:
+            self.behavior_time = None
 
         self.data_q = data_q
 
@@ -111,7 +114,8 @@ class PlotWindow(pg.GraphicsWindow):
             QtCore.QCoreApplication.processEvents()
             return
 
-        self.parent.statusbar.showMessage(self.behavior_time[val])
+        if self.behavior_time:
+            self.parent.statusbar.showMessage(self.behavior_time[val])
 
         for v_line in self.vertical_lines:
             v_line.setValue(val)
