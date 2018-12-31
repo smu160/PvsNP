@@ -55,14 +55,13 @@ class DataGen:
 
             # If user checked box to choose custom colors, display the dialog
             # for the user to choose custom colors for each behavior. Finally,
-            # ammend each color with a transparency value.
+            # ammend each color with a transparency value. Note that if the user
+            # doesn't choose custom colors, a random color will be assigned to
+            # each behavior.
             if self.choose_colors:
                 self.behaviors = self.show_behavior_colors_dialog()
                 for behavior, color in self.behaviors.items():
-                    temp = list(color)
-                    temp[3] = 40
-                    print(temp)
-                    self.behaviors[behavior] = temp
+                    self.behaviors[behavior] = color
             else:
                 temp = {}
                 for behavior in self.behaviors:
