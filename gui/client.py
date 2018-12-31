@@ -125,7 +125,7 @@ class DataGen:
         for behavior, color in self.behaviors.items():
             curr_beh_epochs = self.extract_epochs(dataset, behavior)
             curr_beh_intervals = self.filter_epochs(curr_beh_epochs[1], framerate=1, seconds=1)
-            all_behavior_intervals.append((curr_beh_intervals, color))
+            all_behavior_intervals.append((curr_beh_intervals, behavior, color))
 
         return all_behavior_intervals
 
