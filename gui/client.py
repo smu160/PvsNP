@@ -55,14 +55,13 @@ class DataGen:
 
             # If user checked box to choose custom colors, display the dialog
             # for the user to choose custom colors for each behavior. Finally,
-            # ammend each color with a transparency value.
+            # ammend each color with a transparency value. Note that if the user
+            # doesn't choose custom colors, a random color will be assigned to
+            # each behavior.
             if self.choose_colors:
                 self.behaviors = self.show_behavior_colors_dialog()
                 for behavior, color in self.behaviors.items():
-                    temp = list(color)
-                    temp[3] = 40
-                    print(temp)
-                    self.behaviors[behavior] = temp
+                    self.behaviors[behavior] = color
             else:
                 temp = {}
                 for behavior in self.behaviors:
@@ -75,7 +74,14 @@ class DataGen:
 
         self.dataset.fillna(0)
         self.neuron_col_vectors = self.dataset[self.neurons]
-        self.behavior_intervals = self.get_behavior(self.dataset)
+
+        # Make sure the user actually chose colors
+        if self.behaviors:
+            self.behavior_intervals = self.get_behavior(self.dataset)
+        else:
+            self.behavior_intervals = None
+
+        # We no longer need the dataframe
         del self.dataset
 
     def get_file_path(self):
@@ -119,7 +125,7 @@ class DataGen:
         for behavior, color in self.behaviors.items():
             curr_beh_epochs = self.extract_epochs(dataset, behavior)
             curr_beh_intervals = self.filter_epochs(curr_beh_epochs[1], framerate=1, seconds=1)
-            all_behavior_intervals.append((curr_beh_intervals, color))
+            all_behavior_intervals.append((curr_beh_intervals, behavior, color))
 
         return all_behavior_intervals
 
