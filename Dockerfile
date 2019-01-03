@@ -1,5 +1,5 @@
 # Get and use latest LTS release of Ubuntu
-FROM ubuntu:latest
+FROM ubuntu:18.04
 
 ARG USERNAME=username
 ARG PASSWORD=password
