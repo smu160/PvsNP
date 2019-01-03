@@ -19,7 +19,7 @@ else
 fi
 
 printf "\e[36;1mCreating an environment for Hen Lab code base... \e[0m \n"
-conda create --name henlabenv anaconda
+conda env create -f environment.yml
 if [ $? -eq 0 ]; then
     printf "\e[36;1mNew conda env creation SUCCESSFUL \e[0m \n"
 else
@@ -33,15 +33,6 @@ if [ $? -eq 0 ]; then
     printf "\e[36;1mSUCCESS \e[0m \n"
 else
     printf "\e[36;1mhenlabenv activation FAILED \e[0m \n"
-    exit 1
-fi
-
-printf "\e[36;1mUpdating Anaconda once more... \e[0m \n"
-conda update --all
-if [ $? -eq 0 ]; then
-    printf "\e[36;1mconda update SUCCESSFUL \e[0m \n"
-else
-    printf "\e[36;1mconda update FAILED \e[0m \n"
     exit 1
 fi
 

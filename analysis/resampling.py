@@ -11,7 +11,7 @@ from multiprocessing import Queue
 import numpy as np
 import pandas as pd
 
-class Resampler(object):
+class Resampler:
     """
     This class is meant to be a toolbox for the purposes of executing
     permutation resampling, and in order to carry out permutation tests.
@@ -54,24 +54,24 @@ class Resampler(object):
                 used to compute the difference of means rate.
                 e.g. "OpenArms" vs. "ClosedArms".
 
-            frame_rate: int
-                The framerate associated with the given data; default is 10.
+            frame_rate: int, optional, default: 10
+                The framerate associated with the given data.
 
         Returns: numpy array
             A numpy array of all the difference of means, D_hat, values, i.e.,
             all of the behavior vectors means subtracted from the corresponding
             means of the non-behavior vectors, all scaled by the frame rate.
         """
+        if len(beh_col_vec) != 1 and len(beh_col_vec) != 2:
+            raise ValueError("You provided an appropriate amount of behaviors.")
         if len(beh_col_vec) == 1:
             beh_vec = dataframe.loc[beh_col_vec[0] != 0]
             no_beh_vec = dataframe.loc[beh_col_vec[0] == 0]
             return frame_rate * (beh_vec.values.mean(axis=0) - no_beh_vec.values.mean(axis=0))
-        elif len(beh_col_vec) == 2:
+        if len(beh_col_vec) == 2:
             beh_vec = dataframe.loc[beh_col_vec[0] != 0]
             no_beh_vec = dataframe.loc[beh_col_vec[1] != 0]
             return frame_rate * (beh_vec.values.mean(axis=0) - no_beh_vec.values.mean(axis=0))
-        else:
-            raise ValueError("You provided an appropriate amount of behaviors.")
 
     @staticmethod
     def __shuffle_worker(queue, resamples, dataframe, statistic, *beh_col_vec, flip_roll=False):
@@ -160,9 +160,9 @@ class Resampler(object):
                 The columns vectors to be used as the two groups to
                 use for permutation resamples.
 
-            flip_roll: boolean, optional
+            flip_roll: boolean, optional, default: False
                 If data should be flipped and then randomly rolled for each
-                resample; default is false.
+                resample.
 
         Returns:
             A (vertically) concatenated pandas DataFrame of all the DataFrames
@@ -215,6 +215,7 @@ class Resampler(object):
 
         return p_val
 
+    @staticmethod
     def two_tailed_test(original_statistic, permutation_distribution, **kwargs):
         """Conduct a two-tailed hypothesis test.
 
@@ -252,4 +253,3 @@ class Resampler(object):
             return -1
         else:
             return 0
-
