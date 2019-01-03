@@ -119,9 +119,11 @@ class Resampler(object):
         for _ in range(resamples):
             if flip_roll:
                 dataframe = dataframe.reindex(np.roll(dataframe.index, np.random.randint(1, high=len(dataframe.index)+1)))
+                dataframe.index = range(int(len(dataframe.index)))
             else:
-                dataframe = dataframe.sample(frac=1).reset_index(drop=True)
-
+                dataframe = dataframe.sample(frac=1)
+                dataframe.index = range(int(len(dataframe.index)))
+        
             row = statistic(dataframe, *beh_col_vec)
             if len(column_names) > 1:
                 rows_list.append(dict(zip(column_names, row)))
@@ -167,8 +169,9 @@ class Resampler(object):
             the shuffle_worker processes produced.
         """
         if flip_roll:
-            dataframe = dataframe.reindex(np.flip(dataframe.index))
-
+            dataframe=dataframe.reindex(np.flip(dataframe.index))
+            dataframe.index = range(int(len(dataframe.index)))
+                                    
         keywords = {"flip_roll": flip_roll}
         resamples_per_worker = resamples // os.cpu_count()
         queue = Queue()
