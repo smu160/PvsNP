@@ -14,21 +14,20 @@ import math
 import numpy as np
 import pandas as pd
 
-class Deconvoluter(object):
+from analysis.analysis_utils import z_score_data
+
+class Deconvoluter:
     """
     Attributes:
 
         cell_transients: DataFrame
-
             T x N matrix with s.d. vlaues for all the timepoints of the
             qualified transients (all zeros except for transients)
 
         cell_data: DataFrame
-
             T x N matrix with all z-scored data.
 
         cell_auc_df: DataFrame
-
             T x N matrix with computed transient area under the curve (AUC)
             values (all zeros except for the AUC value assigned to the peak
             timepoint of each transient).
@@ -38,28 +37,21 @@ class Deconvoluter(object):
         """
         Args:
             raw_data: DataFrame
-
                 Ca2 transient data in T x N format, where N is the # of neuron
                 column vectors, and T is the number of observations (rows),
                 all in raw format.
 
-            threshold: int, optional
+            threshold: int, optional, default: 2
+                The minimum aplitude size of ca transient data in s.d.
 
-                The minimum aplitude size of ca transient data in s.d.,
-                default is 2.
+            baseline: float, optional, default: 0.5
+                The standard deviation offset value of Ca transient.
 
-            baseline: float, optional
+            t_half: float, optional, default: 0.2
+                The half life of gcamp type used (s).
 
-                The standard deviation offset value of Ca transient,
-                default is 0.5.
-
-            t_half: float, optional
-
-                The half life of gcamp type used (s), default is 0.2.
-
-            frame_rate: int, optional
-
-                The frame rate for the data, default is 10.
+            frame_rate: int, optional, default: 10
+                The frame rate for the data.
         """
 
         threshold = kwargs.get("threshold", 2)
@@ -68,7 +60,7 @@ class Deconvoluter(object):
         frame_rate = kwargs.get("frame_rate", 10)
 
         # z-score all raw data
-        self.cell_data = self.z_score_data(raw_data)
+        self.cell_data = z_score_data(raw_data)
 
         # Preallocate dataframes
         self.cell_transients = pd.DataFrame(np.zeros((len(raw_data.index), len(raw_data.columns))))
@@ -89,36 +81,14 @@ class Deconvoluter(object):
 
         self.detect_ca_transients_mossy(threshold, baseline)
 
-    def z_score_data(self, data):
-        """This function simply z scores all the given neural signal data.
-
-        Args:
-            data:
-
-                Ca2 transient data in T x N format, where N is the # of neuron
-                column vectors, and T is the number of observations (rows),
-                all in raw format.
-
-        Returns:
-            z_scored_data: DataFrame
-
-                The z scored raw cell data in T x N format.
-        """
-        pop_offset = np.percentile(data.values, 50)
-        sigma = np.std(data.values, axis=0)
-        mew = np.mean(data.values[data.values < pop_offset])
-        return pd.DataFrame(data=((data.values - mew) / sigma))
-
     def detect_ca_transients_mossy(self, threshold, baseline):
         """Preprocesses neural signal data obtained via Calcium Imaging
 
         Args:
             threshold: int
-
                 The minimum aplitude size of ca transient data in s.d.
 
             baseline: float
-
                 The standard deviation offset value of Ca transient.
         """
 
