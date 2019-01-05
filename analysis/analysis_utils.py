@@ -7,10 +7,8 @@ This module contains all the functions necessary for data preprocessing.
 import os
 import sys
 import warnings
-import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import seaborn as sns
 
 def preprocess_behavior(etho_filepath, observer_filepath):
     """Processes original ethovision and observer files (in .csv format)
