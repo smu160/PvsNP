@@ -113,7 +113,9 @@ def plot_heatmap(x, y, sigma=2, **kwargs):
     heatmap, extent = generate_heatmap(x, y, sigma, bins=bins, weights=weights)
     plt.figure(figsize=figsize)
     plt.imshow(heatmap, origin="lower", extent=extent, cmap=cmap) # interpolation="gaussian"
-    plt.title("{}".format(title))
+
+    if title:
+        plt.title(title)
 
     dpi = kwargs.get("dpi", 600)
     savefig = kwargs.get("savefig", False)
@@ -121,7 +123,7 @@ def plot_heatmap(x, y, sigma=2, **kwargs):
         if title:
             filename = title
         else:
-            filename = "my_heatmap"
+            filename = "my_smoothed_heatmap"
 
         plt.savefig("{}.pdf".format(filename), dpi=dpi)
 
@@ -194,6 +196,9 @@ def plot_corr_heatmap(dataframe, **kwargs):
     sns.heatmap(dataframe.corr(), mask=mask, cmap=cmap, vmax=1.0, center=0,
                 square=True, linewidths=.5, cbar_kws={"shrink": .5})
 
+    if title:
+        plt.title(title)
+
     dpi = kwargs.get("dpi", 600)
     savefig = kwargs.get("savefig", False)
     if savefig:
@@ -241,7 +246,16 @@ def plot_clustermap(dataframe, **kwargs):
     cmap = kwargs.get("cmap", "vlag")
     figsize = kwargs.get("figsize", (15, 15))
     title = kwargs.get("title", None)
-    _ = sns.clustermap(dataframe.corr(), center=0, linewidths=.75, figsize=figsize, method="centroid", cmap=cmap)
+    dendrograms = kwargs.get("dendrograms", True)
+
+    cluster_map = sns.clustermap(dataframe.corr(), center=0, linewidths=.75, figsize=figsize, method="centroid", cmap=cmap)
+
+    # Set the dendrograms in accordance with passed-in args
+    cluster_map.ax_row_dendrogram.set_visible(dendrograms)
+    cluster_map.ax_col_dendrogram.set_visible(dendrograms)
+
+    if title:
+        cluster_map.fig.suptitle(title)
 
     dpi = kwargs.get("dpi", 600)
     savefig = kwargs.get("savefig", False)
