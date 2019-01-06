@@ -83,7 +83,12 @@ def plot_heatmap(x, y, sigma=2, **kwargs):
             False, the values of the returned histogram are equal to the sum of
             the weights belonging to the samples falling into each bin.
 
-        cmap: optional, default: cm.jet
+        bounds: tuple, optional, default: None
+            If a boundary tuple is provided, the x-axis will be set as follows:
+            [bounds[0], bounds[1]]. Similarly, the y-axis will be set as:
+            [bounds[0], bounds[1]].
+
+        cmap: matplotlib.colors.LinearSegmentedColormap, optional, default: plt.cm.jet
             The colormap to use for plotting the heatmap.
 
         figsize: tuple, optional, default: (10, 10)
@@ -109,10 +114,24 @@ def plot_heatmap(x, y, sigma=2, **kwargs):
     bins = kwargs.get("bins", (50, 50))
     weights = kwargs.get("weights", None)
     figsize = kwargs.get("figsize", (10, 10))
+    bounds = kwargs.get("bounds", None)
 
+    # Set user-defined x-axis and y-axis boundaries by appending them to x and y
+    if bounds:
+        x = x.copy()
+        y = y.copy()
+        x.loc[len(x)] = bounds[0]
+        x.loc[len(x)] = bounds[1]
+        y.loc[len(y)] = bounds[0]
+        y.loc[len(y)] = bounds[1]
+        if not weights is None:
+            weights = weights.copy()
+            weights.loc[len(weights)] = 0
+            weights.loc[len(weights)] = 0
+
+    _ = plt.figure(figsize=figsize)
     heatmap, extent = generate_heatmap(x, y, sigma, bins=bins, weights=weights)
-    plt.figure(figsize=figsize)
-    plt.imshow(heatmap, origin="lower", extent=extent, cmap=cmap) # interpolation="gaussian"
+    plt.imshow(heatmap, origin="lower", extent=extent, cmap=cmap)
 
     if title:
         plt.title(title)
