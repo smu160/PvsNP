@@ -40,7 +40,6 @@ class Player(QtWidgets.QMainWindow):
         self.timer.setInterval(100)
         self.timer.timeout.connect(self.update_ui)
 
-
     def create_ui(self):
         """Set up the user interface, signals & slots
         """
@@ -151,7 +150,7 @@ class Player(QtWidgets.QMainWindow):
 
         dialog_txt = "Choose Media File"
         filename = QtWidgets.QFileDialog.getOpenFileName(self, dialog_txt, os.path.expanduser('~'))
-        if not filename:
+        if not filename[0]:
             return
 
         # getOpenFileName returns a tuple, so use only the actual file name
