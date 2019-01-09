@@ -111,7 +111,7 @@ class NeuronNetwork:
         pos = kwargs.get("pos", None)
         if pos is None:
             print("You did not provide a neuron position dictionary. The spring layout function will be used to plot the network", file=sys.stderr)
-            pos = nx.spring_layout(self.network, weight="weight")
+            pos = nx.spring_layout(self.network, weight="weight");
 
         # Size of the plot
         figsize = kwargs.get("figsize", (30, 30))
@@ -146,7 +146,8 @@ class NeuronNetwork:
 
         save_to_file = kwargs.get("save", False)
         if save_to_file:
-            plt.savefig(title, format="pdf", dpi=600)
+            file_name=kwargs.get("file_name","Graph")
+            plt.savefig(file_name, format="svg", dpi=300)
 
         plt.show()
         return pos

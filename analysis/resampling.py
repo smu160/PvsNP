@@ -215,6 +215,29 @@ class Resampler:
 
         return p_val
 
+    def z_score(original_statistic, permutation_distribution):
+        """
+        Compute z-score for a given value, and the permutation distribution
+        
+        Args:
+            original_statistic: float
+                The original value of the statistic computed on the data.
+
+            permutation_distribution: DataFrame or Series
+                A pandas Series of the permutation distributions.
+
+        Returns:
+            float
+                The z-score that was computed.
+
+        
+        """
+        mew = permutation_distribution.mean()
+        std = permutation_distribution.std()
+        
+        return (original_statistic - mew) / std
+        
+    
     @staticmethod
     def two_tailed_test(original_statistic, permutation_distribution, **kwargs):
         """Conduct a two-tailed hypothesis test.
