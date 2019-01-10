@@ -1,6 +1,5 @@
 """
-This module contains all the functions necessary for
-feature engineering, data visualization, and data analysis.
+This module contains all the functions necessary for data preprocessing.
 
 @authors: Saveliy Yusufov, Columbia University, sy2685@columbia.edu
           Jack Berry, Columbia University, jeb2242@columbia.edu
@@ -12,20 +11,22 @@ import math
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import seaborn as sns
 
 def preprocess_behavior(etho_filepath, observer_filepath):
-    """
-    Processes original ethovision and observer files (converted to .csv format)
-    
+    """Processes original ethovision and observer files (in .csv format)
+
     Args:
-        etho_filepath: file path to raw ethovision behavior .csv file (only 1 sheet)
-        observer_filepath: file path to raw observer .csv file
-    
-    Returns: 
-        behavior dataframe 
-    
+        etho_filepath:
+            file path to raw ethovision behavior .csv file (only 1 sheet)
+
+        observer_filepath:
+            file path to raw observer .csv file
+
+    Returns:
+        behavior dataframe
+
     """
+
     #read ethovision data and rename columns
     nrowsheader = pd.read_csv(etho_filepath, nrows=0, encoding = 'latin1',header=0)
     nrowsheader=int(nrowsheader.columns[1])
@@ -45,37 +46,43 @@ def preprocess_behavior(etho_filepath, observer_filepath):
     #read observer data and format
     
     obs = pd.read_csv(observer_filepath)
-    obs=obs.drop(['Observation','Event Log',"Time"],axis=1)
-    obs.index=obs.index+1
-    obs.fillna(0,inplace=True)
-    
-    #merge behavior and observer dataframes, and return result
-    num_obs = len(obs.columns) #number of hand-scored observations
+    obs = obs.drop(["Observation", "Event Log", "Time"], axis=1)
+    obs.index += 1
+    obs.fillna(0, inplace=True)
+
+    # Merge behavior and observer dataframes, and return result
+    num_obs = len(obs.columns) # number of hand-scored observations
     obs[obs != 0] = 1
-    behavior=pd.merge(behavior,obs,how='left',left_index=True,right_index=True)
+    behavior = pd.merge(behavior, obs, how="left", left_index=True, right_index=True)
     behavior.update(behavior[behavior.columns[-num_obs:]].fillna(0))
-    
+
     return behavior
 
-def z_score_data(data):
+def z_score_data(data, mew=None):
     """This function simply z scores all the given neural signal data.
 
     Args:
         data:
-
             Ca2 transient data in T x N format, where N is the # of neuron
             column vectors, and T is the number of observations (rows),
             all in raw format.
 
+        mew: int, optional, default: None
+            The mean value for the baseline of the data.
+            Note: if the raw data comes from CNMF_E, use 0 for the baseline.
+
     Returns:
         z_scored_data: DataFrame
-
             The z scored raw cell data in T x N format.
     """
     pop_offset = np.percentile(data.values, 50)
     sigma = np.std(data.values, axis=0)
-    #mew = np.mean(data.values[data.values < pop_offset])
-    mew = 0 #if raw data comes from CNMFE, use 0 for baseline
+
+    if mew is None:
+        mew = np.mean(data.values[data.values < pop_offset])
+    else:
+        mew = mew
+
     return pd.DataFrame(data=((data.values - mew) / sigma))
 
 def pairwise_dist(x):
@@ -168,7 +175,7 @@ def find_file(root_directory, target_file):
             The full path to the target file.
 
     """
-    root_directory = os.path.join(os.path.expanduser("~"), root_directory)
+    root_directory = os.path.join(os.path.expanduser('~'), root_directory)
 
     if not os.path.exists(root_directory):
         print("{} does not exist!".format(root_directory), file=sys.stderr)
@@ -177,7 +184,7 @@ def find_file(root_directory, target_file):
         print("{} is not a directory!".format(root_directory), file=sys.stderr)
         return
 
-    for subdir, dirs, files in os.walk(root_directory):
+    for subdir, _, files in os.walk(root_directory):
         for file in files:
             if file == target_file:
                 file_path = os.path.join(subdir, file)
@@ -194,13 +201,13 @@ def extract_epochs(mouse, behavior):
         behavior: str
 
     Returns:
-        df: DataFrame
+        epochs_df: DataFrame
 
     """
     dataframe = mouse.spikes_and_beh.copy()
     dataframe["block"] = (dataframe[behavior].shift(1) != dataframe[behavior]).astype(int).cumsum()
-    df = dataframe.reset_index().groupby([behavior, "block"])["index"].apply(np.array)
-    return df
+    epochs_df = dataframe.reset_index().groupby([behavior, "block"])["index"].apply(np.array)
+    return epochs_df
 
 def filter_epochs(interval_series, framerate=10, seconds=1):
     """Helper function for extract_epochs.
@@ -225,7 +232,7 @@ def filter_epochs(interval_series, framerate=10, seconds=1):
 
     return intervals
 
-class Mouse(object):
+class Mouse:
     """A base class for keeping all relevant & corresponding objects, i.e.,
     spikes, cell transients, & behavior dataframes, with their respective
     mouse.
@@ -270,57 +277,8 @@ class Mouse(object):
 
         # Reset and drop the old indices of the pandas DataFrame
         dataframe.reset_index(inplace=True, drop=True)
+
         return dataframe
-
-    def plot_correlation_heatmap(self, dataframe, **kwargs):
-        """Seaborn correlation heatmap wrapper function
-
-        A wrapper function for seaborn to quickly plot a
-        correlation heatmap with a lower triangle, only
-
-        Args:
-            dataframe: DataFrame
-                A Pandas dataframe to be plotted in the correlation heatmap.
-
-            figsize: tuple, optional
-                The size of the heatmap to be plotted, default is (16, 16).
-        """
-
-        # Generate a mask for the upper triangle
-        mask = np.zeros_like(dataframe.corr(), dtype=np.bool)
-        mask[np.triu_indices_from(mask)] = True
-
-        # Set up the matplotlib figure
-        _, _ = plt.subplots(figsize=kwargs.get("figsize", (16, 16)))
-
-        # Generate a custom diverging colormap
-        cmap = sns.diverging_palette(220, 10, as_cmap=True)
-
-        # Draw the heatmap with the mask and correct aspect ratio
-        sns.heatmap(dataframe.corr(), mask=mask, cmap=cmap, vmax=1.0, center=0,
-                    square=True, linewidths=.5, cbar_kws={"shrink": .5})
-
-    def plot_clustermap(self, dataframe, **kwargs):
-        """Seaborn clustermap wrapper function
-
-        A wrapper function for seaborn to quickly plot a clustermap using the
-        "centroid" method to find clusters.
-
-        Args:
-            dataframe: DataFrame
-
-                A Pandas dataframe to be plotted in the clustermap.
-
-            figsize: tuple, optional
-
-                the size of the clustermap to be plotted, default is (15, 15).
-        """
-        figsize = kwargs.get("figsize", (15, 15))
-        cluster_map = sns.clustermap(dataframe.corr(), center=0, linewidths=.75,
-                                     figsize=figsize, method="centroid",
-                                     cmap="vlag")
-        cluster_map.ax_row_dendrogram.set_visible(False)
-        cluster_map.ax_col_dendrogram.set_visible(False)
 
     @staticmethod
     def activity_by_neurons(concated_df, neuron_names, *behaviors, **kwargs):
@@ -360,4 +318,3 @@ class Mouse(object):
             #else:
                 #raise ValueError("{} is not a column in the provided dataframe.".format(behavior))
         return activity_df
-
