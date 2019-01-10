@@ -3,11 +3,68 @@
     @author: Saveliy Yusufov, Columbia University, sy2685@columbia.edu
 """
 
+import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib import cm
 import seaborn as sns
 from scipy.ndimage.filters import gaussian_filter
+
+def set_weights(x, y, neuron, data, framerate=10):
+    """Create list of weights by time spent in a location
+
+    Args:
+        x: str
+            The name of the x-coordinate column in data.
+
+        y: str
+            The name of the y-coordinate column in data.
+
+        neuron: str or int
+            The name of the neuron column in data.
+
+        data: DataFrame
+            The concatenated neuron and behavior DataFrame.
+
+        framerate: int, optional: default: 10
+            The framerate of the calcium imaging video.
+
+    Returns:
+        weights: list
+            A list of values ``w_i`` weighing each coordinate, (x_i, y_i)
+    """
+    time_spent = data.groupby([x, y]).size()
+
+    # Convert multilevel indexes into columns
+    time_spent_df = pd.DataFrame(time_spent)
+    time_spent_df.reset_index(inplace=True)
+
+    # Convert coordinate columns and neuron columns into list of 3-tuples
+    x_y_count = list(zip(time_spent_df[x], time_spent_df[y], time_spent_df[0]))
+
+    # Convert list of 3-tuples into dict of (x, y): count
+    time_at_coords = {(x, y): count for x, y, count in x_y_count}
+
+    neuron = data[neuron].tolist()
+
+    # Convert coordinate columns into list of 2-tuples
+    coords_list = list(zip(data[x], data[y]))
+
+    weights = []
+
+    # Go through each component of the neuron column vector, and
+    # if the component is not 0, then for the corresponding coordinate-pair,
+    # we set the weight to: (flourescence * framerate) divided by the time spent at
+    # that location (coordinate-pair).
+    for i, coord in enumerate(coords_list):
+        if neuron[i] != 0:
+            weight = (framerate * neuron[i]) / time_at_coords[coord]
+        else:
+            weight = 0
+
+        weights.append(weight)
+
+    return weights
 
 def generate_heatmap(x, y, sigma=2, **kwargs):
     """Generates a heatmap for plotting.
@@ -49,6 +106,9 @@ def generate_heatmap(x, y, sigma=2, **kwargs):
             image is stretched individually along x and y to fill the box.
             Source: https://matplotlib.org/api/_as_gen/matplotlib.pyplot.imshow.html
     """
+    if len(x) != len(y):
+        raise ValueError("x and y are not of equal length!")
+
     bins = kwargs.get("bins", (50, 50))
     weights = kwargs.get("weights", None)
 
@@ -109,6 +169,9 @@ def plot_heatmap(x, y, sigma=2, **kwargs):
             directory in pdf (IAW Nature's guidelines) format.
             Source: https://www.nature.com/nature/for-authors/final-submission
     """
+    if len(x) != len(y):
+        raise ValueError("x and y are not of equal length!")
+
     cmap = kwargs.get("cmap", cm.jet)
     title = kwargs.get("title", "Title Goes Here")
     bins = kwargs.get("bins", (50, 50))
