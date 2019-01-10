@@ -7,6 +7,8 @@ This module contains all the functions necessary for data preprocessing.
 import os
 import sys
 import warnings
+import math
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
@@ -24,24 +26,25 @@ def preprocess_behavior(etho_filepath, observer_filepath):
         behavior dataframe
 
     """
-    # Read ethovision data and rename columns
-    nrowsheader = pd.read_csv(etho_filepath, nrows=0, encoding="latin1", header=0)
-    nrowsheader = int(nrowsheader.columns[1])
 
-    behavior = pd.read_csv(etho_filepath, header=nrowsheader-2, encoding="latin1")
-    behavior = behavior.drop(behavior.index[0])
+    #read ethovision data and rename columns
+    nrowsheader = pd.read_csv(etho_filepath, nrows=0, encoding = 'latin1',header=0)
+    nrowsheader=int(nrowsheader.columns[1])
 
-    # Rename columns
-    new_cols = []
-    for col in behavior.columns:
-        col = col.replace(' ', '_')
-        col = col.replace("In_zone(", "")
-        col = col.replace("_/_center-point)", "")
-        new_cols.append(col)
+    behavior=pd.read_csv(etho_filepath, header=nrowsheader-2, encoding = 'latin1')
+    behavior=behavior.drop(behavior.index[0])
 
-    behavior.columns = new_cols
-
-    # Read observer data and format
+    #rename columns
+    new_cols=[]
+    for s in behavior.columns:
+        s=s.replace(" ","_")
+        s=s.replace("In_zone(","")
+        s=s.replace("_/_center-point)","")
+        new_cols.append(s)
+    behavior.columns=new_cols
+    
+    #read observer data and format
+    
     obs = pd.read_csv(observer_filepath)
     obs = obs.drop(["Observation", "Event Log", "Time"], axis=1)
     obs.index += 1
@@ -81,6 +84,80 @@ def z_score_data(data, mew=None):
         mew = mew
 
     return pd.DataFrame(data=((data.values - mew) / sigma))
+
+def pairwise_dist(x):
+    """
+    Helper function for distance_moved. Computes consecutive pairwise differences in a Series
+    
+    Input:
+        x: Series containing floats
+        
+    Returns:
+        dx: Series containing x[i] - x[i-1]
+    
+    """
+    
+    x = x.astype(float)
+    dx = (np.roll(x,-1) - x).shift(1)
+    return dx
+
+def distance_moved(x,y):
+    """
+    Inputs
+        x,y: Series containing x and y positions over time
+    
+    Returns
+        Series containing distance moved per frame
+    
+    """  
+    
+    dx = pairwise_dist(x.astype(float))
+    dy = pairwise_dist(y.astype(float))
+    
+    dist_moved = dx**2 + dy**2
+    
+    return dist_moved.apply(math.sqrt)
+
+def compute_velocity(dist,fr=10):
+    """
+    Inputs
+        dist: Series containing distance moved
+        fr: frame rate
+    Returns
+        Series containing velocity 
+    
+    """
+    
+    return dist.apply(lambda x: x*fr)
+
+def define_immobility(velocity, min_dur = 1, min_vel = 2, fr = 10, min_periods = 1):
+    """
+    Defines time periods of immobility based on a rolling window of velocity.
+    Mouse is considered immobile if velocity has not exceeded min_vel for the previous min_dur seconds
+    Defaults for min_dur and min_vel are taken from Stefanini...Fusi et al. 2018
+    
+    Inputs:
+        velocity: Series with velocity data
+        min_dur: minimum length of time in seconds in which velocity must be low. Default is 1 second.
+        min_vel: minimum velocity in cm/s for which the mouse can be considered mobile. Default is 2 cm/s
+        fr: frame rate of velocity Series. Default is 10 fps.
+        min_periods: Minimum number of datapoints needed to determine immobility. Default is 1.
+            This value is needed to define immobile time bins at the beginning of the session. If 
+            min_periods = 8, then the first 8 time bins will be be considered immobile, regardless of velocity
+    
+    Returns:
+        Series defining immobile (1) and mobile (0) times
+    
+    """
+    
+    window_size = fr*min_dur
+    rolling_max_vel = velocity.rolling(window_size,min_periods=1).max()
+
+    return (rolling_max_vel<min_vel).astype(int)
+
+    
+
+
 
 def find_file(root_directory, target_file):
     """Finds a file in a given root directory (folder).

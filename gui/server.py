@@ -68,8 +68,8 @@ class Server:
                     print(self.client_threads, file=sys.stderr)
                     client.close()
                     del self.client_threads[client]
-                    
-            # An existing connection was forcibly closed by the remote 
+
+            # An existing connection was forcibly closed by the remote
             else:
                 try:
                     while True:

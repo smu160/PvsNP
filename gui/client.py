@@ -4,17 +4,16 @@ This module contains the classes for receiving, extracting, and plotting data.
 @author: Saveliy Yusufov, Columbia University, sy2685@columbia.edu
 """
 
+import os
 import sys
 import platform
 import socket
 import queue
 import threading
 
-from tkinter import filedialog
-import tkinter as tk
 import numpy as np
 import pandas as pd
-from PyQt5 import QtWidgets, QtGui
+from PyQt5 import QtWidgets
 import pyqtgraph as pg
 from pyqt_wrapper import MainWindow
 from data_dialogs import DataDialog, ColorsDialog
@@ -23,10 +22,13 @@ class DataGen:
     """Data Generator/Extractor class"""
 
     def __init__(self):
-        file_path = self.get_file_path()
+        self.filename = None
+        self.show_file_dialog()
+        if not self.filename[0]:
+            sys.exit(1)
 
         try:
-            self.dataset = pd.read_csv(file_path)
+            self.dataset = pd.read_csv(self.filename[0])
         except (UnicodeDecodeError, pd.errors.ParserError) as exception:
             print(exception, file=sys.stderr)
             app = QtWidgets.QApplication([])
@@ -84,16 +86,12 @@ class DataGen:
         # We no longer need the dataframe
         del self.dataset
 
-    def get_file_path(self):
-        file_path = ""
-
-        while not file_path:
-            root = tk.Tk()
-            root.withdraw()
-            file_path = filedialog.askopenfilename()
-            root.destroy()
-
-        return file_path
+    def show_file_dialog(self):
+        """Display a file dialog to the user & let user choose a data file.
+        """
+        app = QtWidgets.QApplication(sys.argv)
+        file_dialog = QtWidgets.QFileDialog()
+        self.filename = file_dialog.getOpenFileName(None, "Choose a Data File", os.path.expanduser('~'))
 
     def show_data_dialog(self, checkbox=False):
         """Display a dialog to the user & let user choose neurons or behaviors.
@@ -136,26 +134,16 @@ class DataGen:
         return df
 
     def filter_epochs(self, interval_series, framerate=10, seconds=1):
-        intervals = []
-
-        for interval in interval_series:
-            if len(interval) >= framerate*seconds:
-                intervals.append(interval)
-
-        return intervals
+        return [interval for interval in interval_series if len(interval) >= framerate*seconds]
 
     def get_neuron_plots(self):
-        plots = []
-
-        for col in self.neuron_col_vectors:
-            plots.append(self.neuron_col_vectors[col].values)
-
-        return plots
+        return [self.neuron_col_vectors[col].values for col in self.neuron_col_vectors]
 
 class Client:
+    """Data receiver client"""
 
-    def __init__(self, address, port, q):
-        self.q = q
+    def __init__(self, address, port, data_queue):
+        self.data_queue = data_queue
 
         if platform.system() == "Windows":
 
@@ -181,9 +169,9 @@ class Client:
                 print(msg, file=sys.stderr)
                 sys.exit(1)
 
-        t = threading.Thread(target=self.data_receiver, args=())
-        t.daemon = True
-        t.start()
+        thread = threading.Thread(target=self.data_receiver, args=())
+        thread.daemon = True
+        thread.start()
 
     def data_receiver(self):
         print("New data receiver thread started...")
@@ -192,13 +180,13 @@ class Client:
                 data = self.sock.recv(4)
                 if data:
                     data = data.decode()
-                    
+
                     for num in data.split(','):
                         if num:
                             if num == 'd':
-                                self.q.queue.clear()
+                                self.data_queue.queue.clear()
                             else:
-                                self.q.put(int(num))
+                                self.data_queue.put(int(num))
         except:
             print("Closing socket: {}".format(self.sock), file=sys.stderr)
             self.sock.close()
@@ -209,13 +197,13 @@ def main():
     plots = datagen.get_neuron_plots()
     plot_names = datagen.neurons
 
-    q = queue.Queue()
-    _ = Client("localhost", 10000, q)
+    data_queue = queue.Queue()
+    _ = Client("localhost", 10000, data_queue)
 
     # Create new plot window
     app = QtWidgets.QApplication(sys.argv)
     pg.setConfigOptions(antialias=True) # set to True for higher quality plots
-    main_window = MainWindow(q, plots, plot_names, beh_intervals=datagen.behavior_intervals)
+    main_window = MainWindow(data_queue, plots, plot_names, beh_intervals=datagen.behavior_intervals)
     main_window.show()
     main_window.resize(800, 600)
     main_window.raise_()

@@ -146,6 +146,20 @@ def plot_heatmap(x, y, sigma=2, **kwargs):
 
         plt.savefig("{}.pdf".format(filename), dpi=dpi)
 
+        
+def abline(slope, intercept):
+    """
+    Plot a line from slope and intercept
+    Inputs:
+        slope: float
+        intercept: float
+    """
+    axes = plt.gca()
+    x_vals = np.array(axes.get_xlim())
+    y_vals = intercept + slope * x_vals
+    plt.plot(x_vals, y_vals, '--')
+    
+    
 def pie_chart(sizes, *labels, **kwargs):
     """Wrapper method for matplotlib's pie chart.
 
