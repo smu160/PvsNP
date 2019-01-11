@@ -139,6 +139,7 @@ class DataGen:
     def get_neuron_plots(self):
         return [self.neuron_col_vectors[col].values for col in self.neuron_col_vectors]
 
+
 class Client:
     """Data receiver client"""
 
@@ -177,7 +178,7 @@ class Client:
         print("New data receiver thread started...")
         try:
             while True:
-                data = self.sock.recv(4)
+                data = self.sock.recv(4096)
                 if data:
                     data = data.decode()
 
@@ -192,22 +193,24 @@ class Client:
             self.sock.close()
             return
 
+
 def main():
     datagen = DataGen()
     plots = datagen.get_neuron_plots()
     plot_names = datagen.neurons
 
     data_queue = queue.Queue()
-    _ = Client("localhost", 10000, data_queue)
 
     # Create new plot window
     app = QtWidgets.QApplication(sys.argv)
-    pg.setConfigOptions(antialias=True) # set to True for higher quality plots
+    pg.setConfigOptions(antialias=True)  # set to True for higher quality plots
     main_window = MainWindow(data_queue, plots, plot_names, beh_intervals=datagen.behavior_intervals)
     main_window.show()
     main_window.resize(800, 600)
     main_window.raise_()
+    _ = Client("localhost", 10000, data_queue)
     sys.exit(app.exec_())
+
 
 if __name__ == "__main__":
     pg.setConfigOption("background", (230, 230, 230))
