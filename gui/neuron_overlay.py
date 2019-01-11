@@ -21,10 +21,13 @@ class Overlay(QtWidgets.QWidget):
         palette.setColor(palette.Background, Qt.transparent)
         self.setPalette(palette)
 
-        # (x, y) as its top-left corner and the given width and height.
+        # Set (x, y) as its top-left corner and the given width and height
         parent_geometry = self.parent().geometry()
-        print(parent_geometry.topLeft(), parent_geometry.topLeft(), parent_geometry.width(), parent_geometry.height())
-        self.setGeometry(0, 0, 640, 480)
+        top_left_x = parent_geometry.topLeft().x()
+        top_left_y = parent_geometry.topLeft().y()
+        width = parent_geometry.width()
+        height = parent_geometry.height()
+        self.setGeometry(top_left_x, top_left_y, width, height)
 
     def paintEvent(self, event):
         painter = QPainter()
@@ -35,7 +38,7 @@ class Overlay(QtWidgets.QWidget):
 
         size = self.parent().size()
         # print(size)
-        for _ in range(3000):
+        for _ in range(5000):
             x = random.randint(1, size.width()-1)
             y = random.randint(1, size.height()-1)
             painter.drawPoint(x, y)
