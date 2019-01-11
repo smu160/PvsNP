@@ -16,7 +16,7 @@ class MainWindow(QtWidgets.QMainWindow):
     def __init__(self, data_q, plots, plot_names, beh_intervals=None, parent=None):
         super().__init__(parent)
 
-        # Create plot window widget & set it as central the central widget
+        # Create plot window widget & set it as the central widget
         self.plot_window = PlotWindow(data_q, plots, plot_names, beh_intervals=beh_intervals, parent=self)
         self.setCentralWidget(self.plot_window)
 
@@ -72,6 +72,7 @@ class MainWindow(QtWidgets.QMainWindow):
         axis_dialog.show()
         return axis_dialog.lower_bound, axis_dialog.upper_bound
 
+
 class PlotWindow(pg.GraphicsWindow):
     """This class holds plots and should be nested in a MainWindow."""
 
@@ -88,7 +89,6 @@ class PlotWindow(pg.GraphicsWindow):
 
         self.timer = QtCore.QTimer(self)
         self.timer.setInterval(10)
-        self.timer.start()
         self.timer.timeout.connect(self.on_new_data)
 
         self.behavior_time = {}
@@ -104,6 +104,7 @@ class PlotWindow(pg.GraphicsWindow):
             self.behavior_time = None
 
         self.data_q = data_q
+        self.timer.start()
 
     def on_new_data(self):
         """Called on timer interval to get data from queue & update all plots.
@@ -131,27 +132,38 @@ class PlotWindow(pg.GraphicsWindow):
         # Pen to be used for vertical lines
         pen = pg.mkPen('r', width=2)
 
-        for i, plot in enumerate(self.plots):
-            plot_item = self.graphics_layout.addPlot(title="plot {}".format(plot_names[i]), row=i, col=0)
+        # Get background color(s) (color coded by behavior) to add to each plot
+        list_of_lists_of_rgns = [[] for _ in self.plots]
+        if all_beh_intervals:
+            for behavior_intervals, behavior, color in all_beh_intervals:
+                for interval in behavior_intervals:
 
-            # Add background color(s) (color coded by behavior) to each plot
-            if all_beh_intervals:
-                for behavior_intervals, behavior, color in all_beh_intervals:
-                    for interval in behavior_intervals:
+                    # Add the interval times and the corresponding behavior
+                    # to track it for the status bar
+                    for time in interval:
+                        if time not in self.behavior_time:
+                            self.behavior_time[time] = {behavior}
+                        else:
+                            self.behavior_time[time].add(behavior)
 
-                        # Add the interval times and the corresponding behavior
-                        # to track it for the status bar
-                        for time in interval:
-                            if time not in self.behavior_time:
-                                self.behavior_time[time] = {behavior}
-                            else:
-                                self.behavior_time[time].add(behavior)
-
+                    # Add rgn object for each plot
+                    # (Since copies are not possible)
+                    for inner_lst in list_of_lists_of_rgns:
                         rgn = pg.LinearRegionItem(values=[interval[0], interval[-1]], movable=False)
                         rgn.lines[0].setPen((255, 255, 255, 5))
                         rgn.lines[1].setPen((255, 255, 255, 5))
                         rgn.setBrush(pg.mkBrush(color))
-                        plot_item.addItem(rgn)
+                        inner_lst.append(rgn)
+
+        for i, plot in enumerate(self.plots):
+            plot_item = self.graphics_layout.addPlot(title="{}".format(plot_names[i]), row=i, col=0)
+
+            # Causes auto-scale button (‘A’ in lower-left corner)
+            # to be hidden for this PlotItem
+            plot_item.hideButtons()
+
+            for rgn in list_of_lists_of_rgns[i]:
+                plot_item.addItem(rgn)
 
             plot_item.plot(plot, pen=pg.mkPen((0, 0, 0), width=2))
 
@@ -159,7 +171,7 @@ class PlotWindow(pg.GraphicsWindow):
             y_max = plot.max()
 
             # Set the domain and range for each plot
-            plot_item.setRange(xRange=[0, x_max], yRange=[0, y_max], padding=0)
+            plot_item.setRange(xRange=[0, x_max], yRange=[-1, y_max], padding=0)
 
             # Create and add vertical line that scrolls
             self.vertical_line = plot_item.addLine(x=0, pen=pen)
