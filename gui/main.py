@@ -10,11 +10,11 @@ import queue
 import os
 import subprocess
 import sys
-import time
 
 from PyQt5 import QtWidgets, QtGui, QtCore
 import vlc
 from server import Server
+
 
 class Player(QtWidgets.QMainWindow):
     """A simple Media Player using VLC and Qt
@@ -47,7 +47,7 @@ class Player(QtWidgets.QMainWindow):
         self.setCentralWidget(self.widget)
 
         # In this widget, the video will be drawn
-        if platform.system() == "Darwin": # for MacOS
+        if platform.system() == "Darwin":  # for MacOS
             self.videoframe = QtWidgets.QMacCocoaViewContainer(0)
         else:
             self.videoframe = QtWidgets.QFrame()
@@ -168,12 +168,12 @@ class Player(QtWidgets.QMainWindow):
         # The media player has to be 'connected' to the QFrame (otherwise the
         # video would be displayed in it's own window). This is platform
         # specific, so we must give the ID of the QFrame (or similar object) to
-        # vlc. Different platforms have different functions for this
-        if platform.system() == "Linux": # for Linux using the X Server
+        # vlc. Different platforms have different functions for this.
+        if platform.system() == "Linux":  # for Linux using the X Server
             self.mediaplayer.set_xwindow(int(self.videoframe.winId()))
-        elif platform.system() == "Windows": # for Windows
+        elif platform.system() == "Windows":  # for Windows
             self.mediaplayer.set_hwnd(int(self.videoframe.winId()))
-        elif platform.system() == "Darwin": # for MacOS
+        elif platform.system() == "Darwin":  # for MacOS
             self.mediaplayer.set_nsobject(int(self.videoframe.winId()))
 
         self.play_pause()
@@ -200,7 +200,6 @@ class Player(QtWidgets.QMainWindow):
             self.data_queue.put('d')
             current_time = self.mediaplayer.get_time()
             current_time //= 100
-            time.sleep(0.005)
             self.data_queue.put(current_time)
 
         self.mediaplayer.set_position(pos / 1000.0)
@@ -244,6 +243,7 @@ class Player(QtWidgets.QMainWindow):
         else:
             subprocess.Popen(["python", "mini_player.py"])
 
+
 def main():
     """Entry point for our simple vlc player
     """
@@ -255,6 +255,7 @@ def main():
     player.show()
     player.resize(640, 480)
     sys.exit(app.exec_())
+
 
 if __name__ == "__main__":
     main()
