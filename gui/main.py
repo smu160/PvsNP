@@ -40,6 +40,7 @@ class Player(QtWidgets.QMainWindow):
         self.timer = QtCore.QTimer(self)
         self.timer.setInterval(100)
         self.timer.timeout.connect(self.update_ui)
+        self.timer.timeout.connect(self.update_time_label)
 
     def create_ui(self):
         """Set up the user interface, signals & slots
@@ -60,27 +61,78 @@ class Player(QtWidgets.QMainWindow):
         self.videoframe.setPalette(self.palette)
         self.videoframe.setAutoFillBackground(True)
 
-        self.hbuttonbox = QtWidgets.QHBoxLayout()
-        self.playbutton = QtWidgets.QPushButton()
-        self.playbutton.setIcon(self.style().standardIcon(QtWidgets.QStyle.SP_MediaPlay))
-        self.hbuttonbox.addWidget(self.playbutton)
-        self.playbutton.clicked.connect(self.play_pause)
+        # Create the time display
+        self.timelabel = QtWidgets.QLabel("00:00:00", self)
 
-        self.stopbutton = QtWidgets.QPushButton()
-        self.stopbutton.setIcon(self.style().standardIcon(QtWidgets.QStyle.SP_MediaStop))
-        self.hbuttonbox.addWidget(self.stopbutton)
-        self.stopbutton.clicked.connect(self.stop)
-        
+        # Create the position slider (QSlider)
         self.positionslider = QtWidgets.QSlider(QtCore.Qt.Horizontal, self)
         self.positionslider.setToolTip("Position")
         self.positionslider.setMaximum(1000)
-        self.hbuttonbox.addWidget(self.positionslider)
         self.positionslider.sliderMoved.connect(self.set_position)
-        self.positionslider.sliderPressed.connect(self.set_position)
+        # self.positionslider.sliderPressed.connect(self.set_position)
+        self.positionslider.sliderMoved.connect(self.update_time_label)
+
+        # Create the "previous frame" button
+        self.previousframe = QtWidgets.QPushButton()
+        self.previousframe.setFixedWidth(25)
+        self.previousframe.setIcon(self.style().standardIcon(QtWidgets.QStyle.SP_MediaSkipBackward))
+        self.previousframe.clicked.connect(self.on_previous_frame)
+
+        # Create the play button and connect it to the play/pause function
+        self.playbutton = QtWidgets.QPushButton()
+        self.playbutton.setFixedWidth(40)
+        self.playbutton.setIcon(self.style().standardIcon(QtWidgets.QStyle.SP_MediaPlay))
+        self.playbutton.clicked.connect(self.play_pause)
+
+        # Create the "next frame" button
+        self.nextframe = QtWidgets.QPushButton()
+        self.nextframe.setFixedWidth(25)
+        self.nextframe.setIcon(self.style().standardIcon(QtWidgets.QStyle.SP_MediaSkipForward))
+        self.nextframe.clicked.connect(self.on_next_frame)
+
+        # Create the "Playback rate" label
+        self.pb_rate_label = QtWidgets.QLabel("Playback rate: {}x".format(self.mediaplayer.get_rate()), self)
+
+        # Create the "decrease playback rate" button
+        self.decr_pb_rate = QtWidgets.QPushButton()
+        self.decr_pb_rate.setFixedWidth(30)
+        self.decr_pb_rate.setIcon(self.style().standardIcon(QtWidgets.QStyle.SP_MediaSeekBackward))
+        self.decr_pb_rate.clicked.connect(self.decr_mov_play_rate)
+
+        # Create the stop button and connect it to the stop function
+        self.stopbutton = QtWidgets.QPushButton()
+        self.stopbutton.setFixedWidth(30)
+        self.stopbutton.setIcon(self.style().standardIcon(QtWidgets.QStyle.SP_MediaStop))
+        self.stopbutton.clicked.connect(self.stop)
+
+        # Create the "increase playback rate" button
+        self.incr_pb_rate = QtWidgets.QPushButton()
+        self.incr_pb_rate.setFixedWidth(30)
+        self.incr_pb_rate.setIcon(self.style().standardIcon(QtWidgets.QStyle.SP_MediaSeekForward))
+        self.incr_pb_rate.clicked.connect(self.incr_mov_play_rate)
+
+        self.top_control_box = QtWidgets.QHBoxLayout()
+
+        # Add the time and position slider to the 1st controls layout
+        self.top_control_box.addWidget(self.timelabel)
+        self.top_control_box.addWidget(self.positionslider)
+
+        self.bottom_control_box = QtWidgets.QHBoxLayout()
+
+        # Add the buttons to the 2nd controls layout
+        self.bottom_control_box.addWidget(self.previousframe)
+        self.bottom_control_box.addWidget(self.playbutton)
+        self.bottom_control_box.addWidget(self.nextframe)
+        self.bottom_control_box.addWidget(self.pb_rate_label)
+        self.bottom_control_box.addWidget(self.decr_pb_rate)
+        self.bottom_control_box.addWidget(self.stopbutton)
+        self.bottom_control_box.addWidget(self.incr_pb_rate)
 
         self.vboxlayout = QtWidgets.QVBoxLayout()
+
         self.vboxlayout.addWidget(self.videoframe)
-        self.vboxlayout.addLayout(self.hbuttonbox)
+        self.vboxlayout.addLayout(self.top_control_box)
+        self.vboxlayout.addLayout(self.bottom_control_box)
 
         self.widget.setLayout(self.vboxlayout)
 
@@ -96,8 +148,8 @@ class Player(QtWidgets.QMainWindow):
         new_video_action = QtWidgets.QAction("New Video", self)
         new_menu.addAction(new_plot_action)
         new_menu.addAction(new_video_action)
-        new_plot_action.triggered.connect(self.on_new_plot)
-        new_video_action.triggered.connect(self.on_new_video)
+        new_plot_action.triggered.connect(on_new_plot)
+        new_video_action.triggered.connect(on_new_video)
 
         # Create actions to load a new media file and to close the app
         open_action = QtWidgets.QAction("Load Video", self)
@@ -129,22 +181,64 @@ class Player(QtWidgets.QMainWindow):
         """Stop player
         """
         self.mediaplayer.stop()
-        self.playbutton.setText("Play")
+        self.playbutton.setIcon(self.style().standardIcon(QtWidgets.QStyle.SP_MediaPlay))
 
-        # reset the queue
+        # Reset the time label back to 00:00:00
+        time = QtCore.QTime(0, 0, 0, 0)
+        self.timelabel.setText(time.toString())
+
+        # Reset the queue
         self.data_queue.queue.clear()
         self.data_queue.put('d')
         self.data_queue.put('0')
 
-        # reset the media position slider
+        # Reset the media position slider
         self.positionslider.setValue(0)
 
         self.timer.stop()
 
+    def on_next_frame(self):
+        """Go forward one frame.
+
+            The Python VLC binding next_frame function causes a:
+
+            "direct3d11 vout display error: SetThumbNailClip failed"
+
+            error when next_frame is called while the video is playing,
+            so we are using our own fucntion to get the next frame.
+        """
+        # self.mediaplayer.next_frame()
+        self.mediaplayer.set_time(self.mediaplayer.get_time() + self.mspf())
+
+    def on_previous_frame(self):
+        """Go backward one frame"""
+        self.mediaplayer.set_time(self.mediaplayer.get_time() - self.mspf())
+
+    def mspf(self):
+        """Milliseconds per frame"""
+        return int(1000 // (self.mediaplayer.get_fps() or 25))
+
+    def incr_mov_play_rate(self):
+        """Increase the movie play rate by a factor of 2."""
+        if self.mediaplayer.get_rate() >= 64:
+            return
+
+        result = self.mediaplayer.set_rate(self.mediaplayer.get_rate() * 2)
+        if result == 0:
+            self.update_pb_rate_label()
+
+    def decr_mov_play_rate(self):
+        """Decrease the movie play rate by a factor of 2."""
+        if self.mediaplayer.get_rate() <= 0.125:
+            return
+
+        result = self.mediaplayer.set_rate(self.mediaplayer.get_rate() / 2)
+        if result == 0:
+            self.update_pb_rate_label()
+
     def open_file(self):
         """Open a media file in a MediaPlayer
         """
-
         dialog_txt = "Choose Media File"
         filename = QtWidgets.QFileDialog.getOpenFileName(self, dialog_txt, os.path.expanduser('~'))
         if not filename[0]:
@@ -174,11 +268,6 @@ class Player(QtWidgets.QMainWindow):
             self.mediaplayer.set_nsobject(int(self.videoframe.winId()))
 
         self.play_pause()
-
-    def set_volume(self, volume):
-        """Set the volume
-        """
-        self.mediaplayer.audio_set_volume(volume)
 
     def set_position(self):
         """Set the movie position according to the position slider.
@@ -227,18 +316,29 @@ class Player(QtWidgets.QMainWindow):
             if not self.is_paused:
                 self.stop()
 
-    def on_new_plot(self):
-        """Launches a new PyQtGraph plot(s) window
-        """
-        subprocess.Popen(["python", "client.py"])
+    def update_time_label(self):
+        mtime = QtCore.QTime(0, 0, 0, 0)
+        self.time = mtime.addMSecs(self.mediaplayer.get_time())
+        self.timelabel.setText(self.time.toString())
 
-    def on_new_video(self):
-        """Launches a new PyQt5-based "mini" media player
-        """
-        if platform.system() == "Windows":
-            subprocess.Popen(["python", "mini_player.py"], shell=True)
-        else:
-            subprocess.Popen(["python", "mini_player.py"])
+    def update_pb_rate_label(self):
+        print(self.mediaplayer.get_rate())
+        self.pb_rate_label.setText("Playback rate: {}x".format(str(self.mediaplayer.get_rate())))
+
+
+def on_new_plot():
+    """Launches a new PyQtGraph plot(s) window
+    """
+    subprocess.Popen(["python", "client.py"])
+
+
+def on_new_video():
+    """Launches a new PyQt5-based "mini" media player
+    """
+    if platform.system() == "Windows":
+        subprocess.Popen(["python", "mini_player.py"], shell=True)
+    else:
+        subprocess.Popen(["python", "mini_player.py"])
 
 
 def main():
