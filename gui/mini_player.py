@@ -18,6 +18,8 @@ class MiniPlayer(QtWidgets.QMainWindow):
     def __init__(self, data_queue, master=None):
         QtWidgets.QMainWindow.__init__(self, master)
         self.setWindowTitle("Mini Player")
+        self.statusbar = self.statusBar()
+        self.statusbar.showMessage("Ready")
 
         # Create a basic vlc instance
         self.instance = vlc.Instance()
@@ -93,6 +95,8 @@ class MiniPlayer(QtWidgets.QMainWindow):
         self.mediaplayer.play()
 
     def update_ui(self):
+        self.update_statusbar()
+
         try:
             val = self.data_queue.get(block=False)
         except queue.Empty:
@@ -111,6 +115,11 @@ class MiniPlayer(QtWidgets.QMainWindow):
             val = int(val)
             if val != self.mediaplayer.get_time():
                 self.mediaplayer.set_time(val)
+
+    def update_statusbar(self):
+        mtime = QtCore.QTime(0, 0, 0, 0)
+        time = mtime.addMSecs(self.mediaplayer.get_time())
+        self.statusbar.showMessage(time.toString())
 
 
 def main():
