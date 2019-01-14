@@ -244,8 +244,12 @@ class Player(QtWidgets.QMainWindow):
         if self.mediaplayer.get_rate() >= 64:
             return
 
-        result = self.mediaplayer.set_rate(self.mediaplayer.get_rate() * 2)
+        rate = self.mediaplayer.get_rate() * 2
+        result = self.mediaplayer.set_rate(rate)
         if result == 0:
+            self.data_queue.queue.clear()
+            self.data_queue.put('d')
+            self.data_queue.put('>')
             self.update_pb_rate_label()
 
     def decr_mov_play_rate(self):
@@ -253,8 +257,12 @@ class Player(QtWidgets.QMainWindow):
         if self.mediaplayer.get_rate() <= 0.125:
             return
 
-        result = self.mediaplayer.set_rate(self.mediaplayer.get_rate() / 2)
+        rate = self.mediaplayer.get_rate() * 0.5
+        result = self.mediaplayer.set_rate(rate)
         if result == 0:
+            self.data_queue.queue.clear()
+            self.data_queue.put('d')
+            self.data_queue.put('<')
             self.update_pb_rate_label()
 
     def open_file(self):
