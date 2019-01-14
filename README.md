@@ -17,7 +17,7 @@ For any feature requests, [create an issue](https://help.github.com/articles/cre
 
 ### Docker
 
-1. 1. Download and install [Anaconda](https://docs.anaconda.com/anaconda/install/) (Python 3.X)
+1. Download and install [Anaconda](https://docs.anaconda.com/anaconda/install/) (Python 3.X)
 
 2. Download and install [Docker](https://www.docker.com/get-started)
 
