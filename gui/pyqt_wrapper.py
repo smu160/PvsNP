@@ -46,7 +46,7 @@ class MainWindow(QtWidgets.QMainWindow):
     def on_set_axis(self, axis=0):
         """Handles both actions in the 'Adjust plots' submenu"""
 
-        lower_bound, upper_bound = self.show_axis_dialog()
+        lower_bound, upper_bound = show_axis_dialog()
 
         if lower_bound and upper_bound:
 
@@ -172,6 +172,8 @@ class PlotWindow(pg.GraphicsWindow):
             # Causes auto-scale button (‘A’ in lower-left corner)
             # to be hidden for this PlotItem
             plot_item.hideButtons()
+
+            plot_item.setMouseEnabled(x=True, y=False)
 
             for rgn in list_of_lists_of_rgns[i]:
                 plot_item.addItem(rgn)
