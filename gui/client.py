@@ -182,12 +182,12 @@ class Client:
                 if data:
                     data = data.decode()
 
-                    for num in data.split(','):
-                        if num:
-                            if num == 'd':
+                    for char in data.split(','):
+                        if char:
+                            if char == 'd':
                                 self.data_queue.queue.clear()
                             else:
-                                self.data_queue.put(int(num))
+                                self.data_queue.put(char)
         except:
             print("Closing socket: {}".format(self.sock), file=sys.stderr)
             self.sock.close()
