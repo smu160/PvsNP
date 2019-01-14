@@ -163,6 +163,7 @@ class Player(QtWidgets.QMainWindow):
         """Toggle play/pause status
         """
         if self.mediaplayer.is_playing():
+            signal = 'p'
             self.mediaplayer.pause()
             self.playbutton.setIcon(self.style().standardIcon(QtWidgets.QStyle.SP_MediaPlay))
             self.is_paused = True
@@ -172,10 +173,16 @@ class Player(QtWidgets.QMainWindow):
                 self.open_file()
                 return
 
+            signal = 'P'
             self.mediaplayer.play()
             self.playbutton.setIcon(self.style().standardIcon(QtWidgets.QStyle.SP_MediaPause))
             self.timer.start()
             self.is_paused = False
+
+        # Reset the queue & send the appropriate signal, i.e., play/pause
+        self.data_queue.queue.clear()
+        self.data_queue.put('d')
+        self.data_queue.put(signal)
 
     def stop(self):
         """Stop player
@@ -190,7 +197,7 @@ class Player(QtWidgets.QMainWindow):
         # Reset the queue
         self.data_queue.queue.clear()
         self.data_queue.put('d')
-        self.data_queue.put('0')
+        self.data_queue.put('S')
 
         # Reset the media position slider
         self.positionslider.setValue(0)
@@ -271,12 +278,11 @@ class Player(QtWidgets.QMainWindow):
 
     def set_position(self):
         """Set the movie position according to the position slider.
+
+        The vlc MediaPlayer needs a float value between 0 and 1, Qt uses
+        integer variables, so you need a factor; the higher the factor, the
+        more precise are the results (1000 should suffice).
         """
-
-        # The vlc MediaPlayer needs a float value between 0 and 1, Qt uses
-        # integer variables, so you need a factor; the higher the factor, the
-        # more precise are the results (1000 should suffice).
-
         # Set the media position to where the slider was dragged
         self.timer.stop()
         pos = self.positionslider.value()
@@ -285,7 +291,6 @@ class Player(QtWidgets.QMainWindow):
             self.data_queue.queue.clear()
             self.data_queue.put('d')
             current_time = self.mediaplayer.get_time()
-            current_time //= 100
             self.data_queue.put(current_time)
 
         self.mediaplayer.set_position(pos / 1000.0)
@@ -302,7 +307,7 @@ class Player(QtWidgets.QMainWindow):
 
         if media_pos >= 0 and self.mediaplayer.is_playing():
             current_time = self.mediaplayer.get_time()
-            self.data_queue.put(current_time // 100)
+            self.data_queue.put(current_time)
         else:
             self.data_queue.queue.clear()
 
