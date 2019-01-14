@@ -63,14 +63,15 @@ class MainWindow(QtWidgets.QMainWindow):
     def on_set_y_axis(self):
         self.on_set_axis(axis=1)
 
-    def show_axis_dialog(self):
-        """Display the behavior dialog to the user & let user choose colors.
-        """
-        # app = QtWidgets.QApplication(sys.argv)
-        axis_dialog = AxisDialog()
-        axis_dialog.exec_()
-        axis_dialog.show()
-        return axis_dialog.lower_bound, axis_dialog.upper_bound
+
+def show_axis_dialog():
+    """Display the behavior dialog to the user & let user choose colors.
+    """
+    # app = QtWidgets.QApplication(sys.argv)
+    axis_dialog = AxisDialog()
+    axis_dialog.exec_()
+    axis_dialog.show()
+    return axis_dialog.lower_bound, axis_dialog.upper_bound
 
 
 class PlotWindow(pg.GraphicsWindow):
@@ -115,9 +116,7 @@ class PlotWindow(pg.GraphicsWindow):
             QtCore.QCoreApplication.processEvents()
             return
 
-        if val == 'P':
-            return
-        if val == 'p':
+        if val in ('<', '>', 'P', 'p'):
             return
         if val == 'S':
             for v_line in self.vertical_lines:
@@ -125,13 +124,13 @@ class PlotWindow(pg.GraphicsWindow):
             if self.behavior_time:
                 self.parent.statusbar.showMessage(self.behavior_time[0])
             return
-        else:
-            val = int(val)
-            val //= 100
-            for v_line in self.vertical_lines:
-                v_line.setValue(val)
-            if self.behavior_time:
-                self.parent.statusbar.showMessage(self.behavior_time[val])
+
+        val = int(val)
+        val //= 100
+        for v_line in self.vertical_lines:
+            v_line.setValue(val)
+        if self.behavior_time:
+            self.parent.statusbar.showMessage(self.behavior_time[val])
 
         QtCore.QCoreApplication.processEvents()
 
