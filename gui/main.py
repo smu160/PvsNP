@@ -215,11 +215,25 @@ class Player(QtWidgets.QMainWindow):
             so we are using our own fucntion to get the next frame.
         """
         # self.mediaplayer.next_frame()
-        self.mediaplayer.set_time(self.mediaplayer.get_time() + self.mspf())
+        next_frame_time = self.mediaplayer.get_time() + self.mspf()
+
+        # Reset the queue & put the next frame's time into the queue
+        self.data_queue.queue.clear()
+        self.data_queue.put('d')
+        self.data_queue.put(next_frame_time)
+        self.update_time_label()
+        self.mediaplayer.set_time(next_frame_time)
 
     def on_previous_frame(self):
         """Go backward one frame"""
-        self.mediaplayer.set_time(self.mediaplayer.get_time() - self.mspf())
+        next_frame_time = self.mediaplayer.get_time() - self.mspf()
+
+        # Reset the queue & put the next frame's time into the queue
+        self.data_queue.queue.clear()
+        self.data_queue.put('d')
+        self.data_queue.put(next_frame_time)
+        self.update_time_label()
+        self.mediaplayer.set_time(next_frame_time)
 
     def mspf(self):
         """Milliseconds per frame"""
@@ -291,9 +305,15 @@ class Player(QtWidgets.QMainWindow):
             self.data_queue.queue.clear()
             self.data_queue.put('d')
             current_time = self.mediaplayer.get_time()
+
+            # If the player is stopped, do not attempt to send a -1!!!
+            if current_time == '-1':
+                self.timer.start()
+                return
+
             self.data_queue.put(current_time)
 
-        self.mediaplayer.set_position(pos / 1000.0)
+        self.mediaplayer.set_position(pos * .001)
         self.timer.start()
 
     def update_ui(self):
