@@ -1,6 +1,6 @@
 Hen Lab
 ======
-# <img src="readme_pic.png">
+# <img src="readme_pic.jpg">
 
 This code base was written with the intention of serving as a toolbox for:
 
