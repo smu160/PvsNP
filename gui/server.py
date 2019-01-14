@@ -32,7 +32,7 @@ class Server:
             self.sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
 
             # Bind the socket to the address
-            print('starting up on {}'.format(server_address))
+            print("Starting up on {}".format(server_address))
             self.sock.bind(server_address)
 
         # Listen for incoming connections
@@ -57,27 +57,14 @@ class Server:
 
     def data_sender(self):
         while True:
-            if platform.system() != "Windows":
-                try:
-                    while True:
-                        data = str(self.q.get()) + ','
-                        for client, _ in self.client_threads.items():
-                            client.sendall(data.encode())
-                except BrokenPipeError:
-                    print("Connection to client: {} was broken!".format(client), file=sys.stderr)
-                    print(self.client_threads, file=sys.stderr)
-                    client.close()
-                    del self.client_threads[client]
-
-            # An existing connection was forcibly closed by the remote
-            else:
-                try:
-                    while True:
-                        data = str(self.q.get()) + ','
-                        for client, _ in self.client_threads.items():
-                            client.sendall(data.encode())
-                except socket.error as e:
-                    print(e, file=sys.stderr)
-                    print("Connection to client: {} was broken!".format(client), file=sys.stderr)
-                    print(self.client_threads, file=sys.stderr)
-                    del self.client_threads[client]
+            try:
+                while True:
+                    data = "{},".format(self.q.get())
+                    for client, _ in self.client_threads.items():
+                        client.sendall(data.encode())
+            except (BrokenPipeError, socket.error) as e:
+                print(e, file=sys.stderr)
+                print("Connection to client: {} was broken!".format(client), file=sys.stderr)
+                print(self.client_threads, file=sys.stderr)
+                client.close()
+                del self.client_threads[client]
