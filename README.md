@@ -17,20 +17,32 @@ For any feature requests, [create an issue](https://help.github.com/articles/cre
 
 ### Docker
 
-1. Download and install [Docker](https://www.docker.com/get-started)
-2. Build the Docker image:
+1. 1. Download and install [Anaconda](https://docs.anaconda.com/anaconda/install/) (Python 3.X)
+
+2. Download and install [Docker](https://www.docker.com/get-started)
+
+3. Clone the repository:
 ```bash
+git clone https://github.com/jaberry/Hen_Lab.git
+```
+
+3. Navigate into your local repository and build the Docker image:
+```bash
+cd Hen_Lab
 docker build --build-arg USERNAME=your_GitHub_username --build-arg PASSWORD=your_GitHub_password . -t jupyter
 ```
-3. Use the image to run a container.
+
+4. Use the image to run a container:
 ```bash
 docker run -it -p 8888:8888 jupyter
 ```
+
 If you need to mount data to the container, then use the following command:
 ```bash
 docker run -it -p 8888:8888 -v source_directory:target_directory jupyter
 ```
-4. You should see something along the lines of:
+
+5. You should see something along the lines of:
 ```bash
 ...
     Or copy and paste one of these URLs:
@@ -41,17 +53,22 @@ Now open your browser window and go to the URL that was created for you.
 
 ### Installation on Mac or Linux (Python 3.x)
 
-* Download and install [Anaconda](https://docs.anaconda.com/anaconda/install/) (Python 3.6)
+1. Download and install [Anaconda](https://docs.anaconda.com/anaconda/install/) (Python 3.X)
 
+2. Clone the repository:
 ```bash
 git clone https://github.com/jaberry/Hen_Lab.git
+```
+
+3. Navigate into your local repository and create your environment:
+```bash
 cd Hen_Lab
 bash create_env.sh
 ```
 
 ## Troubleshooting
 
-[Create an issue] (https://help.github.com/articles/creating-an-issue/)
+[Create an issue](https://help.github.com/articles/creating-an-issue/)
 For members of the Hen Lab, feel free to message Saveliy Yusufov via Slack.
 
 ## Authors
