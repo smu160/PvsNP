@@ -1,6 +1,7 @@
 """This module contains wrapper functions for plotting and visualizing data.
 
-    @author: Saveliy Yusufov, Columbia University, sy2685@columbia.edu
+    @authors: Saveliy Yusufov, Columbia University, sy2685@columbia.edu
+              Jack Berry, Columbia University, jeb2242@columbia.edu
 """
 
 import pandas as pd
@@ -10,7 +11,7 @@ from matplotlib import cm
 import seaborn as sns
 from scipy.ndimage.filters import gaussian_filter
 
-def set_weights(x, y, neuron, data, framerate=10):
+def set_weights(x, y, neuron, data, max_rate, framerate=10):
     """Create list of weights by time spent in a location
 
     Args:
@@ -59,6 +60,9 @@ def set_weights(x, y, neuron, data, framerate=10):
     for i, coord in enumerate(coords_list):
         if neuron[i] != 0:
             weight = (framerate * neuron[i]) / time_at_coords[coord]
+            
+            #normalize by the maximum rate 
+            weight = weight/max_rate
         else:
             weight = 0
 
@@ -174,11 +178,16 @@ def plot_heatmap(x, y, sigma=2, **kwargs):
 
     cmap = kwargs.get("cmap", cm.jet)
     title = kwargs.get("title", "Title Goes Here")
+    filename = kwargs.get("filename",None)
+    filepath = kwargs.get("filepath",None)
     bins = kwargs.get("bins", (50, 50))
     weights = kwargs.get("weights", None)
     figsize = kwargs.get("figsize", (10, 10))
     bounds = kwargs.get("bounds", None)
-
+    vmin = kwargs.get("vmin",None)
+    vmax = kwargs.get("vmax",None)
+    
+    
     # Set user-defined x-axis and y-axis boundaries by appending them to x and y
     if bounds:
         x = x.copy()
@@ -194,20 +203,23 @@ def plot_heatmap(x, y, sigma=2, **kwargs):
 
     _ = plt.figure(figsize=figsize)
     heatmap, extent = generate_heatmap(x, y, sigma, bins=bins, weights=weights)
-    plt.imshow(heatmap, origin="lower", extent=extent, cmap=cmap)
-
+    plt.imshow(heatmap, origin="lower", extent=extent, cmap=cmap,vmin=vmin, vmax=vmax)
+    plt.colorbar()
+    
     if title:
         plt.title(title)
 
     dpi = kwargs.get("dpi", 600)
     savefig = kwargs.get("savefig", False)
     if savefig:
-        if title:
+        if filename:
+            filename = filename
+        elif title:
             filename = title
         else:
             filename = "my_smoothed_heatmap"
 
-        plt.savefig("{}.pdf".format(filename), dpi=dpi)
+        plt.savefig("{}{}.pdf".format(filepath,filename), dpi=dpi)
 
         
 def abline(slope, intercept):

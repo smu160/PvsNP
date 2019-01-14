@@ -186,8 +186,11 @@ class Resampler:
             rets.append(ret)
         for process in processes:
             process.join()
-
-        return pd.concat(rets, ignore_index=True)
+        
+        #start columns at 1, not 0
+        shuffle_dists = pd.concat(rets, ignore_index=True)
+        
+        return shuffle_dists
 
     @staticmethod
     def p_value(original_statistic, permutation_distribution):

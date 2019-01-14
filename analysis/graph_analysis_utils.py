@@ -2,7 +2,8 @@
 This module contains the NeuronNetwork class, which is to be used for quickly
 generating and plotting visualizations of neuron networks.
 
-@author: Saveliy Yusufov, Columbia University, sy2685@columbia.edu
+@authors: Saveliy Yusufov, Columbia University, sy2685@columbia.edu
+          Jack Berry, Columbia University, jeb2242@columbia.edu
 """
 
 import sys
