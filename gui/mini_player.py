@@ -31,7 +31,7 @@ class MiniPlayer(QtWidgets.QMainWindow):
         self.open_file()
 
         self.timer = QtCore.QTimer(self)
-        self.timer.setInterval(100)
+        self.timer.setInterval(10)
         self.timer.timeout.connect(self.update_ui)
 
         self.data_queue = data_queue
@@ -61,7 +61,6 @@ class MiniPlayer(QtWidgets.QMainWindow):
     def open_file(self):
         """Open a media file in a MediaPlayer
         """
-
         dialog_txt = "Choose Media File"
         filename = QtWidgets.QFileDialog.getOpenFileName(self, dialog_txt, os.path.expanduser('~'))
         if not filename[0]:
@@ -95,15 +94,23 @@ class MiniPlayer(QtWidgets.QMainWindow):
 
     def update_ui(self):
         try:
-            current_time = self.data_queue.get(block=False)
+            val = self.data_queue.get(block=False)
         except queue.Empty:
-            if self.mediaplayer.is_playing():
-                self.mediaplayer.pause()
             return
 
-        if not self.mediaplayer.is_playing():
-            self.mediaplayer.set_time(current_time * 100)
+        if val == 'P':
             self.mediaplayer.play()
+            return
+        elif val == 'p':
+            self.mediaplayer.pause()
+            return
+        elif val == 'S':
+            self.mediaplayer.stop()
+            return
+        else:
+            val = int(val)
+            if val != self.mediaplayer.get_time():
+                self.mediaplayer.set_time(val)
 
 
 def main():
@@ -114,10 +121,10 @@ def main():
     data_queue = queue.Queue()
 
     player = MiniPlayer(data_queue)
-    _ = Client("localhost", 10000, data_queue)
-
     player.show()
     player.resize(480, 480)
+
+    _ = Client("localhost", 10000, data_queue)
     sys.exit(app.exec_())
 
 
