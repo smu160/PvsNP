@@ -102,6 +102,12 @@ class MiniPlayer(QtWidgets.QMainWindow):
         except queue.Empty:
             return
 
+        if val == '<':
+            self.mediaplayer.set_rate(self.mediaplayer.get_rate() * 0.5)
+            return
+        if val == '>':
+            self.mediaplayer.set_rate(self.mediaplayer.get_rate() * 2)
+            return
         if val == 'P':
             self.mediaplayer.play()
             return
