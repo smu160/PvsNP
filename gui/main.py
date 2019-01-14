@@ -294,8 +294,8 @@ class Player(QtWidgets.QMainWindow):
         """Set the movie position according to the position slider.
 
         The vlc MediaPlayer needs a float value between 0 and 1, Qt uses
-        integer variables, so you need a factor; the higher the factor, the
-        more precise are the results (1000 should suffice).
+        integer variables, so you need a factor; the higher the factor,
+        the more precise are the results (1000 should suffice).
         """
         # Set the media position to where the slider was dragged
         self.timer.stop()
@@ -307,10 +307,9 @@ class Player(QtWidgets.QMainWindow):
             current_time = self.mediaplayer.get_time()
 
             # If the player is stopped, do not attempt to send a -1!!!
-            if current_time == '-1':
+            if current_time == -1:
                 self.timer.start()
                 return
-
             self.data_queue.put(current_time)
 
         self.mediaplayer.set_position(pos * .001)
