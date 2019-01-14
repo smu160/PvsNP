@@ -13,11 +13,11 @@ import pyqtgraph as pg
 class MainWindow(QtWidgets.QMainWindow):
     """This class wraps the PlotWindow class to add extra functionality."""
 
-    def __init__(self, data_q, plots, plot_names, beh_intervals=None, parent=None):
+    def __init__(self, data_queue, plots, plot_names, beh_intervals=None, parent=None):
         super().__init__(parent)
 
         # Create plot window widget & set it as the central widget
-        self.plot_window = PlotWindow(data_q, plots, plot_names, beh_intervals=beh_intervals, parent=self)
+        self.plot_window = PlotWindow(data_queue, plots, plot_names, beh_intervals=beh_intervals, parent=self)
         self.setCentralWidget(self.plot_window)
 
         self.statusbar = self.statusBar()
@@ -78,7 +78,7 @@ class PlotWindow(pg.GraphicsWindow):
 
     changed_behavior = QtCore.pyqtSignal('QString')
 
-    def __init__(self, data_q, plots, plot_names, beh_intervals=None, parent=None):
+    def __init__(self, data_queue, plots, plot_names, beh_intervals=None, parent=None):
         super().__init__(parent=parent)
         self.parent = parent
 
@@ -103,23 +103,35 @@ class PlotWindow(pg.GraphicsWindow):
         else:
             self.behavior_time = None
 
-        self.data_q = data_q
+        self.data_queue = data_queue
         self.timer.start()
 
     def on_new_data(self):
         """Called on timer interval to get data from queue & update all plots.
         """
         try:
-            val = self.data_q.get(block=False)
+            val = self.data_queue.get(block=False)
         except queue.Empty:
             QtCore.QCoreApplication.processEvents()
             return
 
-        if self.behavior_time:
-            self.parent.statusbar.showMessage(self.behavior_time[val])
-
-        for v_line in self.vertical_lines:
-            v_line.setValue(val)
+        if val == 'P':
+            return
+        if val == 'p':
+            return
+        if val == 'S':
+            for v_line in self.vertical_lines:
+                v_line.setValue(0)
+            if self.behavior_time:
+                self.parent.statusbar.showMessage(self.behavior_time[0])
+            return
+        else:
+            val = int(val)
+            val //= 100
+            for v_line in self.vertical_lines:
+                v_line.setValue(val)
+            if self.behavior_time:
+                self.parent.statusbar.showMessage(self.behavior_time[val])
 
         QtCore.QCoreApplication.processEvents()
 
