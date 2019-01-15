@@ -272,55 +272,6 @@ class Mouse(object):
         dataframe.reset_index(inplace=True, drop=True)
         return dataframe
 
-    def plot_correlation_heatmap(self, dataframe, **kwargs):
-        """Seaborn correlation heatmap wrapper function
-
-        A wrapper function for seaborn to quickly plot a
-        correlation heatmap with a lower triangle, only
-
-        Args:
-            dataframe: DataFrame
-                A Pandas dataframe to be plotted in the correlation heatmap.
-
-            figsize: tuple, optional
-                The size of the heatmap to be plotted, default is (16, 16).
-        """
-
-        # Generate a mask for the upper triangle
-        mask = np.zeros_like(dataframe.corr(), dtype=np.bool)
-        mask[np.triu_indices_from(mask)] = True
-
-        # Set up the matplotlib figure
-        _, _ = plt.subplots(figsize=kwargs.get("figsize", (16, 16)))
-
-        # Generate a custom diverging colormap
-        cmap = sns.diverging_palette(220, 10, as_cmap=True)
-
-        # Draw the heatmap with the mask and correct aspect ratio
-        sns.heatmap(dataframe.corr(), mask=mask, cmap=cmap, vmax=1.0, center=0,
-                    square=True, linewidths=.5, cbar_kws={"shrink": .5})
-
-    def plot_clustermap(self, dataframe, **kwargs):
-        """Seaborn clustermap wrapper function
-
-        A wrapper function for seaborn to quickly plot a clustermap using the
-        "centroid" method to find clusters.
-
-        Args:
-            dataframe: DataFrame
-
-                A Pandas dataframe to be plotted in the clustermap.
-
-            figsize: tuple, optional
-
-                the size of the clustermap to be plotted, default is (15, 15).
-        """
-        figsize = kwargs.get("figsize", (15, 15))
-        cluster_map = sns.clustermap(dataframe.corr(), center=0, linewidths=.75,
-                                     figsize=figsize, method="centroid",
-                                     cmap="vlag")
-        cluster_map.ax_row_dendrogram.set_visible(False)
-        cluster_map.ax_col_dendrogram.set_visible(False)
 
     @staticmethod
     def activity_by_neurons(concated_df, neuron_names, *behaviors, **kwargs):
