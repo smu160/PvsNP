@@ -92,7 +92,7 @@ def pairwise_dist(x_coords):
 
     NOTE: This is a helper function for distance_moved.
 
-    Input:
+    Args:
         x_coords: pandas Series
             A one-dimensional ndarray of x coordinates, over time.
 
@@ -107,7 +107,8 @@ def pairwise_dist(x_coords):
 
 
 def distance_moved(x_coords, y_coords):
-    """
+    """Computes the distance moved per frame
+
     Args:
         x_coords: pandas Series
             A one-dimensional ndarray of x coordinates, over time.
