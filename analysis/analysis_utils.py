@@ -7,7 +7,7 @@ as data wrangling.
 """
 
 import os
-import warnings
+import sys
 import numpy as np
 import pandas as pd
 
@@ -38,9 +38,7 @@ def preprocess_behavior(etho_filepath, observer_filepath):
     # rename columns
     new_cols = []
     for col in behavior.columns:
-        col = col.replace(' ', '_')
-        col = col.replace("In_zone(", '')
-        col = col.replace("_/_center-point)", '')
+        col = col.replace(' ', '_').replace("In_zone(", '').replace("_/_center-point)", '')
         new_cols.append(col)
 
     behavior.columns = new_cols
@@ -224,7 +222,7 @@ def find_file(root_directory, target_file):
 
 
 def extract_epochs(mouse, behavior):
-    """Extract all epochs of continuous behaviors/events.
+    """Extract all epochs of a continuous behavior/event.
 
     Args:
         mouse: Mouse
@@ -237,36 +235,51 @@ def extract_epochs(mouse, behavior):
             periods/events.
 
     Returns:
-        epochs_df: DataFrame
-
+        epochs: pandas Series
+            A Series that has hierarchical indices, where "behavior" is the
+            outermost index, followed by "interval". Each interval contains
+            an ndarray of timepoints in which the corresponding behavior was
+            observed, continuously.
     """
+    if behavior not in mouse.spikes_and_beh.columns:
+        raise ValueError("'{}' is not a column (i.e. behavior) in the mouse's dataframe".format(behavior))
+
     dataframe = mouse.spikes_and_beh.copy()
-    dataframe["block"] = (dataframe[behavior].shift(1) != dataframe[behavior]).astype(int).cumsum()
-    epochs_df = dataframe.reset_index().groupby([behavior, "block"])["index"].apply(np.array)
-    return epochs_df
+
+    # Find all timepoints where the behavior discontinues
+    dataframe["interval"] = (dataframe[behavior].shift(1) != dataframe[behavior]).astype(int).cumsum()
+
+    # Put the index into the dataframe as a column, without creating a new DataFrame
+    dataframe.reset_index(inplace=True)
+
+    # Group the dataframe by behavior and corresponding intervals,
+    # and apply np.array to the index column of each group.
+    epochs = dataframe.groupby([behavior, "interval"])["index"].apply(np.array)
+
+    return epochs
 
 
 def filter_epochs(interval_series, framerate=10, seconds=1):
     """Helper function for extract_epochs.
 
     Args:
-        interval_series: list
+        interval_series: pandas Series
+            A Series with an ndarray of continous behavior timepoints, for each
+            index.
 
         framerate: int, optional, default: 10
+            The framerate that corresponds to the session from which the
+            intervals were extracted.
 
         seconds: int, optional, default: 1
+            The amount of seconds.
 
     Returns:
         intervals: list
-
+            A list of all the intervals that are at least as long as the
+            provided framerate multiplied by the provided seconds.
     """
-
-    intervals = []
-
-    for interval in interval_series:
-        if len(interval) >= framerate*seconds:
-            intervals.append(interval)
-
+    intervals = [interval for interval in interval_series if len(interval) >= framerate*seconds]
     return intervals
 
 
@@ -277,6 +290,10 @@ class Mouse:
     """
 
     def __init__(self, cell_transients=None, spikes=None, behavior=None, **kwargs):
+        self.name = kwargs.get("name", None)
+        self.age = kwargs.get("age", None)
+        self.sex = kwargs.get("sex", None)
+
         self.cell_transients = cell_transients
         self.spikes = spikes
 
@@ -284,8 +301,7 @@ class Mouse:
             self.behavior = behavior
             self.spikes_and_beh = self.spikes.join(self.behavior, how="left")
         else:
-            message = "A behavior dataframe was not provided."
-            warnings.warn(message, Warning)
+            print("A behavior dataframe was not provided.", file=sys.stderr)
 
         velocity_cutoff = kwargs.get("velocity_cutoff", None)
 
@@ -294,68 +310,80 @@ class Mouse:
             running_frames = np.where(self.behavior["Velocity"] > velocity_cutoff, 1, 0)
             self.behavior = self.behavior.assign(Running_frames=running_frames)
 
-    @staticmethod
-    def downsample_dataframe(dataframe, row_multiple):
-        """Downsample a given pandas DataFrame
 
-        Args:
-            dataframe: DataFrame
-                The pandas DataFrame to be downsampled
+def downsample_dataframe(dataframe, row_multiple):
+    """Downsample a given pandas DataFrame
 
-            row_multiple: int
-                The row multiple is the rows to be removed,
-                e.g., a row_multiple of 3 would remove every 3rd row from the
-                provided dataframe
+    Args:
+        dataframe: DataFrame
+            The pandas DataFrame to be downsampled.
 
-        Returns:
-            dataframe: DataFrame
-                The downsampled pandas DataFrame.
-        """
+        row_multiple: int
+            The row multiple is the rows to be removed,
+            e.g., a row_multiple of 3 would remove every 3rd row from the
+            provided dataframe
 
-        # Drop every nth (row multiple) row
-        dataframe = dataframe.iloc[0::row_multiple, :]
+    Returns:
+        dataframe: DataFrame
+            The downsampled pandas DataFrame.
+    """
 
-        # Reset and drop the old indices of the pandas DataFrame
-        dataframe.reset_index(inplace=True, drop=True)
+    # Drop every nth (row multiple) row
+    dataframe = dataframe.iloc[0::row_multiple, :]
 
-        return dataframe
+    # Reset and drop the old indices of the pandas DataFrame
+    dataframe.reset_index(inplace=True, drop=True)
+
+    return dataframe
 
 
-    @staticmethod
-    def activity_by_neurons(concated_df, neuron_names, *behaviors, **kwargs):
-        """Computes the neuron activity rates for given behaviors
+def activity_by_neurons(spikes_and_beh, neuron_names, *behaviors, **kwargs):
+    """Computes the neuron activity rates for given behaviors
 
-        This function computes the rates for a given animal's activity and
-        neuron, given some set of behaviors.
+    This function computes the rates for a given animal's activity and
+    neuron, given some set of behaviors.
 
-        Args:
-            concated_df: DataFrame
-                A concatenated pandas DataFrame of the neuron activity and
-                the corresponding behavior, for a given animal.
+    Args:
+        spikes_and_beh: DataFrame
+            A concatenated pandas DataFrame of the neuron activity and
+            the corresponding behavior, for a given animal.
 
-            neuron_names: list
-                The names of the neurons whose rates are to be computed.
+        neuron_names: list
+            The names of the neurons whose rates are to be computed.
 
-            behaviors:
-                The behaviors for which to compute the activity rates.
+        behaviors: arbitrary argument list
+            The behaviors for which to compute the activity rates.
+            NOTE: If no behaviors are provided, then the average rate over the
+            entire session.
 
-            frame_rate: int, optional
-                The framerate to multiply the activity rate by, default is 10.
+        frame_rate: int, optional, default: 10
+            The framerate by which to multiply the activity rate.
 
-        Returns:
-            activity_df: a pandas DataFrame of the neuron activity rates.
-        """
-        frame_rate = kwargs.get("frame_rate", None)
-        if frame_rate is None:
-            warnings.warn("You did not specify a frame rate, so a frame rate"
-                          + " of 10 will be utilized in the computation", Warning)
-            frame_rate = 10
+    Returns:
+        activity_df: DataFrame
+            A pandas DataFrame of the neuron activity rates.
+    """
+    if set(neuron_names).issubset(spikes_and_beh.columns) is False:
+        raise ValueError("neuron_names is NOT a subset of the columns in spikes_and_beh!")
 
-        activity_df = pd.DataFrame(columns=behaviors)
+    frame_rate = kwargs.get("frame_rate", None)
 
-        for behavior in behaviors:
-            if behavior in concated_df.columns:
-                activity_df.loc[:, behavior] = frame_rate * concated_df.loc[concated_df[behavior] != 0, neuron_names].mean()
-            #else:
-                #raise ValueError("{} is not a column in the provided dataframe.".format(behavior))
-        return activity_df
+    if frame_rate is None:
+        print("You did not specify a frame rate! Defaulting to 10", file=sys.stderr)
+        frame_rate = 10
+
+    activity_df = pd.DataFrame(columns=behaviors)
+
+    for behavior in behaviors:
+        if behavior in spikes_and_beh.columns:
+            activity_df.loc[:, behavior] = frame_rate * spikes_and_beh.loc[spikes_and_beh[behavior] != 0, neuron_names].mean()
+        else:
+            raise ValueError("{} is not a column (i.e. behavior) in spikes_and_beh.".format(behavior))
+
+    # Return average rate over entire session if no behavior(s) is/are provided
+    if not behaviors:
+        behavior = "entire_session"
+        activity_df = pd.DataFrame(columns=[behavior])
+        activity_df.loc[:, behavior] = frame_rate * spikes_and_beh.loc[:, neuron_names].mean()
+
+    return activity_df
