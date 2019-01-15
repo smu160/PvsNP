@@ -5,7 +5,9 @@
 
 1. Download and install [VLC media player](https://www.videolan.org/vlc/index.html)
 
-2. Navigate to the `gui` directory
+2. If you do not have Anaconda already installed, then download and install [Anaconda](https://docs.anaconda.com/anaconda/install/) (Python 3.X)
+
+3. Navigate to the `gui` directory
 
 ### macOS & Linux
 
