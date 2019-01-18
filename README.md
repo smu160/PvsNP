@@ -27,7 +27,7 @@ git clone https://github.com/jaberry/Hen_Lab.git
 3. Navigate into your local repository and build the Docker image:
 ```bash
 cd Hen_Lab
-docker build --build-arg USERNAME=your_GitHub_username --build-arg PASSWORD=your_GitHub_password . -t jupyter
+docker build . -t jupyter
 ```
 
 4. Use the image to run a container:
@@ -67,6 +67,7 @@ bash create_env.sh
 ## Troubleshooting
 
 [Create an issue](https://help.github.com/articles/creating-an-issue/)
+
 For members of the Hen Lab, feel free to message Saveliy Yusufov via Slack.
 
 ## Authors
