@@ -65,42 +65,63 @@ class NeuronNetwork:
                 A dictionary of the network's neurons as keys and their (x, y)
                 coordinates as corresponding values.
 
-            node_size: int, optional
+            nodelist: list, optional, default: self.neurons
+                Draw only specified neurons (nodes).
+
+            node_size: int or list, optional, default: 300
                 The size of the plotted neurons in the network.
 
-            node_colors: list, optional
-                The colors of the neurons to be plotted.
+            node_color: (color string, or array of floats), optional, default: 'r'
+                Can either be a single color format string (default=’r’), or a
+                sequence of colors with the same length as nodelist. If numeric
+                values are specified they will be mapped to colors using the
+                cmap and vmin, vmax parameters. See matplotlib.scatter for more
+                details.
 
-            fontsize: int, optional, default: 10
-                The size of the font labelling the plotted neurons.
+            alpha: float, optional, default: 1.0
+                The transparency of the nodes.
 
-            draw_edges: bool, optional, default: True
-                When True, the edges between all nodes will be drawn. When
-                False, the edges between all nodes will be omitted from the
-                figure.
+            node_borders: (None, scalar, or sequence), optional, default: 'black'
+                The color(s) of the node borders.
 
-            save: bool, optional, default: False
+            edgelist: (collection of edge tuples), optional, default: self.connections
+                Draw only specified edges. By default, the edges between all
+                nodes will be drawn. If `[]` (i.e. empty list), then the edges
+                between all nodes will be omitted from the figure.
+
+            edge_alpha: float, optional, default is 1.0
+                The transparency of the edges.
+
+            edge_color: (color string, or array of floats), default: 'r'
+                Can either be a single color format string, or a sequence of
+                colors with the same length as edgelist. If numeric values are
+                specified they will be mapped to colors using the edge_cmap and
+                edge_vmin, edge_vmax parameters.
+
+            width: float, optional, default: 1.0
+                The width of the edges.
+
+            labels: bool, optional, default: False
+                If true, then display node labels and edge labels.
+
+            font_size: int, optional, default: 10
+                The size of the font for text labels.
+
+            figsize: tuple, optional, default: (20, 20)
+                The size of the network figure to be plotted.
+
+            savefig: bool, optional, default: False
                 When True, the plotted figure will be saved to the current
-                working directory with its title as the file name, in PDF
-                format.
+                working directory, in PDF format, at the default (or specified)
+                DPI.
+
+            dpi: int, optional, default: 600
+                The amount of dots per inch to use when saving the figure. In
+                accordance with Nature's guidelines, the default is 600.
+                Source: https://www.nature.com/nature/for-authors/final-submission
 
             title: str, optional, default: None
                 The title of the plotted graph/network.
-
-            a: float, optional
-                The transparency of the nodes
-                
-            label_nodes: bool, optional
-                Whether to display node labels. Default is True
-                
-            edge_a: float, optional
-                The transparency of the edges. Default is 1
-            
-            edge_weight: float, optional
-                The width of the edge. Default is 2
-                
-            label_edges: bool, optional
-                Whether to display edge labels. Default is False.
 
         Returns:
             pos: dict
@@ -111,46 +132,39 @@ class NeuronNetwork:
         # Get positions for all nodes
         pos = kwargs.get("pos", None)
         if pos is None:
-            print("You did not provide a neuron position dictionary. The spring layout function will be used to plot the network", file=sys.stderr)
-            pos = nx.spring_layout(self.network, weight="weight");
+            print("A neuron position dictionary was not provided! The spring_layout function will be used to plot the network.", file=sys.stderr)
+            pos = nx.spring_layout(self.network, weight="weight")
 
         # Size of the plot
-        figsize = kwargs.get("figsize", (30, 30))
-        plt.figure(figsize=figsize)
+        plt.figure(figsize=kwargs.get("figsize", (20, 20)))
 
         # Nodes
+        cmap = kwargs.get("cmap", plt.cm.Dark2)
+        alpha = kwargs.get("alpha", 1.0)
         node_size = kwargs.get("node_size", 600)
-        node_colors = kwargs.get("node_colors", self.neurons)
-        a = kwargs.get('a',.5)
-        disp_node_labels=kwargs.get('label_nodes',True)
-        nx.draw_networkx_nodes(self.network, pos, alpha=a, node_size=node_size, cmap=plt.cm.Dark2, node_color=node_colors)
-
-        _, weights = zip(*nx.get_edge_attributes(self.network, "weight").items())
-
+        nodelist = kwargs.get("nodelist", self.neurons)
+        node_color = kwargs.get("node_color", 'b')
+        node_borders = kwargs.get("node_borders", "black")
+        nx.draw_networkx_nodes(self.network, pos, nodelist=nodelist, alpha=alpha, node_size=node_size, cmap=cmap, node_color=node_color, edgecolors=node_borders)
         # Draw edges
-        edgeweight=kwargs.get('edgeweight',2)
-        edge_a = kwargs.get('edge_a',1)
-        edge_color = kwargs.get('edgecolor',weights)
-        if kwargs.get("draw_edges", True):
-            nx.draw_networkx_edges(self.network, pos, alpha=edge_a, width=edgeweight,edge_color=edge_color)
-            
-        # Labels
-        
-        label_edges=kwargs.get("label_edges",False)
-        if label_edges:
-            font_size = kwargs.get("font_size", 10)
-            nx.draw_networkx_labels(self.network, pos, font_size=font_size)
+        width = kwargs.get("width", 1.0)
+        edge_alpha = kwargs.get("edge_alpha", 1.0)
+        edge_color = kwargs.get("edge_color", 'r')
+        edgelist = kwargs.get("edgelist", self.connections)
+        nx.draw_networkx_edges(self.network, pos, edgelist=edgelist, alpha=edge_alpha, width=width, edge_color=edge_color)
 
-        title = kwargs.get("title", None)
-        plt.title(title)
+        # Draw labels
+        if kwargs.get("labels", False):
+            nx.draw_networkx_labels(self.network, pos, font_size=kwargs.get("font_size", 10))
+
+        plt.title(kwargs.get("title", None))
         plt.axis("off")
 
-        save_to_file = kwargs.get("save", False)
-        if save_to_file:
-            file_name=kwargs.get("file_name","Graph")
-            plt.savefig(file_name, format="svg", dpi=300)
+        if kwargs.get("savefig", False):
+            plt.savefig(kwargs.get("filename", "my_neuron_network"), format="pdf", dpi=kwargs.get("dpi", 600))
 
         plt.show()
+
         return pos
 
     def compute_connection_density(self):
@@ -266,7 +280,7 @@ class NeuronNetwork:
         """Computes the average path shortest path length.
 
         This function computes the average path length L, as the average
-        length of the shortest path connecting any paid of nodes in a
+        length of the shortest path connecting any pair of nodes in a
         network.
 
         Args:
@@ -303,7 +317,9 @@ class NeuronNetwork:
                 The clustering coefficient divided by the average shortest path
                 length of the neuron network.
         """
-        cluster_coeff = nx.average_clustering(self.network, weight=weight)
-        avg_shortest_path_len = self.avg_shortest_path_len(weight=weight)
-        small_worldness = cluster_coeff / avg_shortest_path_len
-        return small_worldness
+
+        raise NotImplementedError("Patience is a virtue.")
+        # cluster_coeff = nx.average_clustering(self.network, weight=weight)
+        # avg_shortest_path_len = self.avg_shortest_path_len(weight=weight)
+        # small_worldness = cluster_coeff / avg_shortest_path_len
+        # return small_worldness
