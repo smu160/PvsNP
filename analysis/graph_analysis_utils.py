@@ -1,13 +1,12 @@
 """
-This module contains the NeuronNetwork class, which is to be used for quickly
-generating and plotting visualizations of neuron networks.
+This module contains the NeuronNetwork class and its respective functions
+for generating networks (the graph theory kind) of observed neurons, plotting
+visualizations of the networks, as well as computing various network measures.
 
-@authors: Saveliy Yusufov, Columbia University, sy2685@columbia.edu
-          Jack Berry, Columbia University, jeb2242@columbia.edu
+@author: Saveliy Yusufov, Columbia University, sy2685@columbia.edu
 """
 
 import sys
-import itertools
 import numpy as np
 import networkx as nx
 from networkx.algorithms.approximation import clique
@@ -15,9 +14,9 @@ from matplotlib.pylab import plt
 
 class NeuronNetwork:
     """
-    This is a wrapper class for the NetworkX graph data structure. Use this
-    class in order to conduct graph theory analysis on networks of neurons
-    that were observed during experiments/trials.
+    This is a wrapper class for the NetworkX graph data structure for conducting
+    graph theoretical analysis on networks of neurons that were observed during
+    experiments/trials.
     """
 
     def __init__(self, neurons, connections):
@@ -78,6 +77,9 @@ class NeuronNetwork:
                 cmap and vmin, vmax parameters. See matplotlib.scatter for more
                 details.
 
+            cmap: Matplotlib colormap, optional, default: None
+                Colormap for mapping intensities of nodes.
+
             alpha: float, optional, default: 1.0
                 The transparency of the nodes.
 
@@ -98,11 +100,14 @@ class NeuronNetwork:
                 specified they will be mapped to colors using the edge_cmap and
                 edge_vmin, edge_vmax parameters.
 
+            edge_cmap : Matplotlib colormap, optional, default: None
+                Colormap for mapping intensities of edges.
+
             width: float, optional, default: 1.0
                 The width of the edges.
 
-            labels: bool, optional, default: False
-                If true, then display node labels and edge labels.
+            labels: bool, optional, default: True
+                If False, then omit node labels and edge labels.
 
             font_size: int, optional, default: 10
                 The size of the font for text labels.
@@ -139,29 +144,31 @@ class NeuronNetwork:
         plt.figure(figsize=kwargs.get("figsize", (20, 20)))
 
         # Nodes
-        cmap = kwargs.get("cmap", plt.cm.Dark2)
+        cmap = kwargs.get("cmap", None)
         alpha = kwargs.get("alpha", 1.0)
         node_size = kwargs.get("node_size", 600)
         nodelist = kwargs.get("nodelist", self.neurons)
-        node_color = kwargs.get("node_color", 'b')
+        node_color = kwargs.get("node_color", 'r')
         node_borders = kwargs.get("node_borders", "black")
         nx.draw_networkx_nodes(self.network, pos, nodelist=nodelist, alpha=alpha, node_size=node_size, cmap=cmap, node_color=node_color, edgecolors=node_borders)
+
         # Draw edges
         width = kwargs.get("width", 1.0)
         edge_alpha = kwargs.get("edge_alpha", 1.0)
         edge_color = kwargs.get("edge_color", 'r')
+        edge_cmap = kwargs.get("edge_cmap", None)
         edgelist = kwargs.get("edgelist", self.connections)
-        nx.draw_networkx_edges(self.network, pos, edgelist=edgelist, alpha=edge_alpha, width=width, edge_color=edge_color)
+        nx.draw_networkx_edges(self.network, pos, edgelist=edgelist, alpha=edge_alpha, width=width, edge_color=edge_color, edge_cmap=edge_cmap)
 
         # Draw labels
-        if kwargs.get("labels", False):
+        if kwargs.get("labels", True):
             nx.draw_networkx_labels(self.network, pos, font_size=kwargs.get("font_size", 10))
 
         plt.title(kwargs.get("title", None))
         plt.axis("off")
 
         if kwargs.get("savefig", False):
-            plt.savefig(kwargs.get("filename", "my_neuron_network"), format="pdf", dpi=kwargs.get("dpi", 600))
+            plt.savefig(kwargs.get("my_neuron_network"), format="pdf", dpi=kwargs.get("dpi", 600))
 
         plt.show()
 
@@ -276,41 +283,14 @@ class NeuronNetwork:
         mean = running_sum / size
         return mean
 
-    def avg_shortest_path_len(self, weight="weight"):
-        """Computes the average path shortest path length.
+    # TODO: Implement & document!!
+    def small_world_propensity(self, weight="weight"):
+        """Compute Small-World Propensity (SWP) of the neuron network.
 
-        This function computes the average path length L, as the average
-        length of the shortest path connecting any pair of nodes in a
-        network.
+        Source: https://www.nature.com/articles/srep22057
 
         Args:
-            weight: str or None, optional, default: None
-                If None, every edge has weight/distance/cost 1. If a string, use
-                this edge attribute as the edge weight. Any edge attribute not
-                present defaults to 1.
-
-        Returns:
-            avg_shortest_path_len: float
-                The average shortest path length in the network of neurons.
-
-        """
-        graph = self.network
-        node_list = self.neurons
-        shortest_path_lengths = []
-
-        for node_pair in itertools.combinations(node_list, 2):
-            source = node_pair[0]
-            target = node_pair[1]
-            if not nx.has_path(graph, source, target):
-                continue
-
-            shortest_path_lengths.append(nx.shortest_path_length(graph, source=source, target=target, weight=weight))
-
-        avg_shortest_path_len = np.mean(shortest_path_lengths)
-        return avg_shortest_path_len
-
-    def small_worldness(self, weight="weight"):
-        """Computes the small worldness of the neuron network.
+            weight: str, optional, default: 'weight'
 
         Returns:
             small_worldness: float
@@ -319,7 +299,3 @@ class NeuronNetwork:
         """
 
         raise NotImplementedError("Patience is a virtue.")
-        # cluster_coeff = nx.average_clustering(self.network, weight=weight)
-        # avg_shortest_path_len = self.avg_shortest_path_len(weight=weight)
-        # small_worldness = cluster_coeff / avg_shortest_path_len
-        # return small_worldness
