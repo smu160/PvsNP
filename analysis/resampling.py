@@ -11,6 +11,7 @@ from multiprocessing import Queue
 import numpy as np
 import pandas as pd
 
+
 class Resampler:
     """
     This class is meant to be a toolbox for the purposes of executing
@@ -120,12 +121,12 @@ class Resampler:
         for _ in range(resamples):
             if flip_roll:
                 dataframe = dataframe.reindex(np.roll(dataframe.index, np.random.randint(1, high=len(dataframe.index)+1)))
-                dataframe.index = range(int(len(dataframe.index)))
             else:
                 dataframe = dataframe.sample(frac=1)
-                dataframe.index = range(int(len(dataframe.index)))
 
+            dataframe.index = pd.RangeIndex(len(dataframe.index))
             row = statistic(dataframe, *beh_col_vec)
+
             if len(column_names) > 1:
                 rows_list.append(dict(zip(column_names, row)))
             else:
@@ -171,21 +172,21 @@ class Resampler:
             the shuffle_worker processes produced.
         """
         if flip_roll:
-            dataframe=dataframe.reindex(np.flip(dataframe.index))
-            dataframe.index = range(int(len(dataframe.index)))
+            dataframe = dataframe.reindex(np.flip(dataframe.index))
+            dataframe.index = pd.RangeIndex(len(dataframe.index))
 
         keywords = {"flip_roll": flip_roll}
         resamples_per_worker = resamples // os.cpu_count()
         queue = Queue()
         processes = []
-        rets = []
+
         for _ in range(os.cpu_count()):
             process = Process(target=Resampler.__shuffle_worker, args=(queue, resamples_per_worker, dataframe, statistic, *beh_col_vec), kwargs=keywords)
             processes.append(process)
             process.start()
-        for process in processes:
-            ret = queue.get()  # will block
-            rets.append(ret)
+
+        rets = [queue.get() for process in processes] # queue.get() will block
+
         for process in processes:
             process.join()
 
