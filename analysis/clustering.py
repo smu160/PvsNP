@@ -1,83 +1,102 @@
 """
-This module contains all the functions necessary for clustering.
+This module contains all the functions necessary for clustering, computing
+similarity measures, and functional connectivity (edge weights in a graph).
 
-@authors: Saveliy Yusufov, Columbia University, sy2685@columbia.edu
-          Jack Berry, Columbia University, jeb2242@columbia.edu
+@author: Saveliy Yusufov, Columbia University, sy2685@columbia.edu
 """
 
+import itertools
 
 from sklearn import cluster
 from sklearn.metrics import normalized_mutual_info_score
-from sklearn.metrics import mutual_info_score
-import itertools
 import pandas as pd
 import numpy as np
 
-def compute_nmi(dataframe):
-    connections = {}
-    matrix = nmi_matrix(dataframe)
 
-    for combination in itertools.combinations(matrix.columns, 2):
-        nmi = matrix[combination[0]][combination[1]]
-        connections[combination] = nmi
+def compute_connections(dataframe, similarity_measure=normalized_mutual_info_score):
+    """Create a dict of node pairs and their corresponding "edge weights"
 
-    return connections
+    Compute a measure of similarity between `n choose 2` variables
 
-def nmi_matrix(dataframe):
-    rows = []
-    
-    for col in dataframe:
-        row = dataframe.apply(normalized_mutual_info_score, args=(dataframe[col],))
-        rows.append(row)
+    Args:
+        dataframe: pandas DataFrame
+            An m x n DataFrame, where n is the number of columns (variables),
+            and m is the number of rows (observations).
 
-    return pd.DataFrame(rows, index=dataframe.columns) 
+        similarity_measure: function, optional, default: sklearn.metrics.normalized_mutual_info_score
+            A function that quantifies the similarity between data points.
 
-def compute_mi(dataframe):
-    connections = {}
-    matrix = mi_matrix(dataframe)
-
-    for combination in itertools.combinations(matrix.columns, 2):
-        mi = matrix[combination[0]][combination[1]]
-        connections[combination] = mi
+    Returns:
+        connections: dict
+            A dictionary of <(v_i, v_j): corrcoef> key-value pairs.
+    """
+    matrix = similarity_matrix(dataframe, similarity_measure=similarity_measure)
+    connections = {(i, j): matrix[i][j] for i, j in itertools.combinations(matrix.columns, 2)}
 
     return connections
 
-def mi_matrix(dataframe):
-    rows = []
-    
-    for col in dataframe:
-        row = dataframe.apply(mutual_info_score, args=(dataframe[col],))
-        rows.append(row)
 
-    return pd.DataFrame(rows, index=dataframe.columns)
+def similarity_matrix(dataframe, similarity_measure=normalized_mutual_info_score):
+    """Create a similarity matrix between data points.
+
+    Args:
+        dataframe: pandas DataFrame
+            An m x n DataFrame, where n is the number of columns (variables),
+            and m is the number of rows (observations).
+
+        similarity_measure: function, optional, default: sklearn.metrics.normalized_mutual_info_score
+            A function that quantifies the similarity between data points.
+
+    Returns:
+        matrix: pandas DataFrame
+            An n x n DataFrame, where each component, a_{ij}, is the
+            quantified similarity between variable v_{i} and v_{j}.
+    """
+    rows = [dataframe.apply(similarity_measure, args=(dataframe[col],)) for col in dataframe]
+    matrix = pd.DataFrame(rows, index=dataframe.columns)
+
+    return matrix
 
 
+def compute_corrcoef(dataframe, threshold=0.0):
+    """Create dict of node pairs & their corresponding correlation coefficients
 
-def compute_corrcoef(dataframe, threshold = 0):
+    Args:
+        dataframe: pandas DataFrame
+            An m x n DataFrame, where n is the number of columns (variables),
+            and m is the number of rows (observations).
+
+        threshold: float, optional, default: 0.0
+            The cutoff value for any correlation coefficient, r, such that two
+            variables, (v_i, v_j) will only be appended to the dictionary of
+            connections if r >= threshold.
+
+    Returns:
+        connections: dict
+            A dictionary of <(v_i, v_j): corrcoef> key-value pairs.
+    """
     connections = {}
-    
-    for neuron_pair in itertools.combinations(dataframe.columns, 2):
-        if dataframe[neuron_pair[0]].std() == 0 or dataframe[neuron_pair[1]].std() == 0:
+
+    for v_i, v_j in itertools.combinations(dataframe.columns, 2):
+        if dataframe[v_i].std() == 0 or dataframe[v_j].std() == 0:
             continue
 
-        corrcoef = np.corrcoef(dataframe[neuron_pair[0]].values, dataframe[neuron_pair[1]].values)[0][1]
+        corrcoef = np.corrcoef(dataframe[v_i].values, dataframe[v_j].values)[0][1]
         if corrcoef >= threshold:
-            connections[neuron_pair] = corrcoef
-        
+            connections[(v_i, v_j)] = corrcoef
+
     return connections
-
-
-
 
 
 def affinity_propagation(similiarity_matrix):
     """Perform Affinity Propagation Clustering of data
 
     Note: This function is a wrapper for AffinityPropagation from scikit-learn
+
     Source: http://scikit-learn.org/stable/modules/generated/sklearn.cluster.AffinityPropagation.html
 
     Args:
-        similarity_matrix: DataFrame, shape (n_samples, n_samples)
+        similarity_matrix: pandas DataFrame, shape (n_samples, n_samples)
             Matrix of similarities between points.
 
     Returns:
@@ -91,11 +110,13 @@ def affinity_propagation(similiarity_matrix):
 
     clusters = {}
     for i in range(n_labels+1):
-        for neuron in list(similiarity_matrix.columns[labels==i]):
+        for neuron in list(similiarity_matrix.columns[labels == i]):
             clusters[neuron] = i
 
     return clusters
 
+
+# TODO: Use default dict
 def extract_clusters(clusters):
     """Extract all the clusters into a dictionary of lists.
 
