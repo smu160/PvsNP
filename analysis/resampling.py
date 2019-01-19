@@ -73,6 +73,7 @@ class Resampler:
             no_beh_vec = dataframe.loc[beh_col_vec[1] != 0]
             return frame_rate * (beh_vec.values.mean(axis=0) - no_beh_vec.values.mean(axis=0))
 
+    # TODO: take out useless lines of code
     @staticmethod
     def __shuffle_worker(queue, resamples, dataframe, statistic, *beh_col_vec, flip_roll=False):
         """Helper function for shuffle()
@@ -123,7 +124,7 @@ class Resampler:
             else:
                 dataframe = dataframe.sample(frac=1)
                 dataframe.index = range(int(len(dataframe.index)))
-        
+
             row = statistic(dataframe, *beh_col_vec)
             if len(column_names) > 1:
                 rows_list.append(dict(zip(column_names, row)))
@@ -132,6 +133,7 @@ class Resampler:
 
         queue.put(pd.DataFrame(rows_list, columns=column_names))
 
+    # TODO: use list comprehension
     @staticmethod
     def shuffle(resamples, dataframe, statistic, *beh_col_vec, flip_roll=False):
         """Permutation resampling function for neuron selectivty analysis.
@@ -171,7 +173,7 @@ class Resampler:
         if flip_roll:
             dataframe=dataframe.reindex(np.flip(dataframe.index))
             dataframe.index = range(int(len(dataframe.index)))
-                                    
+
         keywords = {"flip_roll": flip_roll}
         resamples_per_worker = resamples // os.cpu_count()
         queue = Queue()
@@ -186,10 +188,10 @@ class Resampler:
             rets.append(ret)
         for process in processes:
             process.join()
-        
+
         #start columns at 1, not 0
         shuffle_dists = pd.concat(rets, ignore_index=True)
-        
+
         return shuffle_dists
 
     @staticmethod
@@ -218,10 +220,11 @@ class Resampler:
 
         return p_val
 
+    # TODO: amend documentation
     def z_score(original_statistic, permutation_distribution):
         """
         Compute z-score for a given value, and the permutation distribution
-        
+
         Args:
             original_statistic: float
                 The original value of the statistic computed on the data.
@@ -230,17 +233,16 @@ class Resampler:
                 A pandas Series of the permutation distributions.
 
         Returns:
-            float
+            z_score: float
                 The z-score that was computed.
-
-        
         """
         mew = permutation_distribution.mean()
         std = permutation_distribution.std()
-        
-        return (original_statistic - mew) / std
-        
-    
+        z_score = (original_statistic - mew) / std
+
+        return z_score
+
+    # TODO: amend documentation
     @staticmethod
     def two_tailed_test(original_statistic, permutation_distribution, **kwargs):
         """Conduct a two-tailed hypothesis test.
