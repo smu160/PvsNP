@@ -74,7 +74,6 @@ class Resampler:
             no_beh_vec = dataframe.loc[beh_col_vec[1] != 0]
             return frame_rate * (beh_vec.values.mean(axis=0) - no_beh_vec.values.mean(axis=0))
 
-    # TODO: take out useless lines of code
     @staticmethod
     def __shuffle_worker(queue, resamples, dataframe, statistic, *beh_col_vec, flip_roll=False):
         """Helper function for shuffle()
@@ -134,7 +133,6 @@ class Resampler:
 
         queue.put(pd.DataFrame(rows_list, columns=column_names))
 
-    # TODO: use list comprehension
     @staticmethod
     def shuffle(resamples, dataframe, statistic, *beh_col_vec, flip_roll=False):
         """Permutation resampling function for neuron selectivty analysis.
@@ -190,7 +188,7 @@ class Resampler:
         for process in processes:
             process.join()
 
-        #start columns at 1, not 0
+        # Start columns at 1, not 0
         shuffle_dists = pd.concat(rets, ignore_index=True)
 
         return shuffle_dists
@@ -222,6 +220,7 @@ class Resampler:
         return p_val
 
     # TODO: amend documentation
+    @staticmethod
     def z_score(original_statistic, permutation_distribution):
         """
         Compute z-score for a given value, and the permutation distribution
@@ -278,7 +277,7 @@ class Resampler:
 
         if original_statistic >= np.percentile(permutation_distribution, high):
             return 1
-        elif original_statistic <= np.percentile(permutation_distribution, low):
+        if original_statistic <= np.percentile(permutation_distribution, low):
             return -1
-        else:
-            return 0
+
+        return 0
