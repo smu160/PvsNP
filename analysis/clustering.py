@@ -36,28 +36,6 @@ def compute_connections(dataframe, similarity_measure=normalized_mutual_info_sco
     return connections
 
 
-def similarity_matrix(dataframe, similarity_measure=normalized_mutual_info_score):
-    """Create a similarity matrix between data points.
-
-    Args:
-        dataframe: pandas DataFrame
-            An m x n DataFrame, where n is the number of columns (variables),
-            and m is the number of rows (observations).
-
-        similarity_measure: function, optional, default: sklearn.metrics.normalized_mutual_info_score
-            A function that quantifies the similarity between data points.
-
-    Returns:
-        matrix: pandas DataFrame
-            An n x n DataFrame, where each component, a_{ij}, is the
-            quantified similarity between variable v_{i} and v_{j}.
-    """
-    rows = [dataframe.apply(similarity_measure, args=(dataframe[col],)) for col in dataframe]
-    matrix = pd.DataFrame(rows, index=dataframe.columns)
-
-    return matrix
-
-
 def compute_corrcoef(dataframe, threshold=0.0):
     """Create dict of node pairs & their corresponding correlation coefficients
 
@@ -86,6 +64,28 @@ def compute_corrcoef(dataframe, threshold=0.0):
             connections[(v_i, v_j)] = corrcoef
 
     return connections
+
+
+def similarity_matrix(dataframe, similarity_measure=normalized_mutual_info_score):
+    """Create a similarity matrix between data points.
+
+    Args:
+        dataframe: pandas DataFrame
+            An m x n DataFrame, where n is the number of columns (variables),
+            and m is the number of rows (observations).
+
+        similarity_measure: function, optional, default: sklearn.metrics.normalized_mutual_info_score
+            A function that quantifies the similarity between data points.
+
+    Returns:
+        matrix: pandas DataFrame
+            An n x n DataFrame, where each component, a_{ij}, is the
+            quantified similarity between variable v_{i} and v_{j}.
+    """
+    rows = [dataframe.apply(similarity_measure, args=(dataframe[col],)) for col in dataframe]
+    matrix = pd.DataFrame(rows, index=dataframe.columns)
+
+    return matrix
 
 
 def affinity_propagation(similiarity_matrix):
