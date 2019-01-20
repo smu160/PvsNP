@@ -28,7 +28,7 @@ def compute_connections(dataframe, similarity_measure=normalized_mutual_info_sco
 
     Returns:
         connections: dict
-            A dictionary of <(v_i, v_j): corrcoef> key-value pairs.
+            A dictionary of <(v_{i}, v_{j}): corrcoef> key-value pairs.
     """
     matrix = similarity_matrix(dataframe, similarity_measure=similarity_measure)
     connections = {(i, j): matrix[i][j] for i, j in itertools.combinations(matrix.columns, 2)}
@@ -46,12 +46,12 @@ def compute_corrcoef(dataframe, threshold=0.0):
 
         threshold: float, optional, default: 0.0
             The cutoff value for any correlation coefficient, r, such that two
-            variables, (v_i, v_j) will only be appended to the dictionary of
+            variables, (v_{i}, v_{j}) will only be appended to the dictionary of
             connections if r >= threshold.
 
     Returns:
         connections: dict
-            A dictionary of <(v_i, v_j): corrcoef> key-value pairs.
+            A dictionary of <(v_{i}, v_{j}): r_{ij}> key-value pairs.
     """
     connections = {}
 
