@@ -6,6 +6,7 @@ similarity measures, and functional connectivity (edge weights in a graph).
 """
 
 import itertools
+from collections import defaultdict
 
 from sklearn import cluster
 from sklearn.metrics import normalized_mutual_info_score
@@ -116,7 +117,6 @@ def affinity_propagation(similiarity_matrix):
     return clusters
 
 
-# TODO: Use default dict
 def extract_clusters(clusters):
     """Extract all the clusters into a dictionary of lists.
 
@@ -128,15 +128,12 @@ def extract_clusters(clusters):
             A dictionary of <sample: cluster label> key-value pairs.
 
     Returns:
-        extracted_clusters: dictionary
+        extracted_clusters: defaultdict
             A dictionary of <cluster label: neurons list> key-value pairs.
     """
-    extracted_clusters = {}
+    extracted_clusters = defaultdict(list)
 
     for neuron, cluster_label in clusters.items():
-        if extracted_clusters.get(cluster_label, None):
-            extracted_clusters[cluster_label].append(neuron)
-        else:
-            extracted_clusters[cluster_label] = [neuron]
+        extracted_clusters[cluster_label].append(neuron)
 
     return extracted_clusters
