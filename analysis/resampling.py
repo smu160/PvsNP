@@ -74,8 +74,9 @@ class Resampler:
             no_beh_vec = dataframe.loc[beh_col_vec[1] != 0]
             return frame_rate * (beh_vec.values.mean(axis=0) - no_beh_vec.values.mean(axis=0))
 
+    # TODO: make `resamples` arg a kwarg
     @staticmethod
-    def __shuffle_worker(queue, resamples, dataframe, statistic, *beh_col_vec, flip_roll=False):
+    def __shuffle_worker(queue, resamples, dataframe, statistic, *beh_col_vec, **kwargs):
         """Helper function for shuffle()
 
         This function repeats the permutation resampling and computation of
@@ -107,10 +108,12 @@ class Resampler:
                 The columns vectors to be used as the two groups to
                 use for permutation resamples.
 
-            flip_roll: boolean, optional
+            flip_roll: boolean, optional, default: False
                 If data should be flipped and then randomly rolled for each
-                resample; default is false.
+                resample.
         """
+        flip_roll = kwargs.get("flip_roll", False)
+
         if isinstance(dataframe, pd.DataFrame):
             column_names = list(dataframe.columns)
         elif isinstance(dataframe, pd.Series):
@@ -134,7 +137,7 @@ class Resampler:
         queue.put(pd.DataFrame(rows_list, columns=column_names))
 
     @staticmethod
-    def shuffle(resamples, dataframe, statistic, *beh_col_vec, flip_roll=False):
+    def shuffle(dataframe, statistic, *beh_col_vec, **kwargs):
         """Permutation resampling function for neuron selectivty analysis.
 
         This function simply starts a new process for each CPU that the machine
@@ -146,7 +149,7 @@ class Resampler:
         function will be run on.
 
         Args:
-            resamples: int
+            resamples: int, optional, default: 10000
                 The total amount of permutation resamples desired.
 
             dataframe: DataFrame
@@ -169,6 +172,9 @@ class Resampler:
             A (vertically) concatenated pandas DataFrame of all the DataFrames
             the shuffle_worker processes produced.
         """
+        flip_roll = kwargs.get("flip_roll", False)
+        resamples = kwargs.get("resamples", 10000)
+
         if flip_roll:
             dataframe = dataframe.reindex(np.flip(dataframe.index))
             dataframe.index = pd.RangeIndex(len(dataframe.index))
@@ -188,10 +194,7 @@ class Resampler:
         for process in processes:
             process.join()
 
-        # Start columns at 1, not 0
-        shuffle_dists = pd.concat(rets, ignore_index=True)
-
-        return shuffle_dists
+        return pd.concat(rets, ignore_index=True)
 
     @staticmethod
     def p_value(original_statistic, permutation_distribution):
@@ -219,7 +222,6 @@ class Resampler:
 
         return p_val
 
-    # TODO: amend documentation
     @staticmethod
     def z_score(original_statistic, permutation_distribution):
         """
@@ -229,8 +231,8 @@ class Resampler:
             original_statistic: float
                 The original value of the statistic computed on the data.
 
-            permutation_distribution: DataFrame or Series
-                A pandas Series of the permutation distributions.
+            permutation_distribution: pandas DataFrame or pandas Series
+                The permutation distribution.
 
         Returns:
             z_score: float
@@ -242,7 +244,6 @@ class Resampler:
 
         return z_score
 
-    # TODO: amend documentation
     @staticmethod
     def two_tailed_test(original_statistic, permutation_distribution, **kwargs):
         """Conduct a two-tailed hypothesis test.
@@ -254,13 +255,13 @@ class Resampler:
             original_statistic: float
                 The original value of the statistic computed on the data.
 
-            permutation_distribution: DataFrame
-                A pandas DataFrame of the permutation distributions.
+            permutation_distribution: pandas DataFrame
+                A DataFrame of the permutation distributions.
 
-            high: float, optional
+            high: float, optional, default: 95.0
                 The cutoff for the upper-tail of the distribution.
 
-            low: float, optional
+            low: float, optional, default: 5.0
                 The cutoff for the lower-tail of the distribution.
 
         Returns:
@@ -270,10 +271,9 @@ class Resampler:
             permutation distribution.
             0 if the original statistic is not observed in either tail of the
             permutation distribution.
-
         """
-        high = kwargs.get("high", 95)
-        low = kwargs.get("low", 5)
+        high = kwargs.get("high", 95.0)
+        low = kwargs.get("low", 5.0)
 
         if original_statistic >= np.percentile(permutation_distribution, high):
             return 1
