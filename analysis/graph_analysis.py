@@ -168,7 +168,7 @@ class NeuronNetwork:
         plt.axis("off")
 
         if kwargs.get("savefig", False):
-            plt.savefig(kwargs.get("my_neuron_network"), format="pdf", dpi=kwargs.get("dpi", 600))
+            plt.savefig(kwargs.get("title", "my_neuron_network.pdf"), format="pdf", dpi=kwargs.get("dpi", 600))
 
         plt.show()
 
