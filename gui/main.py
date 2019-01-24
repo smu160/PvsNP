@@ -14,7 +14,6 @@ import sys
 from PyQt5 import QtWidgets, QtGui, QtCore
 import vlc
 from server import Server
-from neuron_overlay import Overlay
 
 
 class Player(QtWidgets.QMainWindow):
@@ -53,8 +52,6 @@ class Player(QtWidgets.QMainWindow):
             self.videoframe = QtWidgets.QMacCocoaViewContainer(0)
         else:
             self.videoframe = QtWidgets.QFrame()
-
-        self.overlay = Overlay(self.videoframe)
 
         self.palette = self.videoframe.palette()
         self.palette.setColor(QtGui.QPalette.Window, QtGui.QColor(0, 0, 0))
