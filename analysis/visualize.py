@@ -1,74 +1,14 @@
 """This module contains wrapper functions for plotting and visualizing data.
 
     @authors: Saveliy Yusufov, Columbia University, sy2685@columbia.edu
-              Jack Berry, Columbia University, jeb2242@columbia.edu
 """
 
-import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib import cm
 import seaborn as sns
 from scipy.ndimage.filters import gaussian_filter
 
-def set_weights(x, y, neuron, data, max_rate, framerate=10):
-    """Create list of weights by time spent in a location
-
-    Args:
-        x: str
-            The name of the x-coordinate column in data.
-
-        y: str
-            The name of the y-coordinate column in data.
-
-        neuron: str or int
-            The name of the neuron column in data.
-
-        data: DataFrame
-            The concatenated neuron and behavior DataFrame.
-
-        framerate: int, optional: default: 10
-            The framerate of the calcium imaging video.
-
-    Returns:
-        weights: list
-            A list of values ``w_i`` weighing each coordinate, (x_i, y_i)
-    """
-    time_spent = data.groupby([x, y]).size()
-
-    # Convert multilevel indexes into columns
-    time_spent_df = pd.DataFrame(time_spent)
-    time_spent_df.reset_index(inplace=True)
-
-    # Convert coordinate columns and neuron columns into list of 3-tuples
-    x_y_count = list(zip(time_spent_df[x], time_spent_df[y], time_spent_df[0]))
-
-    # Convert list of 3-tuples into dict of (x, y): count
-    time_at_coords = {(x, y): count for x, y, count in x_y_count}
-
-    neuron = data[neuron].tolist()
-
-    # Convert coordinate columns into list of 2-tuples
-    coords_list = list(zip(data[x], data[y]))
-
-    weights = []
-
-    # Go through each component of the neuron column vector, and
-    # if the component is not 0, then for the corresponding coordinate-pair,
-    # we set the weight to: (flourescence * framerate) divided by the time spent at
-    # that location (coordinate-pair).
-    for i, coord in enumerate(coords_list):
-        if neuron[i] != 0:
-            weight = (framerate * neuron[i]) / time_at_coords[coord]
-            
-            #normalize by the maximum rate 
-            weight = weight/max_rate
-        else:
-            weight = 0
-
-        weights.append(weight)
-
-    return weights
 
 def generate_heatmap(x, y, sigma=2, **kwargs):
     """Generates a heatmap for plotting.
@@ -120,6 +60,7 @@ def generate_heatmap(x, y, sigma=2, **kwargs):
     heatmap = gaussian_filter(heatmap, sigma=sigma)
     extent = [xedges[0], xedges[-1], yedges[0], yedges[-1]]
     return heatmap.T, extent
+
 
 def plot_heatmap(x, y, sigma=2, **kwargs):
     """Plots a heatmap.
@@ -178,63 +119,29 @@ def plot_heatmap(x, y, sigma=2, **kwargs):
 
     cmap = kwargs.get("cmap", cm.jet)
     title = kwargs.get("title", "Title Goes Here")
-    filename = kwargs.get("filename",None)
-    filepath = kwargs.get("filepath",None)
     bins = kwargs.get("bins", (50, 50))
     weights = kwargs.get("weights", None)
     figsize = kwargs.get("figsize", (10, 10))
-    bounds = kwargs.get("bounds", None)
-    vmin = kwargs.get("vmin",None)
-    vmax = kwargs.get("vmax",None)
-    
-    
-    # Set user-defined x-axis and y-axis boundaries by appending them to x and y
-    if bounds:
-        x = x.copy()
-        y = y.copy()
-        x.loc[len(x)] = bounds[0]
-        x.loc[len(x)] = bounds[1]
-        y.loc[len(y)] = bounds[0]
-        y.loc[len(y)] = bounds[1]
-        if not weights is None:
-            weights = weights.copy()
-            weights.loc[len(weights)] = 0
-            weights.loc[len(weights)] = 0
+    vmin = kwargs.get("vmin", None)
+    vmax = kwargs.get("vmax", None)
 
     _ = plt.figure(figsize=figsize)
     heatmap, extent = generate_heatmap(x, y, sigma, bins=bins, weights=weights)
-    plt.imshow(heatmap, origin="lower", extent=extent, cmap=cmap,vmin=vmin, vmax=vmax)
+    plt.imshow(heatmap, origin="lower", extent=extent, cmap=cmap, vmin=vmin, vmax=vmax)
     plt.colorbar()
-    
+
     if title:
         plt.title(title)
 
-    dpi = kwargs.get("dpi", 600)
-    savefig = kwargs.get("savefig", False)
-    if savefig:
-        if filename:
-            filename = filename
-        elif title:
+    if kwargs.get("savefig", False):
+        if title:
             filename = title
         else:
             filename = "my_smoothed_heatmap"
 
-        plt.savefig("{}{}.pdf".format(filepath,filename), dpi=dpi)
+        plt.savefig("{}.pdf".format(filename), dpi=kwargs.get("dpi", 600))
 
-        
-def abline(slope, intercept):
-    """
-    Plot a line from slope and intercept
-    Inputs:
-        slope: float
-        intercept: float
-    """
-    axes = plt.gca()
-    x_vals = np.array(axes.get_xlim())
-    y_vals = intercept + slope * x_vals
-    plt.plot(x_vals, y_vals, '--')
-    
-    
+
 def pie_chart(sizes, *labels, **kwargs):
     """Wrapper method for matplotlib's pie chart.
 
@@ -259,6 +166,7 @@ def pie_chart(sizes, *labels, **kwargs):
     ax1.pie(sizes, labels=labels, autopct="%1.1f%%", startangle=90)
     ax1.axis("equal")
     plt.show()
+
 
 def plot_corr_heatmap(dataframe, **kwargs):
     """Seaborn correlation heatmap wrapper function
@@ -317,6 +225,7 @@ def plot_corr_heatmap(dataframe, **kwargs):
 
         plt.savefig("{}.pdf".format(filename), dpi=dpi)
 
+
 def plot_clustermap(dataframe, **kwargs):
     """Seaborn clustermap wrapper function
 
@@ -365,7 +274,6 @@ def plot_clustermap(dataframe, **kwargs):
     if title:
         cluster_map.fig.suptitle(title)
 
-    dpi = kwargs.get("dpi", 600)
     savefig = kwargs.get("savefig", False)
     if savefig:
         if title:
@@ -373,4 +281,4 @@ def plot_clustermap(dataframe, **kwargs):
         else:
             filename = "my_seaborn_clustermap"
 
-        plt.savefig("{}.pdf".format(filename), dpi=dpi)
+        plt.savefig("{}.pdf".format(filename), dpi=kwargs.get("dpi", 600))
