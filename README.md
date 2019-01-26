@@ -70,10 +70,6 @@ bash create_env.sh
 
 For members of the Hen Lab, feel free to message Saveliy Yusufov via Slack.
 
-## Authors
-
-* **Jack Berry** - [jaberry](https://github.com/jaberry)
-* **Saveliy Yusufov** - [smu160](https://github.com/smu160)
 
 ## Why Python?
 - [Eight Advantages of Python Over Matlab](http://phillipmfeldman.org/Python/Advantages_of_Python_Over_Matlab.html)
