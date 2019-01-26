@@ -68,8 +68,6 @@ bash create_env.sh
 
 [Create an issue](https://help.github.com/articles/creating-an-issue/)
 
-For members of the Hen Lab, feel free to message Saveliy Yusufov via Slack.
-
 
 ## Why Python?
 - [Eight Advantages of Python Over Matlab](http://phillipmfeldman.org/Python/Advantages_of_Python_Over_Matlab.html)
