@@ -1,5 +1,5 @@
 PvsNP
-======
+=======
 <img src="python_action_potential.png" width="500" align="right">
 
 <b>P</b>ython <b>v</b>s. <b>N</b>euro-<b>P</b>hysiological data is a computational toolbox for reproducible analysis and visualization of neurophysiological data.
@@ -68,8 +68,6 @@ bash create_env.sh
 ## Troubleshooting
 
 [Create an issue](https://help.github.com/articles/creating-an-issue/)
-
-For members of the Hen Lab, feel free to message Saveliy Yusufov via Slack.
 
 
 ## Why Python?
