@@ -22,7 +22,7 @@ For any feature requests, feel free to [create an issue](https://help.github.com
 
 3. Clone the repository:
 ```bash
-git clone https://github.com/jaberry/Hen_Lab.git
+git clone https://github.com/smu160/PvsNP.git
 ```
 
 3. Navigate into your local repository and build the Docker image:
