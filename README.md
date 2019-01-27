@@ -1,15 +1,16 @@
-Hen Lab
+PvsNP
 ======
-# <img src="readme_pic.jpg">
+<img src="python_action_potential.png" width="500" align="right">
 
-This code base was written with the intention of serving as a toolbox for:
+<b>P</b>ython <b>v</b>s. <b>N</b>euro-<b>P</b>hysiological data is a computational toolbox for reproducible analysis and visualization of neurophysiological data.
 
-1. Statistical Testing of neuron classification by behavior.
-2. Graph Theoretical Analysis of networks of neurons.
-3. Data Visualization tool -- see the "full picture" of the data garnered from experiments with integration of calcium imaging movies, behavioral videos, and data processing results.
-4. Deconvolution of calcium imaging data. (Deprecated)
+PvsNP serves as a toolbox for:
+* Statistical Testing of neuron classification by behavior.
+* Graph Theoretical Analysis of networks of neurons.
+* Data Visualization tool -- see the "full picture" of the data garnered from experiments with integration of calcium imaging movies, behavioral videos, and data processing results.
+* Deconvolution of calcium imaging data. (Deprecated)
 
-For any feature requests, [create an issue](https://help.github.com/articles/creating-an-issue/).
+For any feature requests, feel free to [create an issue](https://help.github.com/articles/creating-an-issue/).
 
 ## Getting Started
 
