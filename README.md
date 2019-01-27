@@ -56,7 +56,7 @@ Now open your browser window and go to the URL that was created for you.
 
 2. Clone the repository:
 ```bash
-git clone https://github.com/jaberry/Hen_Lab.git
+git clone https://github.com/smu160/PvsNP.git
 ```
 
 3. Navigate into your local repository and create your environment:
