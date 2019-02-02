@@ -1,4 +1,4 @@
-name: henlabenv
+name: pvsnp_env
 channels:
   - defaults
 dependencies:

@@ -5,5 +5,4 @@ dependencies:
   - pandas=0.23.4
   - pyqtgraph=0.10.0
   - python=3.7.1
-prefix: /anaconda3/envs/data_vis_env
 

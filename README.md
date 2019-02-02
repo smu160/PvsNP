@@ -2,12 +2,10 @@ PvsNP
 =======
 <img src="python_action_potential.png" width="500" align="right">
 
-<b>P</b>ython <b>v</b>s. <b>N</b>euro-<b>P</b>hysiological data is a computational toolbox for reproducible analysis and visualization of neurophysiological data.
-
-PvsNP serves as a toolbox for:
-* Statistical Testing of neuron classification by behavior.
+<b>P</b>ython <b>v</b>s. <b>N</b>euro-<b>P</b>hysiological (PvsNP) serves as a toolbox for:
+* Statistical analysis of neurophysiological data, including but not limited to cell selectivity, place cell analysis, and etc.
 * Graph Theoretical Analysis of networks of neurons.
-* Data Visualization tool -- see the "full picture" of the data garnered from experiments with integration of calcium imaging movies, behavioral videos, and data processing results.
+* [Data Visualization tool](https://github.com/smu160/PvsNP/tree/master/gui) - see the "full picture" of the data garnered from experiments with integration of calcium imaging movies, behavioral videos, and data processing results.
 * Deconvolution of calcium imaging data. (Deprecated)
 
 For any feature requests, feel free to [create an issue](https://help.github.com/articles/creating-an-issue/).
@@ -27,7 +25,7 @@ git clone https://github.com/smu160/PvsNP.git
 
 3. Navigate into your local repository and build the Docker image:
 ```bash
-cd Hen_Lab
+cd PvsNP
 docker build . -t jupyter
 ```
 
@@ -61,7 +59,7 @@ git clone https://github.com/smu160/PvsNP.git
 
 3. Navigate into your local repository and create your environment:
 ```bash
-cd Hen_Lab
+cd PvsNP
 bash create_env.sh
 ```
 

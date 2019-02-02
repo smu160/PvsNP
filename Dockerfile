@@ -1,7 +1,7 @@
 # Get and use latest LTS release of Ubuntu
 FROM ubuntu:18.04
 
-# Updating Ubuntu package & install wget, bzip2, git, and g++
+# Updating Ubuntu package & install wget, bzip2, and git
 RUN apt-get update && apt-get install -y \
   wget \
   bzip2 \
