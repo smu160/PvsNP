@@ -13,7 +13,7 @@ import sys
 
 from PyQt5 import QtWidgets, QtGui, QtCore
 import vlc
-from server import Server
+from network import Server
 
 
 class Player(QtWidgets.QMainWindow):
@@ -223,14 +223,17 @@ class Player(QtWidgets.QMainWindow):
 
     def on_previous_frame(self):
         """Go backward one frame"""
-        next_frame_time = self.mediaplayer.get_time() - self.mspf()
+        if self.mediaplayer.get_state() == vlc.State.Stopped:
+            return
+
+        prev_frame_time = self.mediaplayer.get_time() - self.mspf()
 
         # Reset the queue & put the next frame's time into the queue
         self.data_queue.queue.clear()
         self.data_queue.put('d')
-        self.data_queue.put(next_frame_time)
+        self.data_queue.put(prev_frame_time)
         self.update_time_label()
-        self.mediaplayer.set_time(next_frame_time)
+        self.mediaplayer.set_time(prev_frame_time)
 
     def mspf(self):
         """Milliseconds per frame"""
@@ -346,19 +349,20 @@ class Player(QtWidgets.QMainWindow):
                 self.stop()
 
     def update_time_label(self):
+        """Update the time label with the current media's time"""
         mtime = QtCore.QTime(0, 0, 0, 0)
-        self.time = mtime.addMSecs(self.mediaplayer.get_time())
-        self.timelabel.setText(self.time.toString())
+        time = mtime.addMSecs(self.mediaplayer.get_time())
+        self.timelabel.setText(time.toString())
 
     def update_pb_rate_label(self):
-        print(self.mediaplayer.get_rate())
+        """Updates the label showing the playback rate"""
         self.pb_rate_label.setText("Playback rate: {}x".format(str(self.mediaplayer.get_rate())))
 
 
 def on_new_plot():
     """Launches a new PyQtGraph plot(s) window
     """
-    subprocess.Popen(["python", "client.py"])
+    subprocess.Popen(["python", "plot.py"])
 
 
 def on_new_video():

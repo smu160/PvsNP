@@ -8,7 +8,7 @@ import platform
 
 from PyQt5 import QtWidgets, QtGui, QtCore
 import vlc
-from client import Client
+from network import Client
 
 
 class MiniPlayer(QtWidgets.QMainWindow):
@@ -95,6 +95,8 @@ class MiniPlayer(QtWidgets.QMainWindow):
         self.mediaplayer.play()
 
     def update_ui(self):
+        """Updates the UI on every time interval"""
+
         self.update_statusbar()
 
         try:
@@ -111,18 +113,20 @@ class MiniPlayer(QtWidgets.QMainWindow):
         if val == 'P':
             self.mediaplayer.play()
             return
-        elif val == 'p':
+        if val == 'p':
             self.mediaplayer.pause()
             return
-        elif val == 'S':
+        if val == 'S':
             self.mediaplayer.stop()
             return
-        else:
-            val = int(val)
-            if val != self.mediaplayer.get_time():
-                self.mediaplayer.set_time(val)
+
+        val = int(val)
+        if val != self.mediaplayer.get_time():
+            self.mediaplayer.set_time(val)
 
     def update_statusbar(self):
+        """Updates the statusbar with the current media's time"""
+
         mtime = QtCore.QTime(0, 0, 0, 0)
         time = mtime.addMSecs(self.mediaplayer.get_time())
         self.statusbar.showMessage(time.toString())
