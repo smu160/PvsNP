@@ -10,6 +10,8 @@ PvsNP
 
 For any feature requests, feel free to [create an issue](https://help.github.com/articles/creating-an-issue/).
 
+<sub><sup>[image source](https://github.com/nipy/nipy-artwork/blob/master/pics/python_action_potential.svg)</sup></sub>
+
 ## Getting Started
 
 ### Docker
@@ -67,6 +69,9 @@ bash create_env.sh
 
 [Create an issue](https://help.github.com/articles/creating-an-issue/)
 
+## How to cite
+
+A companion paper by Saveliy Yusufov, Jack Berry, Grace Paquelet, René Hen will be listed here shortly.
 
 ## Why Python?
 - [Eight Advantages of Python Over Matlab](http://phillipmfeldman.org/Python/Advantages_of_Python_Over_Matlab.html)
