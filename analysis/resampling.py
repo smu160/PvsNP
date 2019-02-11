@@ -63,8 +63,6 @@ class Resampler:
             all of the behavior vectors means subtracted from the corresponding
             means of the non-behavior vectors, all scaled by the frame rate.
         """
-        if len(beh_col_vec) != 1 and len(beh_col_vec) != 2:
-            raise ValueError("You provided an appropriate amount of behaviors.")
         if len(beh_col_vec) == 1:
             beh_vec = dataframe.loc[beh_col_vec[0] != 0]
             no_beh_vec = dataframe.loc[beh_col_vec[0] == 0]
@@ -74,7 +72,8 @@ class Resampler:
             no_beh_vec = dataframe.loc[beh_col_vec[1] != 0]
             return frame_rate * (beh_vec.values.mean(axis=0) - no_beh_vec.values.mean(axis=0))
 
-    # TODO: make `resamples` arg a kwarg
+        raise ValueError("You provided an appropriate amount of behaviors.")
+
     @staticmethod
     def __shuffle_worker(queue, resamples, dataframe, statistic, *beh_col_vec, **kwargs):
         """Helper function for shuffle()
