@@ -1,14 +1,66 @@
+"""
+This module contains functions for carrying out place cell analysis.
+Specifically, it contains functions for dimensionality reduction, binning,
+and filtering.
+
+@author: Saveliy Yusufov, Columbia University, sy2685@columbia.edu
+"""
+
 import math
-import pandas as pd
-import analysis.analysis_utils as au
 
 
 def pair(x, y):
+    r"""Uniquely encode two natural numbers into a single natural number
+
+    The Cantor pairing function is a primitive recursive pairing function
+    \pi: \mathbb{N} \times \mathbb{N} \rightarrow \mathbb(N)
+
+    defined by:
+
+    \pi(x, y) := \frac{1}{2}(x + y)(x + y + 1) + y
+
+    Source: https://en.wikipedia.org/wiki/Pairing_function#Cantor_pairing_function
+
+    Args:
+        x: int
+            One of the natural numbers to encode into a single natural number.
+
+        y: int
+            One of the natural numbers to encode into a single natural number.
+
+    Returns:
+        z: int
+            The single natural number uniquely encoded from the the provided
+            natural numbers, x and y.
+    """
+    if not isinstance(x, int) or not isinstance(y, int):
+        raise TypeError("x and y must be members of the natural numbers!")
+    if x < 0 or y < 0:
+        raise ValueError("x and y cannot be less than 0!")
+
     z = (((x + y + 1) * (x + y)) / 2) + y
     return z
 
 
 def invert(z):
+    """Invert z into a unique pair of values in the natural numbers
+
+    Source: https://en.wikipedia.org/wiki/Pairing_function#Cantor_pairing_function
+
+    Args:
+        z: int
+            A natural number that is comprised of two unique natural numbers.
+
+    Returns:
+        x, y: tuple
+            The two unique natural numbers, x, y, that comprise the unqique
+            encoding of z.
+    """
+    if not isinstance(z, int):
+        raise TypeError("z must be a member of the natural numbers!")
+    if z < 0:
+        raise ValueError("z cannot be less than 0!")
+
     w = math.floor(((math.sqrt(8*z + 1) - 1) / 2))
     t = (w**2 + w) / 2
     y = z - t
@@ -21,133 +73,109 @@ def apply_cantor_pairing(x_coords, y_coords):
 
     Args:
         x_coords: list
+            A list of natural numbers, such that the value at each index,
+            corresponds to the value at each index in y_coords.
 
         y:coords: list
+            A list of natural numbers, such that the value at each index,
+            corresponds to the value at each index in x_coords.
 
     Returns:
         z_coords: list
+            The resulting list from applying the cantor pairing function to each
+            corresponding pair of natural numbers, i.e., (x_i, y_i).
 
     """
     if len(x_coords) != len(y_coords):
-        raise ValueError("The length of x_coords must equal the length of y_coords!")
+        raise ValueError("x_coords and y_coords must be of equal length!")
 
     z_coords = [pair(x, y) for x, y in zip(x_coords, y_coords)]
-
     return z_coords
 
 
-def bin_cantor_spatial(mouse, bin_size=5):
-    """
-    Bins the x and y coordinates, and transforms the new x,y cords to z, to be used for
-    spatial information computations
+# TODO: Finish typing up function documentation
+def bin_coordinates(mouse, bin_size=5, x_col="X_center", y_col="Y_center"):
+    """Bins the x and y coordinates for place cell analysis.
 
     Args:
-        mouse: Mouse object
+        mouse: Mouse
+            The mouse object whose spikes_and_beh dataframe contains an `X` and
+            a `Y` column to bin by the provided bin size.
 
-        bin_size: bin size, in cm. Default is 5
+        bin_size: int, optional, default: 5
+            (i.e., bin_factor=5 ==> 5 x 5 bins)
+
+        x_col: str, optional, default: 'X_center'
+            The name of the column that contains the `X` coordinates in the
+            spikes_and_beh dataframe.
+
+        y_col: str, optional, default: 'Y_center'
+            The name of the column that contains the `Y` coordinates in the
+            spikes_and_beh dataframe.
 
     Returns:
-        x_coords: Series, binned x coordinates
-        y_coords: Series, binned y coordinates
-        z_coords: Series, unique labels for (x,y) bins
+        x_coords, y_coords: tuple
+            The binned x coordinates and the binned y coordinates in a tuple.
     """
-
     # Extract the X and Y coordinate column vectors
-    x_coords = mouse.spikes_and_beh["X_center"].astype(float)
-    y_coords = mouse.spikes_and_beh["Y_center"].astype(float)
+    x_coords = mouse.spikes_and_beh[x_col].astype(float)
+    y_coords = mouse.spikes_and_beh[y_col].astype(float)
 
-    # Subtract the mean value of the coordinate to ensure that the binning centers around
-    # the main track
+    # Subtract the mean value of the coordinate to ensure the binning centers
+    # around the main track
     x_coords -= x_coords.mean()
     y_coords -= y_coords.mean()
 
-    ## Bin X and Y coordinates by bin_factor (ie bin_factor=5 -> 5cm x 5cm bins)
-    bin_factor = bin_size
-    x_coords = (x_coords / bin_factor).astype(int)
-    y_coords = (y_coords / bin_factor).astype(int)
+    # Bin X and Y coordinates by the specified bin size
+    x_coords = (x_coords / bin_size).astype(int)
+    y_coords = (y_coords / bin_size).astype(int)
+
+    return x_coords, y_coords
 
 
-    # Shift all coordinate values by increasing all of them by the minimum value. This
-    # is necessary in order to apply the cantor pairing function, since the cantor
-    # pairing function is only defined on the natural numbers, i.e., {0, 1, 2, 3, ...}.
-    x_coords += abs(x_coords.min())
-    y_coords += abs(y_coords.min())
-
-    #plt.scatter(x_coords,y_coords)
-
-    # Reduce the dimensionality of the coordinates, since sklearn's mutual information
-    # function only allows you to compute the MI between two arrays.
-    z_coords = apply_cantor_pairing(x_coords.tolist(), y_coords.tolist())
-    z_coords = pd.Series(data=z_coords)
-
-    return x_coords, y_coords, z_coords
-
-
+# TODO: Finish typing up function documentation
 def remove_immobile(mouse):
-    """
-    Removes immobile time bins from mouse. Assumes that mouse.behavior has an "immobile" column
+    """Removes immobile time bins from mouse.
 
     Args:
         mouse: Mouse object
 
     Return:
-        Mouse object with immobile time bins removed
+        mobile_s:
+
+        mobile_c:
+
+        mobile_beh:
     """
     mobile_s = mouse.spikes[mouse.behavior.immobile == 0]
-    mobile_beh = mouse.behavior[mouse.behavior.immobile == 0]
     mobile_c = mouse.cell_transients[mouse.behavior.immobile == 0]
+    mobile_beh = mouse.behavior[mouse.behavior.immobile == 0]
 
-    return au.Mouse(spikes=mobile_s, behavior=mobile_beh, cell_transients=mobile_c)
+    return mobile_s, mobile_c, mobile_beh
 
 
+# TODO: Cleanup & finish typing up function documentation
 def remove_low_occupancy(mouse, x_bin, y_bin, min_occupancy=1):
-    """Removes spatial bins that were not visited much
+    """Removes spatial bins that had low occupancy
 
     Args:
-        mouse: Mouse object upon which to modify
+        mouse: Mouse
 
-        x_bin: Series of binned x coordinates
+        x_bin: pandas Series
+            Binned x coordinates
 
-        y_bin: Series of binned y coordinates
+        y_bin: pandas Series
+            Binned y coordinates
 
-        min_occupancy: minimum number of time bins for a spatial bin to be included
+        min_occupancy:
+            minimum number of time bins for a spatial bin to be included
 
     Returns:
-        Mouse object with low-occupancy spatial bins removed, and
-        the new columns (X_bin, Y_bin, Z) in the behavior and
-        spikes_and_beh dataframes
+        filtered_binned_s:
+
+        filtered_binned_c:
+
+        filtered_binned_beh:
+            Low-occupancy spatial bins removed, and the new columns
     """
-
-    z_coords = apply_cantor_pairing(x_bin.tolist(), y_bin.tolist())
-    z_coords = pd.Series(data=z_coords)
-
-    df = mouse.spikes_and_beh
-    df.loc[:, "X_bin"] = x_bin
-    df.loc[:, "Y_bin"] = y_bin
-    df.loc[:, 'Z'] = z_coords
-    df.loc[:, "time_bin"] = df.index
-    df.set_index(["X_bin", "Y_bin"], inplace=True)
-    occupancy = df.groupby(["X_bin", "Y_bin"]).size().to_frame()
-    occupancy.rename({0: "occupancy"}, axis=1, inplace=True)
-
-    df_merge = df.merge(occupancy, left_index=True, right_index=True)
-    df_merge.reset_index(inplace=True)
-    df_merge.set_index("time_bin", inplace=True)
-    df_merge.sort_index(inplace=True)
-
-    df.reset_index(inplace=True)
-    df.set_index("time_bin", inplace=True)
-    df.sort_index(inplace=True)
-    df_filtered = df_merge[df_merge.iloc[:, -1] >= min_occupancy]
-
-    z_coords = apply_cantor_pairing(df_filtered.X_bin.tolist(), df_filtered.Y_bin.tolist())
-    z_coords = pd.Series(data=z_coords, index=df_filtered.index)
-
-    filtered_binned_s = mouse.spikes[mouse.spikes.index.isin(df_filtered.index)]
-    filtered_binned_beh = mouse.behavior[mouse.behavior.index.isin(df_filtered.index)]
-    filtered_binned_beh.loc[:, 'Z'] = z_coords
-    filtered_binned_beh.loc[:, "X_bin"] = df_filtered.X_bin
-    filtered_binned_beh.loc[:, "Y_bin"] = df_filtered.Y_bin
-    filtered_binned_c = mouse.cell_transients[mouse.cell_transients.index.isin(df_filtered.index)]
-
-    return au.Mouse(spikes=filtered_binned_s, behavior=filtered_binned_beh, cell_transients=filtered_binned_c)
+    raise NotImplementedError("Major refactoring in progress.")
