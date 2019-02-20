@@ -1,5 +1,4 @@
 # Data Visualization tool
-![screenshot](gui_screenshot.png)
 
 ## Getting Started
 
