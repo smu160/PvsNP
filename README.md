@@ -2,7 +2,7 @@ PvsNP
 =======
 <img src="python_action_potential.png" width="500" align="right">
 
-<b>P</b>ython <b>v</b>s. <b>N</b>euro-<b>P</b>hysiological (PvsNP) serves as a toolbox for:
+<b>P</b>ython <b>vs</b>. <b>N</b>euro-<b>P</b>hysiological (PvsNP) serves as a toolbox for:
 * Statistical analysis of neurophysiological data, including but not limited to cell selectivity, place cell analysis, and etc.
 * Graph Theoretical Analysis of networks of neurons.
 * [Data Visualization tool](https://github.com/smu160/PvsNP/tree/master/gui) - see the "full picture" of the data garnered from experiments with integration of calcium imaging movies, behavioral videos, and data processing results.
