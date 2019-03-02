@@ -1,18 +1,14 @@
 # Get and use latest LTS release of Ubuntu
 FROM ubuntu:18.04
 
-# Updating Ubuntu package & install wget, bzip2, and git
-RUN apt-get update && apt-get install -y \
-  wget \
-  bzip2 \
-  git
+# Update Ubuntu & install wget, bzip2. Then, install Miniconda.
+RUN apt-get update && apt-get install -y wget bzip2 \
+    && wget https://repo.continuum.io/miniconda/Miniconda3-4.5.11-Linux-x86_64.sh \
+    && bash Miniconda3-4.5.11-Linux-x86_64.sh -b \
+    && rm Miniconda3-4.5.11-Linux-x86_64.sh \
+    && rm -rf /var/lib/apt/lists/*
 
 COPY ./ /
-
-# Install Anaconda
-RUN wget https://repo.continuum.io/miniconda/Miniconda3-4.5.11-Linux-x86_64.sh
-RUN bash Miniconda3-4.5.11-Linux-x86_64.sh -b
-RUN rm Miniconda3-4.5.11-Linux-x86_64.sh
 
 # Set path to conda
 ENV PATH /root/miniconda3/bin:$PATH
