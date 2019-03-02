@@ -1,0 +1,13 @@
+language: python
+
+services:
+  - docker
+
+before_install:
+  - git clone https://github.com/smu160/PvsNP.git
+  - cd PvsNP
+  - docker build . -t jupyter
+  - docker run -it -p 8888:8888 jupyter
+
+script:
+  - bundle exec rake test
