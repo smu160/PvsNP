@@ -120,8 +120,9 @@ def distance_moved(x_coords, y_coords):
         y_coords:
             A one-dimensional ndarray of y coordinates, over time.
 
-    Returns
-        Series containing distance moved per frame
+    Returns:
+        dist_moved: pandas Series
+            A series with the distance moved per corresponding frame.
     """
     if len(x_coords) != len(y_coords):
         raise ValueError("x_coords and y_coords are not of equal length!")
@@ -131,7 +132,7 @@ def distance_moved(x_coords, y_coords):
 
     dist_moved = delta_x**2 + delta_y**2
     dist_moved = dist_moved.apply(np.sqrt)
-    return distance_moved
+    return dist_moved
 
 
 def compute_velocity(dist_moved, framerate=10):
