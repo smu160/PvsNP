@@ -1,15 +1,66 @@
+#
+# PvsNP: toolbox for reproducible analysis & visualization of neurophysiological data.
+# Copyright (C) 2019
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+#
 """
 This module contains all the functions necessary for data preprocessing as well
 as data wrangling.
-
-@authors: Saveliy Yusufov, Columbia University, sy2685@columbia.edu
-          Jack Berry, Columbia University, jeb2242@columbia.edu
 """
+
+__author__ = "Saveliy Yusufov"
+__date__ = "1 March 2019"
+__credits__ = ["Jack Berry"]
+__license__ = "GPL"
+__maintainer__ = "Saveliy Yusufov"
+__email__ = "sy2685@columbia.edu"
 
 import os
 import sys
+
 import numpy as np
 import pandas as pd
+
+
+#TODO: document class attributes
+class Mouse:
+    """A base class for keeping all relevant & corresponding objects, i.e.,
+    spikes, cell transients, & behavior dataframes, with their respective
+    mouse.
+    """
+
+    def __init__(self, spikes=None, cell_transients=None, behavior=None, **kwargs):
+        self.name = kwargs.get("name", None)
+        self.age = kwargs.get("age", None)
+        self.sex = kwargs.get("sex", None)
+
+        self.cell_transients = cell_transients
+        self.spikes = spikes
+
+        if behavior is not None:
+            self.behavior = behavior
+            self.spikes_and_beh = self.spikes.join(self.behavior, how="left")
+        else:
+            print("A behavior dataframe was not provided.", file=sys.stderr)
+
+        velocity_cutoff = kwargs.get("velocity_cutoff", None)
+
+        # Adds "Running_frames" column to the end of the behavior Dataframe
+        if velocity_cutoff is not None:
+            running_frames = np.where(self.behavior["Velocity"] > velocity_cutoff, 1, 0)
+            self.behavior = self.behavior.assign(Running_frames=running_frames)
 
 
 def z_score_data(data, mew=None):
@@ -53,7 +104,6 @@ def pairwise_dist(x_coords):
     Returns:
         dx: pandas Series
             A series containing all the values x[i] - x[i-1]
-
     """
     x_coords = x_coords.astype(float)
     delta_x = (np.roll(x_coords, -1) - x_coords).shift(1)
@@ -72,7 +122,6 @@ def distance_moved(x_coords, y_coords):
 
     Returns
         Series containing distance moved per frame
-
     """
     if len(x_coords) != len(y_coords):
         raise ValueError("x_coords and y_coords are not of equal length!")
@@ -82,11 +131,11 @@ def distance_moved(x_coords, y_coords):
 
     dist_moved = delta_x**2 + delta_y**2
     dist_moved = dist_moved.apply(np.sqrt)
-    return dist_moved.apply(np.sqrt)
+    return distance_moved
 
 
 def compute_velocity(dist_moved, framerate=10):
-    """
+    """Computes the velocity.
     Args:
         dist_moved: pandas Series
             A one-dimensional ndarray containing distance moved.
@@ -135,12 +184,10 @@ def define_immobility(velocity, min_dur=1, min_vel=2, framerate=10, min_periods=
         mobile_immobile: pandas Series
             A one-dimensional ndarray of 0's and 1's, where 1 signifies immobile
             times and 0 signifies mobile times.
-
     """
     window_size = framerate * min_dur
     rolling_max_vel = velocity.rolling(window_size, min_periods=min_periods).max()
     mobile_immobile = (rolling_max_vel < min_vel).astype(int)
-
     return mobile_immobile
 
 
@@ -158,7 +205,6 @@ def find_file(root_directory, target_file):
     Returns:
         file_path: str
             The full path to the target file.
-
     """
     root_directory = os.path.join(os.path.expanduser("~"), root_directory)
 
@@ -236,34 +282,6 @@ def filter_epochs(interval_series, framerate=10, seconds=1):
     """
     intervals = [interval for interval in interval_series if len(interval) >= framerate*seconds]
     return intervals
-
-
-class Mouse:
-    """A base class for keeping all relevant & corresponding objects, i.e.,
-    spikes, cell transients, & behavior dataframes, with their respective
-    mouse.
-    """
-
-    def __init__(self, cell_transients=None, spikes=None, behavior=None, **kwargs):
-        self.name = kwargs.get("name", None)
-        self.age = kwargs.get("age", None)
-        self.sex = kwargs.get("sex", None)
-
-        self.cell_transients = cell_transients
-        self.spikes = spikes
-
-        if behavior is not None:
-            self.behavior = behavior
-            self.spikes_and_beh = self.spikes.join(self.behavior, how="left")
-        else:
-            print("A behavior dataframe was not provided.", file=sys.stderr)
-
-        velocity_cutoff = kwargs.get("velocity_cutoff", None)
-
-        # Adds "Running_frames" column to the end of the behavior Dataframe
-        if velocity_cutoff is not None:
-            running_frames = np.where(self.behavior["Velocity"] > velocity_cutoff, 1, 0)
-            self.behavior = self.behavior.assign(Running_frames=running_frames)
 
 
 def downsample_dataframe(dataframe, row_multiple):

@@ -1,7 +1,29 @@
-"""This module contains wrapper functions for plotting and visualizing data.
-
-    @authors: Saveliy Yusufov, Columbia University, sy2685@columbia.edu
+#
+# PvsNP: toolbox for reproducible analysis & visualization of neurophysiological data.
+# Copyright (C) 2019
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+#
 """
+This module contains wrapper functions for plotting and visualizing data.
+"""
+
+__author__ = "Saveliy Yusufov"
+__date__ = "1 March 2019"
+__license__ = "GPL"
+__maintainer__ = "Saveliy Yusufov"
+__email__ = "sy2685@columbia.edu"
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -87,11 +109,6 @@ def plot_heatmap(x, y, sigma=2, **kwargs):
             Weights are normalized to 1 if `normed` is True. If `normed` is
             False, the values of the returned histogram are equal to the sum of
             the weights belonging to the samples falling into each bin.
-
-        bounds: tuple, optional, default: None
-            If a boundary tuple is provided, the x-axis will be set as follows:
-            [bounds[0], bounds[1]]. Similarly, the y-axis will be set as:
-            [bounds[0], bounds[1]].
 
         cmap: matplotlib.colors.LinearSegmentedColormap, optional, default: plt.cm.jet
             The colormap to use for plotting the heatmap.

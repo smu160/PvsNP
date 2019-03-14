@@ -1,20 +1,39 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
+#
+# PvsNP: toolbox for reproducible analysis & visualization of neurophysiological data.
+# Copyright (C) 2019
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+#
 """
-Created on Mon Feb  5 15:15:17 2018
-
 Ca transient event detection, adapted from Dombeck 2007
 
-This is based on the MATLAB implementation of detect_ca_transients_mossy which
-was written by Jessica Jimenez, Columbia University, jcj2123@columbia.edu
-
-@author: Saveliy Yusufov, Columbia University, sy2685@columbia.edu
+This is based on the MATLAB implementation of detect_ca_transients, which was
+implemented by Jessica Jimenez, jcj2123@columbia.edu
 """
+
+__author__ = "Saveliy Yusufov"
+__date__ = "1 March 2019"
+__credits__ = ["Jessica Jimenez"]
+__license__ = "GPL"
+__maintainer__ = "Saveliy Yusufov"
+__email__ = "sy2685@columbia.edu"
+
 import math
 import numpy as np
 import pandas as pd
 
-from analysis.analysis_utils import z_score_data
+from analysis_utils import z_score_data
 
 class Deconvoluter:
     """
