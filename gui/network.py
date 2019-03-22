@@ -1,10 +1,30 @@
+#
+# PvsNP: toolbox for reproducible analysis & visualization of neurophysiological data.
+# Copyright (C) 2019
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+#
 """
 The client/server classes that keep multiple VLC python bindings players
 synchronized.
-
-Author: Saveliy Yusufov, Columbia University, sy2685@columbia.edu
-Date: 25 January 2019
 """
+
+__author__ = "Saveliy Yusufov"
+__date__ = "25 January 2018"
+__license__ = "GPL"
+__maintainer__ = "Saveliy Yusufov"
+__email__ = "sy2685@columbia.edu"
 
 import os
 import platform
@@ -72,10 +92,11 @@ class Server:
         listener_thread.start()
 
     def listen_for_clients(self):
+        """Listener thread function for new clients"""
         logger.info("Now listening for clients")
-        t = threading.Thread(target=self.data_sender, args=())
-        t.daemon = True
-        t.start()
+        thread = threading.Thread(target=self.data_sender, args=())
+        thread.daemon = True
+        thread.start()
 
         while True:
             client, _ = self.sock.accept()
@@ -83,12 +104,14 @@ class Server:
             self.clients.add(client)
 
     def data_sender(self):
+        """Data sender thread function for each client"""
         while True:
             data = "{},".format(self.data_queue.get())
+            data = data.encode()
 
-            with futures.ThreadPoolExecutor(max_workers=5) as ex:
+            with futures.ThreadPoolExecutor(max_workers=5) as executor:
                 for client in self.clients.copy():
-                    ex.submit(self.sendall, client, data.encode())
+                    executor.submit(self.sendall, client, data)
 
     def sendall(self, client, data):
         """Wraps socket module's `sendall` function"""
@@ -136,19 +159,16 @@ class Client:
     def data_receiver(self):
         """Handles receiving, parsing, and queueing data"""
         logger.info("New data receiver thread started.")
-
         try:
             while True:
-                data = self.sock.recv(4096)
+                data = self.sock.recv(65536)
                 if data:
                     data = data.decode()
-
-                    for char in data.split(','):
-                        if char:
-                            if char == 'd':
-                                self.data_queue.queue.clear()
-                            else:
-                                self.data_queue.put(char)
+                    if 'd' in set(data):
+                        self.data_queue.queue.clear()
+                        continue
+                    else:
+                        any(self.data_queue.put(sig) for sig in data.split(',') if sig)
         except:
             logger.exception("Closing socket: %s", self.sock)
             self.sock.close()

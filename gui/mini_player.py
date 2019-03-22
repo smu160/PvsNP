@@ -1,5 +1,29 @@
-"""This module contains a bare-bones vlc player class to stream videos.
+#
+# PvsNP: toolbox for reproducible analysis & visualization of neurophysiological data.
+# Copyright (C) 2019
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+#
 """
+This module contains a bare-bones vlc player class to stream videos.
+"""
+
+__author__ = "Saveliy Yusufov"
+__date__ = "25 December 2018"
+__license__ = "GPL"
+__maintainer__ = "Saveliy Yusufov"
+__email__ = "sy2685@columbia.edu"
 
 import os
 import sys
@@ -9,6 +33,11 @@ import platform
 from PyQt5 import QtWidgets, QtGui, QtCore
 import vlc
 from network import Client
+
+
+class Communicate(QtCore.QObject):
+
+    update_mp = QtCore.pyqtSignal(str)
 
 
 class MiniPlayer(QtWidgets.QMainWindow):
@@ -33,9 +62,19 @@ class MiniPlayer(QtWidgets.QMainWindow):
         self.open_file()
 
         self.timer = QtCore.QTimer(self)
-        self.timer.setInterval(10)
-        self.timer.timeout.connect(self.update_ui)
+        self.timer.setInterval(100)
+        self.timer.timeout.connect(self.get)
+        self.timer.timeout.connect(self.update_statusbar)
 
+        self.jump_table = {'P': self.mediaplayer.play,
+                           'p': self.mediaplayer.pause,
+                           'S': self.mediaplayer.stop,
+                           '<': self.slow_down,
+                           '>': self.speed_up
+                          }
+
+        self.c = Communicate()
+        self.c.update_mp[str].connect(self.update_ui)
         self.data_queue = data_queue
         self.timer.start()
 
@@ -46,10 +85,7 @@ class MiniPlayer(QtWidgets.QMainWindow):
         self.setCentralWidget(self.widget)
 
         # In this widget, the video will be drawn
-        if platform.system() == "Darwin":  # for MacOS
-            self.videoframe = QtWidgets.QMacCocoaViewContainer(0)
-        else:
-            self.videoframe = QtWidgets.QFrame()
+        self.videoframe = QtWidgets.QFrame()
 
         self.palette = self.videoframe.palette()
         self.palette.setColor(QtGui.QPalette.Window, QtGui.QColor(0, 0, 0))
@@ -94,43 +130,33 @@ class MiniPlayer(QtWidgets.QMainWindow):
         # Start playing the video as soon as it loads
         self.mediaplayer.play()
 
-    def update_ui(self):
-        """Updates the UI on every time interval"""
-
-        self.update_statusbar()
-
+    def get(self):
         try:
             val = self.data_queue.get(block=False)
+            self.c.update_mp.emit(val)
         except queue.Empty:
             return
 
-        if val == '<':
-            self.mediaplayer.set_rate(self.mediaplayer.get_rate() * 0.5)
-            return
-        if val == '>':
-            self.mediaplayer.set_rate(self.mediaplayer.get_rate() * 2)
-            return
-        if val == 'P':
-            self.mediaplayer.play()
-            return
-        if val == 'p':
-            self.mediaplayer.pause()
-            return
-        if val == 'S':
-            self.mediaplayer.stop()
-            return
-
-        val = int(val)
-        if val != self.mediaplayer.get_time():
-            self.mediaplayer.set_time(val)
+    def update_ui(self, val):
+        """Updates the UI on every time interval"""
+        try:
+            self.jump_table[val]()
+        except KeyError:
+            val = int(val)
+            if val != self.mediaplayer.get_time():
+                self.mediaplayer.set_time(val)
 
     def update_statusbar(self):
         """Updates the statusbar with the current media's time"""
-
         mtime = QtCore.QTime(0, 0, 0, 0)
         time = mtime.addMSecs(self.mediaplayer.get_time())
         self.statusbar.showMessage(time.toString())
 
+    def slow_down(self):
+        self.mediaplayer.set_rate(self.mediaplayer.get_rate() * 0.5)
+
+    def speed_up(self):
+        self.mediaplayer.set_rate(self.mediaplayer.get_rate() * 2)
 
 def main():
     """Entry point for our simple vlc player

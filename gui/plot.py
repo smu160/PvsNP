@@ -1,8 +1,29 @@
+#
+# PvsNP: toolbox for reproducible analysis & visualization of neurophysiological data.
+# Copyright (C) 2019
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+#
 """
 This module contains the classes for receiving, extracting, and plotting data.
-
-@author: Saveliy Yusufov, Columbia University, sy2685@columbia.edu
 """
+
+__author__ = "Saveliy Yusufov"
+__date__ = "25 December 2018"
+__license__ = "GPL"
+__maintainer__ = "Saveliy Yusufov"
+__email__ = "sy2685@columbia.edu"
 
 import os
 import sys
@@ -163,6 +184,6 @@ def main():
 
 
 if __name__ == "__main__":
-    pg.setConfigOption("background", (230, 230, 230))
-    pg.setConfigOption("foreground", (30, 30, 30))
+    pg.setConfigOption("background", 'k')
+    pg.setConfigOption("foreground", 'w')
     main()

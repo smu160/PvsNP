@@ -1,9 +1,29 @@
+#
+# PvsNP: toolbox for reproducible analysis & visualization of neurophysiological data.
+# Copyright (C) 2019
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+#
 """
 A simple example for VLC python bindings using PyQt5.
-
-Author: Saveliy Yusufov, Columbia University, sy2685@columbia.edu
-Date: 25 December 2018
 """
+
+__author__ = "Saveliy Yusufov"
+__date__ = "25 December 2018"
+__license__ = "GPL"
+__maintainer__ = "Saveliy Yusufov"
+__email__ = "sy2685@columbia.edu"
 
 import platform
 import queue
@@ -33,6 +53,7 @@ class Player(QtWidgets.QMainWindow):
         self.mediaplayer = self.instance.media_player_new()
 
         self.create_ui()
+
         self.data_queue = queue.Queue()
         self.is_paused = False
 
@@ -47,11 +68,7 @@ class Player(QtWidgets.QMainWindow):
         self.widget = QtWidgets.QWidget(self)
         self.setCentralWidget(self.widget)
 
-        # In this widget, the video will be drawn
-        if platform.system() == "Darwin":  # for MacOS
-            self.videoframe = QtWidgets.QMacCocoaViewContainer(0)
-        else:
-            self.videoframe = QtWidgets.QFrame()
+        self.videoframe = QtWidgets.QFrame()
 
         self.palette = self.videoframe.palette()
         self.palette.setColor(QtGui.QPalette.Window, QtGui.QColor(0, 0, 0))
@@ -66,8 +83,7 @@ class Player(QtWidgets.QMainWindow):
         self.positionslider.setToolTip("Position")
         self.positionslider.setMaximum(1000)
         self.positionslider.sliderMoved.connect(self.set_position)
-        # self.positionslider.sliderPressed.connect(self.set_position)
-        self.positionslider.sliderMoved.connect(self.update_time_label)
+        self.positionslider.valueChanged.connect(self.update_time_label)
 
         # Create the "previous frame" button
         self.previousframe = QtWidgets.QPushButton()
@@ -330,11 +346,11 @@ class Player(QtWidgets.QMainWindow):
         # Note that the setValue function only takes values of type int,
         # so we must first convert the corresponding media position.
         media_pos = int(self.mediaplayer.get_position() * 1000)
-        self.positionslider.setValue(media_pos)
+        if media_pos != self.positionslider.value():
+            self.positionslider.setValue(media_pos)
 
         if media_pos >= 0 and self.mediaplayer.is_playing():
-            current_time = self.mediaplayer.get_time()
-            self.data_queue.put(current_time)
+            self.data_queue.put(self.mediaplayer.get_time())
         else:
             self.data_queue.queue.clear()
 

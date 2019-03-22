@@ -1,14 +1,36 @@
+#
+# PvsNP: toolbox for reproducible analysis & visualization of neurophysiological data.
+# Copyright (C) 2019
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+#
 """
 This module contains the classes to create a plot(s) window.
-
-@author: Saveliy Yusufov, Columbia University, sy2685@columbia.edu
 """
+
+__author__ = "Saveliy Yusufov"
+__date__ = "25 December 2018"
+__license__ = "GPL"
+__maintainer__ = "Saveliy Yusufov"
+__email__ = "sy2685@columbia.edu"
 
 import queue
 import sys
 from PyQt5 import QtCore, QtWidgets
 from data_dialogs import AxisDialog
 import pyqtgraph as pg
+
 
 class MainWindow(QtWidgets.QMainWindow):
     """This class wraps the PlotWindow class to add extra functionality."""
@@ -21,7 +43,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.setCentralWidget(self.plot_window)
 
         self.statusbar = self.statusBar()
-        self.statusbar.showMessage("Ready")
+        self.statusbar.showMessage("Current Behavior")
 
         menu_bar = self.menuBar()
 
@@ -45,7 +67,6 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def on_set_axis(self, axis=0):
         """Handles both actions in the 'Adjust plots' submenu"""
-
         lower_bound, upper_bound = show_axis_dialog()
 
         if lower_bound and upper_bound:
@@ -74,10 +95,8 @@ def show_axis_dialog():
     return axis_dialog.lower_bound, axis_dialog.upper_bound
 
 
-class PlotWindow(pg.GraphicsWindow):
+class PlotWindow(pg.GraphicsLayoutWidget):
     """This class holds plots and should be nested in a MainWindow."""
-
-    changed_behavior = QtCore.pyqtSignal('QString')
 
     def __init__(self, data_queue, plots, plot_names, beh_intervals=None, parent=None):
         super().__init__(parent=parent)
@@ -141,7 +160,7 @@ class PlotWindow(pg.GraphicsWindow):
         x_max = len(self.plots[0])
 
         # Pen to be used for vertical lines
-        pen = pg.mkPen('r', width=2)
+        pen = pg.mkPen('r', width=3)
 
         # Get background color(s) (color coded by behavior) to add to each plot
         list_of_lists_of_rgns = [[] for _ in self.plots]
@@ -178,7 +197,7 @@ class PlotWindow(pg.GraphicsWindow):
             for rgn in list_of_lists_of_rgns[i]:
                 plot_item.addItem(rgn)
 
-            plot_item.plot(plot, pen=pg.mkPen((0, 0, 0), width=2))
+            plot_item.plot(plot, pen=pg.mkPen('g', width=2))
 
             # Get the max value in the time series to set the yRange, below
             y_max = plot.max()
@@ -195,5 +214,5 @@ class PlotWindow(pg.GraphicsWindow):
 
 
 if __name__ == "__main__":
-    pg.setConfigOption("background", 'w')
+    pg.setConfigOption("background", (0, 0, 0))
     pg.setConfigOption("foreground", 'k')
