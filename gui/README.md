@@ -7,15 +7,19 @@
 
 ## Getting Started
 
-1. Download and install [VLC media player](https://www.videolan.org/vlc/index.html)
+### Prerequisites
 
-2. If you do not have Anaconda already installed, then download and install [Anaconda](https://docs.anaconda.com/anaconda/install/) (Python 3.X)
+1. [VLC media player](https://www.videolan.org/vlc/index.html)
 
-3. Navigate to the `gui` directory
+2. [Anaconda](https://docs.anaconda.com/anaconda/install/) (Python 3.X)
 
-4. Run the following commands:
+### Installing
 
-### macOS & Linux
+1. Navigate to the `gui` directory
+
+2. Run the following commands:
+
+#### macOS & Linux
 
 ```Bash
 conda env create -f environment.yml
@@ -23,7 +27,7 @@ source activate data_vis_env
 python main.py
 ```
 
-### Windows
+#### Windows
 
 ```Bash
 conda env create -f environment.yml
