@@ -1,5 +1,7 @@
 PvsNP
 =======
+[![DOI](https://zenodo.org/badge/166607518.svg)](https://zenodo.org/badge/latestdoi/166607518)
+
 <img src="python_action_potential.png" width="500" align="right">
 
 <b>P</b>ython <b>vs</b>. <b>N</b>euro-<b>P</b>hysiological (PvsNP) serves as a toolbox for:
@@ -69,9 +71,23 @@ bash create_env.sh
 
 [Create an issue](https://help.github.com/articles/creating-an-issue/)
 
+## Dependencies
+
+A list of dependencies can be found in the [environment file](https://github.com/smu160/PvsNP/blob/master/environment.yml)
+
 ## How to cite
 
-A companion paper by Saveliy Yusufov, Jack Berry, Grace Paquelet, René Hen will be listed here shortly.
+```
+@misc{pvsnp2019,
+title = {{PvsNP: a Python toolbox for reproducible analysis and visualization of NeuroPhysiological data}},
+author = {Saveliy Yusufov and Jack Berry and Grace Paquelet and René Hen},
+howpublished = {\url{https://doi.org/10.5281/zenodo.2605509}},
+year = {2019},
+url = {https://doi.org/10.5281/zenodo.2605509}
+}
+```
+
+Please remember to cite all dependencies listed here: [environment file](https://github.com/smu160/PvsNP/blob/master/environment.yml)
 
 ## Why Python?
 - [Eight Advantages of Python Over Matlab](http://phillipmfeldman.org/Python/Advantages_of_Python_Over_Matlab.html)
