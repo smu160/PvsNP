@@ -8,6 +8,3 @@ before_install:
   - cd PvsNP
   - docker build . -t jupyter
   - docker run -it -p 8888:8888 jupyter
-
-script:
-  - bundle exec rake test
