@@ -1,0 +1,442 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>analysis_utils module &#8212; PvsNP 0.1-beta documentation</title>
+    <link rel="stylesheet" href="../_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">PvsNP 0.1-beta documentation</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-analysis_utils">
+<span id="analysis-utils-module"></span><h1>analysis_utils module<a class="headerlink" href="#module-analysis_utils" title="Permalink to this headline">¶</a></h1>
+<p>This module contains all the functions necessary for data preprocessing as well
+as data wrangling.</p>
+<dl class="class">
+<dt id="analysis_utils.Mouse">
+<em class="property">class </em><code class="descclassname">analysis_utils.</code><code class="descname">Mouse</code><span class="sig-paren">(</span><em>spikes=None</em>, <em>cell_transients=None</em>, <em>behavior=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/analysis_utils.html#Mouse"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#analysis_utils.Mouse" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>A base class for keeping all relevant &amp; corresponding objects, i.e.,
+spikes, cell transients, &amp; behavior dataframes, with their respective
+mouse.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="analysis_utils.activity_by_neurons">
+<code class="descclassname">analysis_utils.</code><code class="descname">activity_by_neurons</code><span class="sig-paren">(</span><em>spikes_and_beh</em>, <em>neuron_names</em>, <em>*behaviors</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/analysis_utils.html#activity_by_neurons"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#analysis_utils.activity_by_neurons" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes the neuron activity rates for given behaviors</p>
+<p>This function computes the rates for a given animal’s activity and
+neuron, given some set of behaviors.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>spikes_and_beh</strong> – DataFrame
+A concatenated pandas DataFrame of the neuron activity and
+the corresponding behavior, for a given animal.</li>
+<li><strong>neuron_names</strong> – list
+The names of the neurons whose rates are to be computed.</li>
+<li><strong>behaviors</strong> – arbitrary argument list
+The behaviors for which to compute the activity rates.
+NOTE: If no behaviors are provided, then the average rate over the
+entire session.</li>
+<li><strong>frame_rate</strong> – int, optional, default: 10
+The framerate by which to multiply the activity rate.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><dl class="docutils">
+<dt>DataFrame</dt>
+<dd><p class="first last">A pandas DataFrame of the neuron activity rates.</p>
+</dd>
+</dl>
+</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">activity_df</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="analysis_utils.compute_velocity">
+<code class="descclassname">analysis_utils.</code><code class="descname">compute_velocity</code><span class="sig-paren">(</span><em>dist_moved</em>, <em>framerate=10</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/analysis_utils.html#compute_velocity"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#analysis_utils.compute_velocity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes the velocity.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>dist_moved</strong> – pandas Series
+A one-dimensional ndarray containing distance moved.</li>
+<li><strong>framerate</strong> – int, optional, default: 10
+The frame rate corresponding to the dist_moved Series.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><dl class="docutils">
+<dt>pandas Series</dt>
+<dd><p class="first last">A one-dimensional ndarray containing velocity.</p>
+</dd>
+</dl>
+</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">velocity</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="analysis_utils.define_immobility">
+<code class="descclassname">analysis_utils.</code><code class="descname">define_immobility</code><span class="sig-paren">(</span><em>velocity</em>, <em>min_dur=1</em>, <em>min_vel=2</em>, <em>framerate=10</em>, <em>min_periods=1</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/analysis_utils.html#define_immobility"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#analysis_utils.define_immobility" title="Permalink to this definition">¶</a></dt>
+<dd><p>Define time periods of immobility based on a rolling window of velocity.</p>
+<p>A Mouse is considered immobile if velocity has not exceeded min_vel for the
+previous min_dur seconds.</p>
+<p>Default values for min_dur and min_vel are taken from:
+Stefanini…Fusi et al. 2018 (<a class="reference external" href="https://doi.org/10.1101/292953">https://doi.org/10.1101/292953</a>)</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>velocity</strong> – pandas Series
+A one-dimensional ndarray of the velocity data.</li>
+<li><strong>min_dur</strong> – int, optional, default: 1
+The minimum length of time in seconds in which velocity must be low.</li>
+<li><strong>min_vel</strong> – int, optional, default: 2
+The minimum velocity in cm/s for which the mouse can be considered
+mobile.</li>
+<li><strong>framerate</strong> – int, optional, default: 10
+The frame rate of the velocity Series. Default is 10 fps.</li>
+<li><strong>min_periods</strong> – int, optional, default: 1
+Minimum number of datapoints needed to determine immobility. This
+value is needed to define immobile time bins at the beginning of the
+session. If min_periods=8, then the first 8 time bins will be be
+considered immobile, regardless of velocity.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><dl class="docutils">
+<dt>pandas Series</dt>
+<dd><p class="first last">A one-dimensional ndarray of 0’s and 1’s, where 1 signifies immobile
+times and 0 signifies mobile times.</p>
+</dd>
+</dl>
+</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">mobile_immobile</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="analysis_utils.distance_moved">
+<code class="descclassname">analysis_utils.</code><code class="descname">distance_moved</code><span class="sig-paren">(</span><em>x_coords</em>, <em>y_coords</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/analysis_utils.html#distance_moved"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#analysis_utils.distance_moved" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes the distance moved per frame</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>x_coords</strong> – pandas Series
+A one-dimensional ndarray of x coordinates, over time.</li>
+<li><strong>y_coords</strong> – A one-dimensional ndarray of y coordinates, over time.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><dl class="docutils">
+<dt>pandas Series</dt>
+<dd><p class="first last">A series with the distance moved per corresponding frame.</p>
+</dd>
+</dl>
+</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">dist_moved</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="analysis_utils.downsample_dataframe">
+<code class="descclassname">analysis_utils.</code><code class="descname">downsample_dataframe</code><span class="sig-paren">(</span><em>dataframe</em>, <em>row_multiple</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/analysis_utils.html#downsample_dataframe"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#analysis_utils.downsample_dataframe" title="Permalink to this definition">¶</a></dt>
+<dd><p>Downsample a given pandas DataFrame</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>dataframe</strong> – DataFrame
+The pandas DataFrame to be downsampled.</li>
+<li><strong>row_multiple</strong> – int
+The row multiple is the rows to be removed,
+e.g., a row_multiple of 3 would remove every 3rd row from the
+provided dataframe</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><dl class="docutils">
+<dt>DataFrame</dt>
+<dd><p class="first last">The downsampled pandas DataFrame.</p>
+</dd>
+</dl>
+</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">dataframe</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="analysis_utils.extract_epochs">
+<code class="descclassname">analysis_utils.</code><code class="descname">extract_epochs</code><span class="sig-paren">(</span><em>mouse</em>, <em>behavior</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/analysis_utils.html#extract_epochs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#analysis_utils.extract_epochs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Extract all epochs of a continuous behavior/event.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>mouse</strong> – Mouse
+An instance of the Mouse class that has a <cite>spikes_and_beh</cite>
+pandas DataFrame, where <cite>spikes_and_beh</cite> has neural activity
+and corresponding behavior concatenated.</li>
+<li><strong>behavior</strong> – str
+The name of the behavior to use when extracting continuous time
+periods/events.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><dl class="docutils">
+<dt>pandas Series</dt>
+<dd><p class="first last">A Series that has hierarchical indices, where “behavior” is the
+outermost index, followed by “interval”. Each interval contains
+an ndarray of timepoints in which the corresponding behavior was
+observed, continuously.</p>
+</dd>
+</dl>
+</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">epochs</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="analysis_utils.filter_epochs">
+<code class="descclassname">analysis_utils.</code><code class="descname">filter_epochs</code><span class="sig-paren">(</span><em>interval_series</em>, <em>framerate=10</em>, <em>seconds=1</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/analysis_utils.html#filter_epochs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#analysis_utils.filter_epochs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Helper function for extract_epochs.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>interval_series</strong> – pandas Series
+A Series with an ndarray of continous behavior timepoints, for each
+index.</li>
+<li><strong>framerate</strong> – int, optional, default: 10
+The framerate that corresponds to the session from which the
+intervals were extracted.</li>
+<li><strong>seconds</strong> – int, optional, default: 1
+The amount of seconds.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><dl class="docutils">
+<dt>list</dt>
+<dd><p class="first last">A list of all the intervals that are at least as long as the
+provided framerate multiplied by the provided seconds.</p>
+</dd>
+</dl>
+</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">intervals</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="analysis_utils.find_file">
+<code class="descclassname">analysis_utils.</code><code class="descname">find_file</code><span class="sig-paren">(</span><em>root_directory</em>, <em>target_file</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/analysis_utils.html#find_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#analysis_utils.find_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Finds a file in a given root directory (folder).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>root_directory</strong> – str
+The name of the first or top-most directory (folder)
+to search for the target file (e.g. “Hen_Lab/Mice”).</li>
+<li><strong>target_file</strong> – str
+The full name of the file to be found (e.g. “mouse1_spikes.csv”).</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><dl class="docutils">
+<dt>str</dt>
+<dd><p class="first last">The full path to the target file.</p>
+</dd>
+</dl>
+</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">file_path</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="analysis_utils.pairwise_dist">
+<code class="descclassname">analysis_utils.</code><code class="descname">pairwise_dist</code><span class="sig-paren">(</span><em>x_coords</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/analysis_utils.html#pairwise_dist"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#analysis_utils.pairwise_dist" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes consecutive pairwise differences in a Series.</p>
+<p>NOTE: This is a helper function for distance_moved.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>x_coords</strong> – pandas Series
+A one-dimensional ndarray of x coordinates, over time.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="docutils">
+<dt>pandas Series</dt>
+<dd>A series containing all the values x[i] - x[i-1]</dd>
+</dl>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">dx</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="analysis_utils.z_score_data">
+<code class="descclassname">analysis_utils.</code><code class="descname">z_score_data</code><span class="sig-paren">(</span><em>data</em>, <em>mew=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/analysis_utils.html#z_score_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#analysis_utils.z_score_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function simply z scores all the given neural signal data.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>data</strong> – DataFrame
+Ca2 transient data in T x N format, where N is the # of neuron
+column vectors, and T is the number of observations (rows),
+all in raw format.</li>
+<li><strong>mew</strong> – int, optional, default: None
+The mean value for the baseline of the data.
+Note: if the raw data comes from CNMF_E, use 0 for the baseline.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><dl class="docutils">
+<dt>DataFrame</dt>
+<dd><p class="first last">The z scored raw cell data in T x N format.</p>
+</dd>
+</dl>
+</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">z_scored_data</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/source/analysis_utils.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">PvsNP 0.1-beta documentation</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2019, Saveliy Yusufov.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.5.
+    </div>
+  </body>
+</html>

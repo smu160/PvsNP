@@ -1,0 +1,294 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>resampling module &#8212; PvsNP 0.1-beta documentation</title>
+    <link rel="stylesheet" href="../_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">PvsNP 0.1-beta documentation</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-resampling">
+<span id="resampling-module"></span><h1>resampling module<a class="headerlink" href="#module-resampling" title="Permalink to this headline">¶</a></h1>
+<p>This module contains all the functions responsible for executing a
+permutation test.</p>
+<dl class="class">
+<dt id="resampling.Resampler">
+<em class="property">class </em><code class="descclassname">resampling.</code><code class="descname">Resampler</code><a class="reference internal" href="../_modules/resampling.html#Resampler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#resampling.Resampler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>This class is meant to be a toolbox for the purposes of executing
+permutation resampling, and in order to carry out permutation tests.</p>
+<dl class="staticmethod">
+<dt id="resampling.Resampler.diff_of_mean_rate">
+<em class="property">static </em><code class="descname">diff_of_mean_rate</code><span class="sig-paren">(</span><em>dataframe</em>, <em>*beh_col_vec</em>, <em>frame_rate=10</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/resampling.html#Resampler.diff_of_mean_rate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#resampling.Resampler.diff_of_mean_rate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute difference of means between the rates of two behaviors.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>dataframe</strong> – DataFrame
+A pandas DataFrame of all the neuron column vectors
+for a given animal.</li>
+<li><strong>beh_col_vec</strong> – pandas Series
+A single behavior column vector or two behavior column vectors
+used to compute the difference of means rate.
+e.g. “OpenArms” vs. “ClosedArms”.</li>
+<li><strong>frame_rate</strong> – int, optional, default: 10
+The framerate associated with the given data.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="docutils">
+<dt>Returns: numpy array</dt>
+<dd>A numpy array of all the difference of means, D_hat, values, i.e.,
+all of the behavior vectors means subtracted from the corresponding
+means of the non-behavior vectors, all scaled by the frame rate.</dd>
+</dl>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="resampling.Resampler.get_num_of_events">
+<em class="property">static </em><code class="descname">get_num_of_events</code><span class="sig-paren">(</span><em>dataframe</em>, <em>neuron</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/resampling.html#Resampler.get_num_of_events"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#resampling.Resampler.get_num_of_events" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the number of signal spikes for a given column vector</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>dataframe</strong> – <p>DataFrame</p>
+<p>A pandas DataFrame that contains at least one neuron’s signal
+data, in column vector form.</p>
+</li>
+<li><strong>neuron</strong> – The name of the neuron column vector to get the number
+of events for.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">The amount of datapoints in a given column vector of nonzero
+value.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="resampling.Resampler.p_value">
+<em class="property">static </em><code class="descname">p_value</code><span class="sig-paren">(</span><em>original_statistic</em>, <em>permutation_distribution</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/resampling.html#Resampler.p_value"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#resampling.Resampler.p_value" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute a two-sided p-value.</p>
+<p>This function is meant to compute a two-sided p-value on a given
+permutation distribution.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>original_statistic</strong> – float
+The original value of the statistic computed on the data.</li>
+<li><strong>permutation_distribution</strong> – DataFrame or Series
+A pandas DataFrame of the permutation distributions.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><dl class="docutils">
+<dt>float</dt>
+<dd><p class="first last">The p-value that was located/computed.</p>
+</dd>
+</dl>
+</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">p_val</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="resampling.Resampler.shuffle">
+<em class="property">static </em><code class="descname">shuffle</code><span class="sig-paren">(</span><em>dataframe</em>, <em>statistic</em>, <em>*beh_col_vec</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/resampling.html#Resampler.shuffle"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#resampling.Resampler.shuffle" title="Permalink to this definition">¶</a></dt>
+<dd><p>Permutation resampling function for neuron selectivty analysis.</p>
+<p>This function simply starts a new process for each CPU that the machine
+has. More specifically, this function starts the shuffle_worker()
+function for each new process, in order to allow the permutation
+distribution for each neuron column vector to be created in a more
+expedited fashion. More specifically, the amount of required permutation
+resamples is split evenly amongst all of the CPU’s of the machine this
+function will be run on.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>resamples</strong> – int, optional, default: 10000
+The total amount of permutation resamples desired.</li>
+<li><strong>dataframe</strong> – DataFrame
+The data to be used to randomly draw permutation resamples.</li>
+<li><strong>statistic</strong> – function
+A function that will compute a statistic that measures the size
+of an effect of interest (e.g. difference of means, mutual
+information, and etc.)</li>
+<li><strong>beh_col_vec</strong> – pandas Series
+The columns vectors to be used as the two groups to
+use for permutation resamples.</li>
+<li><strong>flip_roll</strong> – boolean, optional, default: False
+If data should be flipped and then randomly rolled for each
+resample.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A (vertically) concatenated pandas DataFrame of all the DataFrames
+the shuffle_worker processes produced.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="resampling.Resampler.two_tailed_test">
+<em class="property">static </em><code class="descname">two_tailed_test</code><span class="sig-paren">(</span><em>original_statistic</em>, <em>permutation_distribution</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/resampling.html#Resampler.two_tailed_test"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#resampling.Resampler.two_tailed_test" title="Permalink to this definition">¶</a></dt>
+<dd><p>Conduct a two-tailed hypothesis test.</p>
+<p>WARNING: Use this function ONLY if your permutation distribution is
+normally distributed.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>original_statistic</strong> – float
+The original value of the statistic computed on the data.</li>
+<li><strong>permutation_distribution</strong> – pandas DataFrame
+A DataFrame of the permutation distributions.</li>
+<li><strong>high</strong> – float, optional, default: 95.0
+The cutoff for the upper-tail of the distribution.</li>
+<li><strong>low</strong> – float, optional, default: 5.0
+The cutoff for the lower-tail of the distribution.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">1 if the original statistic is observed in the upper-tail of the
+permutation distribution.
+-1 if the original statistic is observed in the lower-tail of the
+permutation distribution.
+0 if the original statistic is not observed in either tail of the
+permutation distribution.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="resampling.Resampler.z_score">
+<em class="property">static </em><code class="descname">z_score</code><span class="sig-paren">(</span><em>original_statistic</em>, <em>permutation_distribution</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/resampling.html#Resampler.z_score"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#resampling.Resampler.z_score" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute z-score for a given value, and the permutation distribution</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>original_statistic</strong> – float
+The original value of the statistic computed on the data.</li>
+<li><strong>permutation_distribution</strong> – pandas DataFrame or pandas Series
+The permutation distribution.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><dl class="docutils">
+<dt>float</dt>
+<dd><p class="first last">The z-score that was computed.</p>
+</dd>
+</dl>
+</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">z_score</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/source/resampling.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">PvsNP 0.1-beta documentation</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2019, Saveliy Yusufov.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.5.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,254 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>sig_proc &#8212; PvsNP 0.1-beta documentation</title>
+    <link rel="stylesheet" href="../_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">PvsNP 0.1-beta documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Module code</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for sig_proc</h1><div class="highlight"><pre>
+<span></span><span class="c1">#</span>
+<span class="c1"># PvsNP: toolbox for reproducible analysis &amp; visualization of neurophysiological data.</span>
+<span class="c1"># Copyright (C) 2019</span>
+<span class="c1">#</span>
+<span class="c1"># This program is free software: you can redistribute it and/or modify</span>
+<span class="c1"># it under the terms of the GNU General Public License as published by</span>
+<span class="c1"># the Free Software Foundation, either version 3 of the License, or</span>
+<span class="c1"># (at your option) any later version.</span>
+<span class="c1">#</span>
+<span class="c1"># This program is distributed in the hope that it will be useful,</span>
+<span class="c1"># but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="c1"># MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the</span>
+<span class="c1"># GNU General Public License for more details.</span>
+<span class="c1">#</span>
+<span class="c1"># You should have received a copy of the GNU General Public License</span>
+<span class="c1"># along with this program.  If not, see &lt;https://www.gnu.org/licenses/&gt;.</span>
+<span class="c1">#</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Ca transient event detection, adapted from Dombeck 2007</span>
+
+<span class="sd">This is based on the MATLAB implementation of detect_ca_transients, which was</span>
+<span class="sd">implemented by Jessica Jimenez, jcj2123@columbia.edu</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Saveliy Yusufov&quot;</span>
+<span class="n">__date__</span> <span class="o">=</span> <span class="s2">&quot;1 March 2019&quot;</span>
+<span class="n">__credits__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Jessica Jimenez&quot;</span><span class="p">]</span>
+<span class="n">__license__</span> <span class="o">=</span> <span class="s2">&quot;GPL&quot;</span>
+<span class="n">__maintainer__</span> <span class="o">=</span> <span class="s2">&quot;Saveliy Yusufov&quot;</span>
+<span class="n">__email__</span> <span class="o">=</span> <span class="s2">&quot;sy2685@columbia.edu&quot;</span>
+
+<span class="kn">import</span> <span class="nn">math</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+
+<span class="kn">from</span> <span class="nn">analysis_utils</span> <span class="k">import</span> <span class="n">z_score_data</span>
+
+<div class="viewcode-block" id="Deconvoluter"><a class="viewcode-back" href="../source/sig_proc.html#sig_proc.Deconvoluter">[docs]</a><span class="k">class</span> <span class="nc">Deconvoluter</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Attributes:</span>
+
+<span class="sd">        cell_transients: DataFrame</span>
+<span class="sd">            T x N matrix with s.d. vlaues for all the timepoints of the</span>
+<span class="sd">            qualified transients (all zeros except for transients)</span>
+
+<span class="sd">        cell_data: DataFrame</span>
+<span class="sd">            T x N matrix with all z-scored data.</span>
+
+<span class="sd">        cell_auc_df: DataFrame</span>
+<span class="sd">            T x N matrix with computed transient area under the curve (AUC)</span>
+<span class="sd">            values (all zeros except for the AUC value assigned to the peak</span>
+<span class="sd">            timepoint of each transient).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">raw_data</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            raw_data: DataFrame</span>
+<span class="sd">                Ca2 transient data in T x N format, where N is the # of neuron</span>
+<span class="sd">                column vectors, and T is the number of observations (rows),</span>
+<span class="sd">                all in raw format.</span>
+
+<span class="sd">            threshold: int, optional, default: 2</span>
+<span class="sd">                The minimum aplitude size of ca transient data in s.d.</span>
+
+<span class="sd">            baseline: float, optional, default: 0.5</span>
+<span class="sd">                The standard deviation offset value of Ca transient.</span>
+
+<span class="sd">            t_half: float, optional, default: 0.2</span>
+<span class="sd">                The half life of gcamp type used (s).</span>
+
+<span class="sd">            frame_rate: int, optional, default: 10</span>
+<span class="sd">                The frame rate for the data.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">threshold</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;threshold&quot;</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="n">baseline</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;baseline&quot;</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">)</span>
+        <span class="n">t_half</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;t_half&quot;</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">)</span>
+        <span class="n">frame_rate</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;frame_rate&quot;</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
+
+        <span class="c1"># z-score all raw data</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cell_data</span> <span class="o">=</span> <span class="n">z_score_data</span><span class="p">(</span><span class="n">raw_data</span><span class="p">)</span>
+
+        <span class="c1"># Preallocate dataframes</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cell_transients</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">raw_data</span><span class="o">.</span><span class="n">index</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">raw_data</span><span class="o">.</span><span class="n">columns</span><span class="p">))))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cell_auc_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">raw_data</span><span class="o">.</span><span class="n">index</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">raw_data</span><span class="o">.</span><span class="n">columns</span><span class="p">))))</span>
+
+        <span class="c1"># Define minimum duration of calcium transient based on gcamp type used</span>
+
+        <span class="c1"># Simplified from (-ln(A / Ao) / t_half), [A / Ao] = 0.5 at t half-life,</span>
+        <span class="c1"># [-ln(A / Ao)] = 0.693</span>
+        <span class="n">decay_rate</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="n">t_half</span>
+
+        <span class="c1"># Minimum (s) duration for ca transient of minimum</span>
+        <span class="c1"># specified s.d. amplitude threshold</span>
+        <span class="n">minimum_duration</span> <span class="o">=</span> <span class="o">-</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">baseline</span> <span class="o">/</span> <span class="n">threshold</span><span class="p">))</span> <span class="o">/</span> <span class="n">decay_rate</span>
+
+        <span class="c1"># Minimum number of frames the ca transient should last above baseline</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">minimum_frames</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="n">minimum_duration</span> <span class="o">*</span> <span class="n">frame_rate</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">detect_ca_transients_mossy</span><span class="p">(</span><span class="n">threshold</span><span class="p">,</span> <span class="n">baseline</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Deconvoluter.detect_ca_transients_mossy"><a class="viewcode-back" href="../source/sig_proc.html#sig_proc.Deconvoluter.detect_ca_transients_mossy">[docs]</a>    <span class="k">def</span> <span class="nf">detect_ca_transients_mossy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">threshold</span><span class="p">,</span> <span class="n">baseline</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Preprocesses neural signal data obtained via Calcium Imaging</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            threshold: int</span>
+<span class="sd">                The minimum aplitude size of ca transient data in s.d.</span>
+
+<span class="sd">            baseline: float</span>
+<span class="sd">                The standard deviation offset value of Ca transient.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># Identify qualified ca transients and generate outputs</span>
+        <span class="k">for</span> <span class="n">column</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">cell_data</span><span class="p">:</span>
+
+            <span class="c1"># Find all timepoints where flourescence greater than threshold</span>
+            <span class="n">onset</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cell_data</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">cell_data</span><span class="p">[</span><span class="n">column</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">threshold</span><span class="p">]</span><span class="o">.</span><span class="n">index</span>
+
+            <span class="c1"># Find all timepoints where floursecence greater than the</span>
+            <span class="c1"># baseline (transient offset)</span>
+            <span class="n">offset</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cell_data</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">cell_data</span><span class="p">[</span><span class="n">column</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">baseline</span><span class="p">]</span><span class="o">.</span><span class="n">index</span>
+
+            <span class="n">found</span> <span class="o">=</span> <span class="kc">True</span>
+
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">offset</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">found</span><span class="p">:</span>
+
+                    <span class="c1"># Specify start index of transient from offset vector</span>
+                    <span class="n">start</span> <span class="o">=</span> <span class="n">offset</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+
+                    <span class="n">found</span> <span class="o">=</span> <span class="kc">False</span>
+
+                <span class="c1"># Specify stop index of transient from offset vector</span>
+                <span class="k">if</span> <span class="n">offset</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">offset</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="ow">or</span> <span class="n">i</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">offset</span><span class="p">)</span><span class="o">-</span><span class="mi">2</span><span class="p">:</span>
+
+                    <span class="c1"># Deals with the last index in the vector</span>
+                    <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">offset</span><span class="p">)</span><span class="o">-</span><span class="mi">2</span><span class="p">:</span>
+                        <span class="n">finish</span> <span class="o">=</span> <span class="n">offset</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">finish</span> <span class="o">=</span> <span class="n">offset</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+
+                    <span class="c1"># Find the peak value in that start-stop range</span>
+                    <span class="c1"># peak_value = cell_data.loc[start:finish+1, column].max()</span>
+                    <span class="n">peak_index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cell_data</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">start</span><span class="p">:</span><span class="n">finish</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">column</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">argmax</span><span class="p">()</span>
+                    <span class="n">transient_vector</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">finish</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+
+                    <span class="c1"># Retrieve &quot;cell&quot; index of that peak value</span>
+                    <span class="n">max_amp_index</span> <span class="o">=</span> <span class="n">transient_vector</span><span class="p">[</span><span class="n">peak_index</span><span class="p">]</span>
+
+                    <span class="c1"># peak_to_offset_vector = list(range(max_amp_index, finish+1))</span>
+                    <span class="n">found</span> <span class="o">=</span> <span class="kc">True</span>
+
+                    <span class="c1"># If the peak value index from start-stop in offset is also</span>
+                    <span class="c1"># found in onset vector, then the transient exceeded the</span>
+                    <span class="c1"># 2SD threshold</span>
+                    <span class="k">if</span> <span class="p">((</span><span class="n">finish</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span> <span class="o">-</span> <span class="n">max_amp_index</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">minimum_frames</span> <span class="ow">and</span> <span class="p">(</span><span class="n">max_amp_index</span> <span class="ow">in</span> <span class="n">onset</span><span class="p">):</span>
+
+                        <span class="c1"># Retrieve &quot;cell&quot; values for all the timepoints of</span>
+                        <span class="c1"># that transient.</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">cell_transients</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">start</span><span class="p">:</span><span class="n">finish</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">column</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cell_data</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">start</span><span class="p">:</span><span class="n">finish</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">column</span><span class="p">]</span>
+
+                        <span class="c1"># Create matrix with all calcium transient peak events</span>
+                        <span class="c1"># (all 0&#39;s except for amplitude value at peak timepoint)</span>
+                        <span class="c1"># cell_events(maxamp_ind, k) = peak_value</span>
+
+                        <span class="c1"># Integrate area under curve of transient from start-stop</span>
+                        <span class="n">transient_area</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">trapz</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cell_data</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">start</span><span class="p">:</span><span class="n">finish</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">column</span><span class="p">])</span>
+
+                        <span class="c1"># Add all the calcium transient Area Under Curve values</span>
+                        <span class="c1"># (all 0&#39;s except for AUC value assigned to peak</span>
+                        <span class="c1"># timepoint)</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">cell_auc_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">max_amp_index</span><span class="p">,</span> <span class="n">column</span><span class="p">]</span> <span class="o">=</span> <span class="n">transient_area</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">PvsNP 0.1-beta documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >Module code</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2019, Saveliy Yusufov.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.5.
+    </div>
+  </body>
+</html>

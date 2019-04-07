@@ -1,0 +1,445 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>analysis_utils &#8212; PvsNP 0.1-beta documentation</title>
+    <link rel="stylesheet" href="../_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">PvsNP 0.1-beta documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Module code</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for analysis_utils</h1><div class="highlight"><pre>
+<span></span><span class="c1">#</span>
+<span class="c1"># PvsNP: toolbox for reproducible analysis &amp; visualization of neurophysiological data.</span>
+<span class="c1"># Copyright (C) 2019</span>
+<span class="c1">#</span>
+<span class="c1"># This program is free software: you can redistribute it and/or modify</span>
+<span class="c1"># it under the terms of the GNU General Public License as published by</span>
+<span class="c1"># the Free Software Foundation, either version 3 of the License, or</span>
+<span class="c1"># (at your option) any later version.</span>
+<span class="c1">#</span>
+<span class="c1"># This program is distributed in the hope that it will be useful,</span>
+<span class="c1"># but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="c1"># MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the</span>
+<span class="c1"># GNU General Public License for more details.</span>
+<span class="c1">#</span>
+<span class="c1"># You should have received a copy of the GNU General Public License</span>
+<span class="c1"># along with this program.  If not, see &lt;https://www.gnu.org/licenses/&gt;.</span>
+<span class="c1">#</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This module contains all the functions necessary for data preprocessing as well</span>
+<span class="sd">as data wrangling.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Saveliy Yusufov&quot;</span>
+<span class="n">__date__</span> <span class="o">=</span> <span class="s2">&quot;1 March 2019&quot;</span>
+<span class="n">__credits__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Jack Berry&quot;</span><span class="p">]</span>
+<span class="n">__license__</span> <span class="o">=</span> <span class="s2">&quot;GPL&quot;</span>
+<span class="n">__maintainer__</span> <span class="o">=</span> <span class="s2">&quot;Saveliy Yusufov&quot;</span>
+<span class="n">__email__</span> <span class="o">=</span> <span class="s2">&quot;sy2685@columbia.edu&quot;</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+
+
+<span class="c1">#TODO: document class attributes</span>
+<div class="viewcode-block" id="Mouse"><a class="viewcode-back" href="../source/analysis_utils.html#analysis_utils.Mouse">[docs]</a><span class="k">class</span> <span class="nc">Mouse</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;A base class for keeping all relevant &amp; corresponding objects, i.e.,</span>
+<span class="sd">    spikes, cell transients, &amp; behavior dataframes, with their respective</span>
+<span class="sd">    mouse.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">spikes</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">cell_transients</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">behavior</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">age</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;age&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sex</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;sex&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">cell_transients</span> <span class="o">=</span> <span class="n">cell_transients</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">spikes</span> <span class="o">=</span> <span class="n">spikes</span>
+
+        <span class="k">if</span> <span class="n">behavior</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">behavior</span> <span class="o">=</span> <span class="n">behavior</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">spikes_and_beh</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">spikes</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">behavior</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;A behavior dataframe was not provided.&quot;</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
+
+        <span class="n">velocity_cutoff</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;velocity_cutoff&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+        <span class="c1"># Adds &quot;Running_frames&quot; column to the end of the behavior Dataframe</span>
+        <span class="k">if</span> <span class="n">velocity_cutoff</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">running_frames</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">behavior</span><span class="p">[</span><span class="s2">&quot;Velocity&quot;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">velocity_cutoff</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">behavior</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">behavior</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">Running_frames</span><span class="o">=</span><span class="n">running_frames</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="z_score_data"><a class="viewcode-back" href="../source/analysis_utils.html#analysis_utils.z_score_data">[docs]</a><span class="k">def</span> <span class="nf">z_score_data</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">mew</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;This function simply z scores all the given neural signal data.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        data: DataFrame</span>
+<span class="sd">            Ca2 transient data in T x N format, where N is the # of neuron</span>
+<span class="sd">            column vectors, and T is the number of observations (rows),</span>
+<span class="sd">            all in raw format.</span>
+
+<span class="sd">        mew: int, optional, default: None</span>
+<span class="sd">            The mean value for the baseline of the data.</span>
+<span class="sd">            Note: if the raw data comes from CNMF_E, use 0 for the baseline.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        z_scored_data: DataFrame</span>
+<span class="sd">            The z scored raw cell data in T x N format.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">pop_offset</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">percentile</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="mi">50</span><span class="p">)</span>
+    <span class="n">sigma</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">mew</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">mew</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="n">data</span><span class="o">.</span><span class="n">values</span> <span class="o">&lt;</span> <span class="n">pop_offset</span><span class="p">])</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">mew</span> <span class="o">=</span> <span class="n">mew</span>
+
+    <span class="n">z_scored_data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="p">((</span><span class="n">data</span><span class="o">.</span><span class="n">values</span> <span class="o">-</span> <span class="n">mew</span><span class="p">)</span> <span class="o">/</span> <span class="n">sigma</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">z_scored_data</span></div>
+
+
+<div class="viewcode-block" id="pairwise_dist"><a class="viewcode-back" href="../source/analysis_utils.html#analysis_utils.pairwise_dist">[docs]</a><span class="k">def</span> <span class="nf">pairwise_dist</span><span class="p">(</span><span class="n">x_coords</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Computes consecutive pairwise differences in a Series.</span>
+
+<span class="sd">    NOTE: This is a helper function for distance_moved.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        x_coords: pandas Series</span>
+<span class="sd">            A one-dimensional ndarray of x coordinates, over time.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        dx: pandas Series</span>
+<span class="sd">            A series containing all the values x[i] - x[i-1]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">x_coords</span> <span class="o">=</span> <span class="n">x_coords</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
+    <span class="n">delta_x</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">roll</span><span class="p">(</span><span class="n">x_coords</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="o">-</span> <span class="n">x_coords</span><span class="p">)</span><span class="o">.</span><span class="n">shift</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">delta_x</span></div>
+
+
+<div class="viewcode-block" id="distance_moved"><a class="viewcode-back" href="../source/analysis_utils.html#analysis_utils.distance_moved">[docs]</a><span class="k">def</span> <span class="nf">distance_moved</span><span class="p">(</span><span class="n">x_coords</span><span class="p">,</span> <span class="n">y_coords</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Computes the distance moved per frame</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        x_coords: pandas Series</span>
+<span class="sd">            A one-dimensional ndarray of x coordinates, over time.</span>
+
+<span class="sd">        y_coords:</span>
+<span class="sd">            A one-dimensional ndarray of y coordinates, over time.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        dist_moved: pandas Series</span>
+<span class="sd">            A series with the distance moved per corresponding frame.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">x_coords</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">y_coords</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;x_coords and y_coords are not of equal length!&quot;</span><span class="p">)</span>
+
+    <span class="n">delta_x</span> <span class="o">=</span> <span class="n">pairwise_dist</span><span class="p">(</span><span class="n">x_coords</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">))</span>
+    <span class="n">delta_y</span> <span class="o">=</span> <span class="n">pairwise_dist</span><span class="p">(</span><span class="n">y_coords</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">))</span>
+
+    <span class="n">dist_moved</span> <span class="o">=</span> <span class="n">delta_x</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">delta_y</span><span class="o">**</span><span class="mi">2</span>
+    <span class="n">dist_moved</span> <span class="o">=</span> <span class="n">dist_moved</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">dist_moved</span></div>
+
+
+<div class="viewcode-block" id="compute_velocity"><a class="viewcode-back" href="../source/analysis_utils.html#analysis_utils.compute_velocity">[docs]</a><span class="k">def</span> <span class="nf">compute_velocity</span><span class="p">(</span><span class="n">dist_moved</span><span class="p">,</span> <span class="n">framerate</span><span class="o">=</span><span class="mi">10</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Computes the velocity.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        dist_moved: pandas Series</span>
+<span class="sd">            A one-dimensional ndarray containing distance moved.</span>
+
+<span class="sd">        framerate: int, optional, default: 10</span>
+<span class="sd">            The frame rate corresponding to the dist_moved Series.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        velocity: pandas Series</span>
+<span class="sd">            A one-dimensional ndarray containing velocity.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">velocity</span> <span class="o">=</span> <span class="n">dist_moved</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span> <span class="o">*</span> <span class="n">framerate</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">velocity</span></div>
+
+
+<div class="viewcode-block" id="define_immobility"><a class="viewcode-back" href="../source/analysis_utils.html#analysis_utils.define_immobility">[docs]</a><span class="k">def</span> <span class="nf">define_immobility</span><span class="p">(</span><span class="n">velocity</span><span class="p">,</span> <span class="n">min_dur</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">min_vel</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">framerate</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">min_periods</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Define time periods of immobility based on a rolling window of velocity.</span>
+
+<span class="sd">    A Mouse is considered immobile if velocity has not exceeded min_vel for the</span>
+<span class="sd">    previous min_dur seconds.</span>
+
+<span class="sd">    Default values for min_dur and min_vel are taken from:</span>
+<span class="sd">    Stefanini...Fusi et al. 2018 (https://doi.org/10.1101/292953)</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        velocity: pandas Series</span>
+<span class="sd">            A one-dimensional ndarray of the velocity data.</span>
+
+<span class="sd">        min_dur: int, optional, default: 1</span>
+<span class="sd">            The minimum length of time in seconds in which velocity must be low.</span>
+
+<span class="sd">        min_vel: int, optional, default: 2</span>
+<span class="sd">            The minimum velocity in cm/s for which the mouse can be considered</span>
+<span class="sd">            mobile.</span>
+
+<span class="sd">        framerate: int, optional, default: 10</span>
+<span class="sd">            The frame rate of the velocity Series. Default is 10 fps.</span>
+
+<span class="sd">        min_periods: int, optional, default: 1</span>
+<span class="sd">            Minimum number of datapoints needed to determine immobility. This</span>
+<span class="sd">            value is needed to define immobile time bins at the beginning of the</span>
+<span class="sd">            session. If min_periods=8, then the first 8 time bins will be be</span>
+<span class="sd">            considered immobile, regardless of velocity.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        mobile_immobile: pandas Series</span>
+<span class="sd">            A one-dimensional ndarray of 0&#39;s and 1&#39;s, where 1 signifies immobile</span>
+<span class="sd">            times and 0 signifies mobile times.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">window_size</span> <span class="o">=</span> <span class="n">framerate</span> <span class="o">*</span> <span class="n">min_dur</span>
+    <span class="n">rolling_max_vel</span> <span class="o">=</span> <span class="n">velocity</span><span class="o">.</span><span class="n">rolling</span><span class="p">(</span><span class="n">window_size</span><span class="p">,</span> <span class="n">min_periods</span><span class="o">=</span><span class="n">min_periods</span><span class="p">)</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+    <span class="n">mobile_immobile</span> <span class="o">=</span> <span class="p">(</span><span class="n">rolling_max_vel</span> <span class="o">&lt;</span> <span class="n">min_vel</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">mobile_immobile</span></div>
+
+
+<div class="viewcode-block" id="find_file"><a class="viewcode-back" href="../source/analysis_utils.html#analysis_utils.find_file">[docs]</a><span class="k">def</span> <span class="nf">find_file</span><span class="p">(</span><span class="n">root_directory</span><span class="p">,</span> <span class="n">target_file</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Finds a file in a given root directory (folder).</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        root_directory: str</span>
+<span class="sd">            The name of the first or top-most directory (folder)</span>
+<span class="sd">            to search for the target file (e.g. &quot;Hen_Lab/Mice&quot;).</span>
+
+<span class="sd">        target_file: str</span>
+<span class="sd">            The full name of the file to be found (e.g. &quot;mouse1_spikes.csv&quot;).</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        file_path: str</span>
+<span class="sd">            The full path to the target file.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">root_directory</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">expanduser</span><span class="p">(</span><span class="s2">&quot;~&quot;</span><span class="p">),</span> <span class="n">root_directory</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">root_directory</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> does not exist!&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">root_directory</span><span class="p">))</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">root_directory</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">NotADirectoryError</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> is not a directory!&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">root_directory</span><span class="p">))</span>
+
+    <span class="k">for</span> <span class="n">subdir</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">files</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">walk</span><span class="p">(</span><span class="n">root_directory</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">files</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">file</span> <span class="o">==</span> <span class="n">target_file</span><span class="p">:</span>
+                <span class="n">file_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">subdir</span><span class="p">,</span> <span class="n">file</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">file_path</span>
+
+    <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> not found!&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">target_file</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="extract_epochs"><a class="viewcode-back" href="../source/analysis_utils.html#analysis_utils.extract_epochs">[docs]</a><span class="k">def</span> <span class="nf">extract_epochs</span><span class="p">(</span><span class="n">mouse</span><span class="p">,</span> <span class="n">behavior</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Extract all epochs of a continuous behavior/event.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        mouse: Mouse</span>
+<span class="sd">            An instance of the Mouse class that has a `spikes_and_beh`</span>
+<span class="sd">            pandas DataFrame, where `spikes_and_beh` has neural activity</span>
+<span class="sd">            and corresponding behavior concatenated.</span>
+
+<span class="sd">        behavior: str</span>
+<span class="sd">            The name of the behavior to use when extracting continuous time</span>
+<span class="sd">            periods/events.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        epochs: pandas Series</span>
+<span class="sd">            A Series that has hierarchical indices, where &quot;behavior&quot; is the</span>
+<span class="sd">            outermost index, followed by &quot;interval&quot;. Each interval contains</span>
+<span class="sd">            an ndarray of timepoints in which the corresponding behavior was</span>
+<span class="sd">            observed, continuously.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">behavior</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">mouse</span><span class="o">.</span><span class="n">spikes_and_beh</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;&#39;</span><span class="si">{}</span><span class="s2">&#39; is not a column (i.e. behavior) in the mouse&#39;s dataframe&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">behavior</span><span class="p">))</span>
+
+    <span class="n">dataframe</span> <span class="o">=</span> <span class="n">mouse</span><span class="o">.</span><span class="n">spikes_and_beh</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+    <span class="c1"># Find all timepoints where the behavior discontinues</span>
+    <span class="n">dataframe</span><span class="p">[</span><span class="s2">&quot;interval&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">dataframe</span><span class="p">[</span><span class="n">behavior</span><span class="p">]</span><span class="o">.</span><span class="n">shift</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="o">!=</span> <span class="n">dataframe</span><span class="p">[</span><span class="n">behavior</span><span class="p">])</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span><span class="o">.</span><span class="n">cumsum</span><span class="p">()</span>
+
+    <span class="c1"># Put the index into the dataframe as a column, without creating a new DataFrame</span>
+    <span class="n">dataframe</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="c1"># Group the dataframe by behavior and corresponding intervals,</span>
+    <span class="c1"># and apply np.array to the index column of each group.</span>
+    <span class="n">epochs</span> <span class="o">=</span> <span class="n">dataframe</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="n">behavior</span><span class="p">,</span> <span class="s2">&quot;interval&quot;</span><span class="p">])[</span><span class="s2">&quot;index&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">epochs</span></div>
+
+
+<div class="viewcode-block" id="filter_epochs"><a class="viewcode-back" href="../source/analysis_utils.html#analysis_utils.filter_epochs">[docs]</a><span class="k">def</span> <span class="nf">filter_epochs</span><span class="p">(</span><span class="n">interval_series</span><span class="p">,</span> <span class="n">framerate</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">seconds</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Helper function for extract_epochs.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        interval_series: pandas Series</span>
+<span class="sd">            A Series with an ndarray of continous behavior timepoints, for each</span>
+<span class="sd">            index.</span>
+
+<span class="sd">        framerate: int, optional, default: 10</span>
+<span class="sd">            The framerate that corresponds to the session from which the</span>
+<span class="sd">            intervals were extracted.</span>
+
+<span class="sd">        seconds: int, optional, default: 1</span>
+<span class="sd">            The amount of seconds.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        intervals: list</span>
+<span class="sd">            A list of all the intervals that are at least as long as the</span>
+<span class="sd">            provided framerate multiplied by the provided seconds.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">intervals</span> <span class="o">=</span> <span class="p">[</span><span class="n">interval</span> <span class="k">for</span> <span class="n">interval</span> <span class="ow">in</span> <span class="n">interval_series</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">interval</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="n">framerate</span><span class="o">*</span><span class="n">seconds</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">intervals</span></div>
+
+
+<div class="viewcode-block" id="downsample_dataframe"><a class="viewcode-back" href="../source/analysis_utils.html#analysis_utils.downsample_dataframe">[docs]</a><span class="k">def</span> <span class="nf">downsample_dataframe</span><span class="p">(</span><span class="n">dataframe</span><span class="p">,</span> <span class="n">row_multiple</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Downsample a given pandas DataFrame</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        dataframe: DataFrame</span>
+<span class="sd">            The pandas DataFrame to be downsampled.</span>
+
+<span class="sd">        row_multiple: int</span>
+<span class="sd">            The row multiple is the rows to be removed,</span>
+<span class="sd">            e.g., a row_multiple of 3 would remove every 3rd row from the</span>
+<span class="sd">            provided dataframe</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        dataframe: DataFrame</span>
+<span class="sd">            The downsampled pandas DataFrame.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Drop every nth (row multiple) row</span>
+    <span class="n">dataframe</span> <span class="o">=</span> <span class="n">dataframe</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">::</span><span class="n">row_multiple</span><span class="p">,</span> <span class="p">:]</span>
+
+    <span class="c1"># Reset and drop the old indices of the pandas DataFrame</span>
+    <span class="n">dataframe</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">dataframe</span></div>
+
+
+<div class="viewcode-block" id="activity_by_neurons"><a class="viewcode-back" href="../source/analysis_utils.html#analysis_utils.activity_by_neurons">[docs]</a><span class="k">def</span> <span class="nf">activity_by_neurons</span><span class="p">(</span><span class="n">spikes_and_beh</span><span class="p">,</span> <span class="n">neuron_names</span><span class="p">,</span> <span class="o">*</span><span class="n">behaviors</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Computes the neuron activity rates for given behaviors</span>
+
+<span class="sd">    This function computes the rates for a given animal&#39;s activity and</span>
+<span class="sd">    neuron, given some set of behaviors.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        spikes_and_beh: DataFrame</span>
+<span class="sd">            A concatenated pandas DataFrame of the neuron activity and</span>
+<span class="sd">            the corresponding behavior, for a given animal.</span>
+
+<span class="sd">        neuron_names: list</span>
+<span class="sd">            The names of the neurons whose rates are to be computed.</span>
+
+<span class="sd">        behaviors: arbitrary argument list</span>
+<span class="sd">            The behaviors for which to compute the activity rates.</span>
+<span class="sd">            NOTE: If no behaviors are provided, then the average rate over the</span>
+<span class="sd">            entire session.</span>
+
+<span class="sd">        frame_rate: int, optional, default: 10</span>
+<span class="sd">            The framerate by which to multiply the activity rate.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        activity_df: DataFrame</span>
+<span class="sd">            A pandas DataFrame of the neuron activity rates.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">set</span><span class="p">(</span><span class="n">neuron_names</span><span class="p">)</span><span class="o">.</span><span class="n">issubset</span><span class="p">(</span><span class="n">spikes_and_beh</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;neuron_names is NOT a subset of the columns in spikes_and_beh!&quot;</span><span class="p">)</span>
+
+    <span class="n">frame_rate</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;frame_rate&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">frame_rate</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;You did not specify a frame rate! Defaulting to 10&quot;</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
+        <span class="n">frame_rate</span> <span class="o">=</span> <span class="mi">10</span>
+
+    <span class="n">activity_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">behaviors</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">behavior</span> <span class="ow">in</span> <span class="n">behaviors</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">behavior</span> <span class="ow">in</span> <span class="n">spikes_and_beh</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+            <span class="n">activity_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="n">behavior</span><span class="p">]</span> <span class="o">=</span> <span class="n">frame_rate</span> <span class="o">*</span> <span class="n">spikes_and_beh</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">spikes_and_beh</span><span class="p">[</span><span class="n">behavior</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">neuron_names</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> is not a column (i.e. behavior) in spikes_and_beh.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">behavior</span><span class="p">))</span>
+
+    <span class="c1"># Return average rate over entire session if no behavior(s) is/are provided</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">behaviors</span><span class="p">:</span>
+        <span class="n">behavior</span> <span class="o">=</span> <span class="s2">&quot;entire_session&quot;</span>
+        <span class="n">activity_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="n">behavior</span><span class="p">])</span>
+        <span class="n">activity_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="n">behavior</span><span class="p">]</span> <span class="o">=</span> <span class="n">frame_rate</span> <span class="o">*</span> <span class="n">spikes_and_beh</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="n">neuron_names</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+
+    <span class="k">return</span> <span class="n">activity_df</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">PvsNP 0.1-beta documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >Module code</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2019, Saveliy Yusufov.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.5.
+    </div>
+  </body>
+</html>

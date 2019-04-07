@@ -1,0 +1,278 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>place_cell_analysis module &#8212; PvsNP 0.1-beta documentation</title>
+    <link rel="stylesheet" href="../_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">PvsNP 0.1-beta documentation</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-place_cell_analysis">
+<span id="place-cell-analysis-module"></span><h1>place_cell_analysis module<a class="headerlink" href="#module-place_cell_analysis" title="Permalink to this headline">¶</a></h1>
+<p>This module contains functions for carrying out place cell analysis.
+Specifically, it contains functions for dimensionality reduction, binning,
+and filtering.</p>
+<dl class="function">
+<dt id="place_cell_analysis.apply_cantor_pairing">
+<code class="descclassname">place_cell_analysis.</code><code class="descname">apply_cantor_pairing</code><span class="sig-paren">(</span><em>x_coords</em>, <em>y_coords</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/place_cell_analysis.html#apply_cantor_pairing"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#place_cell_analysis.apply_cantor_pairing" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reduce dimensionality from 2d to 1d.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>x_coords</strong> – list
+A list of natural numbers, such that the value at each index,
+corresponds to the value at each index in y_coords.</li>
+<li><strong>y</strong> – coords: list
+A list of natural numbers, such that the value at each index,
+corresponds to the value at each index in x_coords.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><dl class="docutils">
+<dt>list</dt>
+<dd><p class="first last">The resulting list from applying the cantor pairing function to each
+corresponding pair of natural numbers, i.e., (x_i, y_i).</p>
+</dd>
+</dl>
+</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">z_coords</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="place_cell_analysis.bin_coordinates">
+<code class="descclassname">place_cell_analysis.</code><code class="descname">bin_coordinates</code><span class="sig-paren">(</span><em>mouse</em>, <em>bin_size=5</em>, <em>x_col='X_center'</em>, <em>y_col='Y_center'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/place_cell_analysis.html#bin_coordinates"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#place_cell_analysis.bin_coordinates" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bins the x and y coordinates for place cell analysis.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>mouse</strong> – Mouse
+The mouse object whose spikes_and_beh dataframe contains an <cite>X</cite> and
+a <cite>Y</cite> column to bin by the provided bin size.</li>
+<li><strong>bin_size</strong> – int, optional, default: 5
+(i.e., bin_factor=5 ==&gt; 5 x 5 bins)</li>
+<li><strong>x_col</strong> – str, optional, default: ‘X_center’
+The name of the column that contains the <cite>X</cite> coordinates in the
+spikes_and_beh dataframe.</li>
+<li><strong>y_col</strong> – str, optional, default: ‘Y_center’
+The name of the column that contains the <cite>Y</cite> coordinates in the
+spikes_and_beh dataframe.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><dl class="docutils">
+<dt>tuple</dt>
+<dd><p class="first last">The binned x coordinates and the binned y coordinates in a tuple.</p>
+</dd>
+</dl>
+</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">x_coords, y_coords</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="place_cell_analysis.invert">
+<code class="descclassname">place_cell_analysis.</code><code class="descname">invert</code><span class="sig-paren">(</span><em>z</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/place_cell_analysis.html#invert"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#place_cell_analysis.invert" title="Permalink to this definition">¶</a></dt>
+<dd><p>Invert z into a unique pair of values in the natural numbers</p>
+<p>Source: <a class="reference external" href="https://en.wikipedia.org/wiki/Pairing_function#Cantor_pairing_function">https://en.wikipedia.org/wiki/Pairing_function#Cantor_pairing_function</a></p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>z</strong> – int
+A natural number that is comprised of two unique natural numbers.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="docutils">
+<dt>tuple</dt>
+<dd>The two unique natural numbers, x, y, that comprise the unqique
+encoding of z.</dd>
+</dl>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">x, y</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="place_cell_analysis.pair">
+<code class="descclassname">place_cell_analysis.</code><code class="descname">pair</code><span class="sig-paren">(</span><em>x</em>, <em>y</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/place_cell_analysis.html#pair"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#place_cell_analysis.pair" title="Permalink to this definition">¶</a></dt>
+<dd><p>Uniquely encode two natural numbers into a single natural number</p>
+<p>The Cantor pairing function is a primitive recursive pairing function
+pi: mathbb{N} times mathbb{N} rightarrow mathbb(N)</p>
+<p>defined by:</p>
+<p>pi(x, y) := frac{1}{2}(x + y)(x + y + 1) + y</p>
+<p>Source: <a class="reference external" href="https://en.wikipedia.org/wiki/Pairing_function#Cantor_pairing_function">https://en.wikipedia.org/wiki/Pairing_function#Cantor_pairing_function</a></p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>x</strong> – int
+One of the natural numbers to encode into a single natural number.</li>
+<li><strong>y</strong> – int
+One of the natural numbers to encode into a single natural number.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><dl class="docutils">
+<dt>int</dt>
+<dd><p class="first last">The single natural number uniquely encoded from the the provided
+natural numbers, x and y.</p>
+</dd>
+</dl>
+</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">z</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="place_cell_analysis.remove_immobile">
+<code class="descclassname">place_cell_analysis.</code><code class="descname">remove_immobile</code><span class="sig-paren">(</span><em>mouse</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/place_cell_analysis.html#remove_immobile"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#place_cell_analysis.remove_immobile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Removes immobile time bins from mouse.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>mouse</strong> – Mouse object</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">mobile_c:<p>mobile_beh:</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">mobile_s</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="place_cell_analysis.remove_low_occupancy">
+<code class="descclassname">place_cell_analysis.</code><code class="descname">remove_low_occupancy</code><span class="sig-paren">(</span><em>mouse</em>, <em>x_bin</em>, <em>y_bin</em>, <em>min_occupancy=1</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/place_cell_analysis.html#remove_low_occupancy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#place_cell_analysis.remove_low_occupancy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Removes spatial bins that had low occupancy</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>mouse</strong> – Mouse</li>
+<li><strong>x_bin</strong> – pandas Series
+Binned x coordinates</li>
+<li><strong>y_bin</strong> – pandas Series
+Binned y coordinates</li>
+<li><strong>min_occupancy</strong> – minimum number of time bins for a spatial bin to be included</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><p>filtered_binned_c:</p>
+<dl class="docutils">
+<dt>filtered_binned_beh:</dt>
+<dd><p class="first last">Low-occupancy spatial bins removed, and the new columns</p>
+</dd>
+</dl>
+</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">filtered_binned_s</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/source/place_cell_analysis.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">PvsNP 0.1-beta documentation</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2019, Saveliy Yusufov.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.5.
+    </div>
+  </body>
+</html>
