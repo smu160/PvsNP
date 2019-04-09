@@ -81,17 +81,19 @@
 
 <span class="sd">    Source: https://en.wikipedia.org/wiki/Pairing_function#Cantor_pairing_function</span>
 
-<span class="sd">    Args:</span>
-<span class="sd">        x: int</span>
-<span class="sd">            One of the natural numbers to encode into a single natural number.</span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    x: int</span>
+<span class="sd">        One of the natural numbers to encode into a single natural number.</span>
 
-<span class="sd">        y: int</span>
-<span class="sd">            One of the natural numbers to encode into a single natural number.</span>
+<span class="sd">    y: int</span>
+<span class="sd">        One of the natural numbers to encode into a single natural number.</span>
 
-<span class="sd">    Returns:</span>
-<span class="sd">        z: int</span>
-<span class="sd">            The single natural number uniquely encoded from the the provided</span>
-<span class="sd">            natural numbers, x and y.</span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    z: int</span>
+<span class="sd">        The single natural number uniquely encoded from the the provided</span>
+<span class="sd">        natural numbers, x and y.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;x and y must be members of the natural numbers!&quot;</span><span class="p">)</span>
@@ -107,14 +109,16 @@
 
 <span class="sd">    Source: https://en.wikipedia.org/wiki/Pairing_function#Cantor_pairing_function</span>
 
-<span class="sd">    Args:</span>
-<span class="sd">        z: int</span>
-<span class="sd">            A natural number that is comprised of two unique natural numbers.</span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    z: int</span>
+<span class="sd">        A natural number that is comprised of two unique natural numbers.</span>
 
-<span class="sd">    Returns:</span>
-<span class="sd">        x, y: tuple</span>
-<span class="sd">            The two unique natural numbers, x, y, that comprise the unqique</span>
-<span class="sd">            encoding of z.</span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    x, y: tuple</span>
+<span class="sd">        The two unique natural numbers, x, y, that comprise the unqique</span>
+<span class="sd">        encoding of z.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">z</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;z must be a member of the natural numbers!&quot;</span><span class="p">)</span>
@@ -131,20 +135,21 @@
 <div class="viewcode-block" id="apply_cantor_pairing"><a class="viewcode-back" href="../source/place_cell_analysis.html#place_cell_analysis.apply_cantor_pairing">[docs]</a><span class="k">def</span> <span class="nf">apply_cantor_pairing</span><span class="p">(</span><span class="n">x_coords</span><span class="p">,</span> <span class="n">y_coords</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Reduce dimensionality from 2d to 1d.</span>
 
-<span class="sd">    Args:</span>
-<span class="sd">        x_coords: list</span>
-<span class="sd">            A list of natural numbers, such that the value at each index,</span>
-<span class="sd">            corresponds to the value at each index in y_coords.</span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    x_coords: list</span>
+<span class="sd">        A list of natural numbers, such that the value at each index,</span>
+<span class="sd">        corresponds to the value at each index in y_coords.</span>
 
-<span class="sd">        y:coords: list</span>
-<span class="sd">            A list of natural numbers, such that the value at each index,</span>
-<span class="sd">            corresponds to the value at each index in x_coords.</span>
+<span class="sd">    y:coords: list</span>
+<span class="sd">        A list of natural numbers, such that the value at each index,</span>
+<span class="sd">        corresponds to the value at each index in x_coords.</span>
 
-<span class="sd">    Returns:</span>
-<span class="sd">        z_coords: list</span>
-<span class="sd">            The resulting list from applying the cantor pairing function to each</span>
-<span class="sd">            corresponding pair of natural numbers, i.e., (x_i, y_i).</span>
-
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    z_coords: list</span>
+<span class="sd">        The resulting list from applying the cantor pairing function to each</span>
+<span class="sd">        corresponding pair of natural numbers, i.e., (x_i, y_i).</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">x_coords</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">y_coords</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;x_coords and y_coords must be of equal length!&quot;</span><span class="p">)</span>
@@ -157,25 +162,27 @@
 <div class="viewcode-block" id="bin_coordinates"><a class="viewcode-back" href="../source/place_cell_analysis.html#place_cell_analysis.bin_coordinates">[docs]</a><span class="k">def</span> <span class="nf">bin_coordinates</span><span class="p">(</span><span class="n">mouse</span><span class="p">,</span> <span class="n">bin_size</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">x_col</span><span class="o">=</span><span class="s2">&quot;X_center&quot;</span><span class="p">,</span> <span class="n">y_col</span><span class="o">=</span><span class="s2">&quot;Y_center&quot;</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Bins the x and y coordinates for place cell analysis.</span>
 
-<span class="sd">    Args:</span>
-<span class="sd">        mouse: Mouse</span>
-<span class="sd">            The mouse object whose spikes_and_beh dataframe contains an `X` and</span>
-<span class="sd">            a `Y` column to bin by the provided bin size.</span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    mouse: Mouse</span>
+<span class="sd">        The mouse object whose spikes_and_beh dataframe contains an `X` and</span>
+<span class="sd">        a `Y` column to bin by the provided bin size.</span>
 
-<span class="sd">        bin_size: int, optional, default: 5</span>
-<span class="sd">            (i.e., bin_factor=5 ==&gt; 5 x 5 bins)</span>
+<span class="sd">    bin_size: int, optional, default: 5</span>
+<span class="sd">        (i.e., bin_factor=5 ==&gt; 5 x 5 bins)</span>
 
-<span class="sd">        x_col: str, optional, default: &#39;X_center&#39;</span>
-<span class="sd">            The name of the column that contains the `X` coordinates in the</span>
-<span class="sd">            spikes_and_beh dataframe.</span>
+<span class="sd">    x_col: str, optional, default: &#39;X_center&#39;</span>
+<span class="sd">        The name of the column that contains the `X` coordinates in the</span>
+<span class="sd">        spikes_and_beh dataframe.</span>
 
-<span class="sd">        y_col: str, optional, default: &#39;Y_center&#39;</span>
-<span class="sd">            The name of the column that contains the `Y` coordinates in the</span>
-<span class="sd">            spikes_and_beh dataframe.</span>
+<span class="sd">    y_col: str, optional, default: &#39;Y_center&#39;</span>
+<span class="sd">        The name of the column that contains the `Y` coordinates in the</span>
+<span class="sd">        spikes_and_beh dataframe.</span>
 
-<span class="sd">    Returns:</span>
-<span class="sd">        x_coords, y_coords: tuple</span>
-<span class="sd">            The binned x coordinates and the binned y coordinates in a tuple.</span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    x_coords, y_coords: tuple</span>
+<span class="sd">        The binned x coordinates and the binned y coordinates in a tuple.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># Extract the X and Y coordinate column vectors</span>
     <span class="n">x_coords</span> <span class="o">=</span> <span class="n">mouse</span><span class="o">.</span><span class="n">spikes_and_beh</span><span class="p">[</span><span class="n">x_col</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
@@ -197,15 +204,17 @@
 <div class="viewcode-block" id="remove_immobile"><a class="viewcode-back" href="../source/place_cell_analysis.html#place_cell_analysis.remove_immobile">[docs]</a><span class="k">def</span> <span class="nf">remove_immobile</span><span class="p">(</span><span class="n">mouse</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Removes immobile time bins from mouse.</span>
 
-<span class="sd">    Args:</span>
-<span class="sd">        mouse: Mouse object</span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    mouse: Mouse object</span>
 
-<span class="sd">    Return:</span>
-<span class="sd">        mobile_s:</span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    mobile_s:</span>
 
-<span class="sd">        mobile_c:</span>
+<span class="sd">    mobile_c:</span>
 
-<span class="sd">        mobile_beh:</span>
+<span class="sd">    mobile_beh:</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">mobile_s</span> <span class="o">=</span> <span class="n">mouse</span><span class="o">.</span><span class="n">spikes</span><span class="p">[</span><span class="n">mouse</span><span class="o">.</span><span class="n">behavior</span><span class="o">.</span><span class="n">immobile</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span>
     <span class="n">mobile_c</span> <span class="o">=</span> <span class="n">mouse</span><span class="o">.</span><span class="n">cell_transients</span><span class="p">[</span><span class="n">mouse</span><span class="o">.</span><span class="n">behavior</span><span class="o">.</span><span class="n">immobile</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span>
@@ -218,25 +227,27 @@
 <div class="viewcode-block" id="remove_low_occupancy"><a class="viewcode-back" href="../source/place_cell_analysis.html#place_cell_analysis.remove_low_occupancy">[docs]</a><span class="k">def</span> <span class="nf">remove_low_occupancy</span><span class="p">(</span><span class="n">mouse</span><span class="p">,</span> <span class="n">x_bin</span><span class="p">,</span> <span class="n">y_bin</span><span class="p">,</span> <span class="n">min_occupancy</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Removes spatial bins that had low occupancy</span>
 
-<span class="sd">    Args:</span>
-<span class="sd">        mouse: Mouse</span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    mouse: Mouse</span>
 
-<span class="sd">        x_bin: pandas Series</span>
-<span class="sd">            Binned x coordinates</span>
+<span class="sd">    x_bin: pandas Series</span>
+<span class="sd">        Binned x coordinates</span>
 
-<span class="sd">        y_bin: pandas Series</span>
-<span class="sd">            Binned y coordinates</span>
+<span class="sd">    y_bin: pandas Series</span>
+<span class="sd">        Binned y coordinates</span>
 
-<span class="sd">        min_occupancy:</span>
-<span class="sd">            minimum number of time bins for a spatial bin to be included</span>
+<span class="sd">    min_occupancy:</span>
+<span class="sd">        minimum number of time bins for a spatial bin to be included</span>
 
-<span class="sd">    Returns:</span>
-<span class="sd">        filtered_binned_s:</span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    filtered_binned_s:</span>
 
-<span class="sd">        filtered_binned_c:</span>
+<span class="sd">    filtered_binned_c:</span>
 
-<span class="sd">        filtered_binned_beh:</span>
-<span class="sd">            Low-occupancy spatial bins removed, and the new columns</span>
+<span class="sd">    filtered_binned_beh:</span>
+<span class="sd">        Low-occupancy spatial bins removed, and the new columns</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;Major refactoring in progress.&quot;</span><span class="p">)</span></div>
 </pre></div>

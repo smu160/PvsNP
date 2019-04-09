@@ -85,19 +85,21 @@
     <span class="k">def</span> <span class="nf">get_num_of_events</span><span class="p">(</span><span class="n">dataframe</span><span class="p">,</span> <span class="n">neuron</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Get the number of signal spikes for a given column vector</span>
 
-<span class="sd">        Args:</span>
-<span class="sd">            dataframe: DataFrame</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        dataframe: DataFrame</span>
 
-<span class="sd">                A pandas DataFrame that contains at least one neuron&#39;s signal</span>
-<span class="sd">                data, in column vector form.</span>
+<span class="sd">            A pandas DataFrame that contains at least one neuron&#39;s signal</span>
+<span class="sd">            data, in column vector form.</span>
 
-<span class="sd">            neuron:</span>
-<span class="sd">                The name of the neuron column vector to get the number</span>
-<span class="sd">                of events for.</span>
+<span class="sd">        neuron:</span>
+<span class="sd">            The name of the neuron column vector to get the number</span>
+<span class="sd">            of events for.</span>
 
-<span class="sd">        Returns:</span>
-<span class="sd">            The amount of datapoints in a given column vector of nonzero</span>
-<span class="sd">            value.</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        The amount of datapoints in a given column vector of nonzero</span>
+<span class="sd">        value.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">dataframe</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="n">neuron</span><span class="p">][</span><span class="n">dataframe</span><span class="p">[</span><span class="n">neuron</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">])</span></div>
 
@@ -105,20 +107,23 @@
     <span class="k">def</span> <span class="nf">diff_of_mean_rate</span><span class="p">(</span><span class="n">dataframe</span><span class="p">,</span> <span class="o">*</span><span class="n">beh_col_vec</span><span class="p">,</span> <span class="n">frame_rate</span><span class="o">=</span><span class="mi">10</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Compute difference of means between the rates of two behaviors.</span>
 
-<span class="sd">        Args:</span>
-<span class="sd">            dataframe: DataFrame</span>
-<span class="sd">                A pandas DataFrame of all the neuron column vectors</span>
-<span class="sd">                for a given animal.</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        dataframe: DataFrame</span>
+<span class="sd">            A pandas DataFrame of all the neuron column vectors</span>
+<span class="sd">            for a given animal.</span>
 
-<span class="sd">            beh_col_vec: pandas Series</span>
-<span class="sd">                A single behavior column vector or two behavior column vectors</span>
-<span class="sd">                used to compute the difference of means rate.</span>
-<span class="sd">                e.g. &quot;OpenArms&quot; vs. &quot;ClosedArms&quot;.</span>
+<span class="sd">        beh_col_vec: pandas Series</span>
+<span class="sd">            A single behavior column vector or two behavior column vectors</span>
+<span class="sd">            used to compute the difference of means rate.</span>
+<span class="sd">            e.g. &quot;OpenArms&quot; vs. &quot;ClosedArms&quot;.</span>
 
-<span class="sd">            frame_rate: int, optional, default: 10</span>
-<span class="sd">                The framerate associated with the given data.</span>
+<span class="sd">        frame_rate: int, optional, default: 10</span>
+<span class="sd">            The framerate associated with the given data.</span>
 
-<span class="sd">        Returns: numpy array</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        numpy array</span>
 <span class="sd">            A numpy array of all the difference of means, D_hat, values, i.e.,</span>
 <span class="sd">            all of the behavior vectors means subtracted from the corresponding</span>
 <span class="sd">            means of the non-behavior vectors, all scaled by the frame rate.</span>
@@ -147,29 +152,30 @@
 <span class="sd">        NOTE: This function is meant to be only be used as a helper function</span>
 <span class="sd">        for the shuffle() function.</span>
 
-<span class="sd">        Args:</span>
-<span class="sd">            queue: Queue</span>
-<span class="sd">                A thread-safe FIFO data structure to which the resulting</span>
-<span class="sd">                dataframe will be added.</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        queue: Queue</span>
+<span class="sd">            A thread-safe FIFO data structure to which the resulting</span>
+<span class="sd">            dataframe will be added.</span>
 
-<span class="sd">            resamples: int</span>
-<span class="sd">                The amount of permutation resamples to draw from the data.</span>
+<span class="sd">        resamples: int</span>
+<span class="sd">            The amount of permutation resamples to draw from the data.</span>
 
-<span class="sd">            dataframe: DataFrame</span>
-<span class="sd">                The data to be used to randomly draw permutation resamples.</span>
+<span class="sd">        dataframe: DataFrame</span>
+<span class="sd">            The data to be used to randomly draw permutation resamples.</span>
 
-<span class="sd">            statistic: function</span>
-<span class="sd">                A function that will compute a statistic that measures the size</span>
-<span class="sd">                of an effect of interest (e.g. difference of means, mutual</span>
-<span class="sd">                information, and etc.)</span>
+<span class="sd">        statistic: function</span>
+<span class="sd">            A function that will compute a statistic that measures the size</span>
+<span class="sd">            of an effect of interest (e.g. difference of means, mutual</span>
+<span class="sd">            information, and etc.)</span>
 
-<span class="sd">            beh_col_vec: pandas Series</span>
-<span class="sd">                The columns vectors to be used as the two groups to</span>
-<span class="sd">                use for permutation resamples.</span>
+<span class="sd">        beh_col_vec: pandas Series</span>
+<span class="sd">            The columns vectors to be used as the two groups to</span>
+<span class="sd">            use for permutation resamples.</span>
 
-<span class="sd">            flip_roll: boolean, optional, default: False</span>
-<span class="sd">                If data should be flipped and then randomly rolled for each</span>
-<span class="sd">                resample.</span>
+<span class="sd">        flip_roll: boolean, optional, default: False</span>
+<span class="sd">            If data should be flipped and then randomly rolled for each</span>
+<span class="sd">            resample.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">flip_roll</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;flip_roll&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
 
@@ -207,27 +213,30 @@
 <span class="sd">        resamples is split evenly amongst all of the CPU&#39;s of the machine this</span>
 <span class="sd">        function will be run on.</span>
 
-<span class="sd">        Args:</span>
-<span class="sd">            resamples: int, optional, default: 10000</span>
-<span class="sd">                The total amount of permutation resamples desired.</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        resamples: int, optional, default: 10000</span>
+<span class="sd">            The total amount of permutation resamples desired.</span>
 
-<span class="sd">            dataframe: DataFrame</span>
-<span class="sd">                The data to be used to randomly draw permutation resamples.</span>
+<span class="sd">        dataframe: DataFrame</span>
+<span class="sd">            The data to be used to randomly draw permutation resamples.</span>
 
-<span class="sd">            statistic: function</span>
-<span class="sd">                A function that will compute a statistic that measures the size</span>
-<span class="sd">                of an effect of interest (e.g. difference of means, mutual</span>
-<span class="sd">                information, and etc.)</span>
+<span class="sd">        statistic: function</span>
+<span class="sd">            A function that will compute a statistic that measures the size</span>
+<span class="sd">            of an effect of interest (e.g. difference of means, mutual</span>
+<span class="sd">            information, and etc.)</span>
 
-<span class="sd">            beh_col_vec: pandas Series</span>
-<span class="sd">                The columns vectors to be used as the two groups to</span>
-<span class="sd">                use for permutation resamples.</span>
+<span class="sd">        beh_col_vec: pandas Series</span>
+<span class="sd">            The columns vectors to be used as the two groups to</span>
+<span class="sd">            use for permutation resamples.</span>
 
-<span class="sd">            flip_roll: boolean, optional, default: False</span>
-<span class="sd">                If data should be flipped and then randomly rolled for each</span>
-<span class="sd">                resample.</span>
+<span class="sd">        flip_roll: boolean, optional, default: False</span>
+<span class="sd">            If data should be flipped and then randomly rolled for each</span>
+<span class="sd">            resample.</span>
 
-<span class="sd">        Returns:</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        pandas DataFrame</span>
 <span class="sd">            A (vertically) concatenated pandas DataFrame of all the DataFrames</span>
 <span class="sd">            the shuffle_worker processes produced.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -262,17 +271,18 @@
 <span class="sd">        This function is meant to compute a two-sided p-value on a given</span>
 <span class="sd">        permutation distribution.</span>
 
-<span class="sd">        Args:</span>
-<span class="sd">            original_statistic: float</span>
-<span class="sd">                The original value of the statistic computed on the data.</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        original_statistic: float</span>
+<span class="sd">            The original value of the statistic computed on the data.</span>
 
-<span class="sd">            permutation_distribution: DataFrame or Series</span>
-<span class="sd">                A pandas DataFrame of the permutation distributions.</span>
+<span class="sd">        permutation_distribution: DataFrame or Series</span>
+<span class="sd">            A pandas DataFrame of the permutation distributions.</span>
 
-<span class="sd">        Returns:</span>
-<span class="sd">            p_val: float</span>
-<span class="sd">                The p-value that was located/computed.</span>
-
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        p_val: float</span>
+<span class="sd">            The p-value that was located/computed.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">D</span> <span class="o">=</span> <span class="n">original_statistic</span>
         <span class="n">D_i</span> <span class="o">=</span> <span class="n">permutation_distribution</span><span class="o">.</span><span class="n">abs</span><span class="p">()</span>
@@ -286,16 +296,18 @@
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Compute z-score for a given value, and the permutation distribution</span>
 
-<span class="sd">        Args:</span>
-<span class="sd">            original_statistic: float</span>
-<span class="sd">                The original value of the statistic computed on the data.</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        original_statistic: float</span>
+<span class="sd">            The original value of the statistic computed on the data.</span>
 
-<span class="sd">            permutation_distribution: pandas DataFrame or pandas Series</span>
-<span class="sd">                The permutation distribution.</span>
+<span class="sd">        permutation_distribution: pandas DataFrame or pandas Series</span>
+<span class="sd">            The permutation distribution.</span>
 
-<span class="sd">        Returns:</span>
-<span class="sd">            z_score: float</span>
-<span class="sd">                The z-score that was computed.</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        z_score: float</span>
+<span class="sd">            The z-score that was computed.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">mew</span> <span class="o">=</span> <span class="n">permutation_distribution</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
         <span class="n">std</span> <span class="o">=</span> <span class="n">permutation_distribution</span><span class="o">.</span><span class="n">std</span><span class="p">()</span>
@@ -310,20 +322,23 @@
 <span class="sd">        WARNING: Use this function ONLY if your permutation distribution is</span>
 <span class="sd">        normally distributed.</span>
 
-<span class="sd">        Args:</span>
-<span class="sd">            original_statistic: float</span>
-<span class="sd">                The original value of the statistic computed on the data.</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        original_statistic: float</span>
+<span class="sd">            The original value of the statistic computed on the data.</span>
 
-<span class="sd">            permutation_distribution: pandas DataFrame</span>
-<span class="sd">                A DataFrame of the permutation distributions.</span>
+<span class="sd">        permutation_distribution: pandas DataFrame</span>
+<span class="sd">            A DataFrame of the permutation distributions.</span>
 
-<span class="sd">            high: float, optional, default: 95.0</span>
-<span class="sd">                The cutoff for the upper-tail of the distribution.</span>
+<span class="sd">        high: float, optional, default: 95.0</span>
+<span class="sd">            The cutoff for the upper-tail of the distribution.</span>
 
-<span class="sd">            low: float, optional, default: 5.0</span>
-<span class="sd">                The cutoff for the lower-tail of the distribution.</span>
+<span class="sd">        low: float, optional, default: 5.0</span>
+<span class="sd">            The cutoff for the lower-tail of the distribution.</span>
 
-<span class="sd">        Returns:</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        int</span>
 <span class="sd">            1 if the original statistic is observed in the upper-tail of the</span>
 <span class="sd">            permutation distribution.</span>
 <span class="sd">            -1 if the original statistic is observed in the lower-tail of the</span>

@@ -14,7 +14,7 @@
 #
 import os
 import sys
-sys.path.insert(0, os.path.abspath('../analysis'))
+sys.path.insert(0, os.path.abspath('../pvsnp'))
 
 
 # -- Project information -----------------------------------------------------

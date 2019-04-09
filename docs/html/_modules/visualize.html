@@ -81,35 +81,37 @@
 <span class="sd">        https://docs.scipy.org/doc/numpy/reference/generated/numpy.histogram2d.html</span>
 <span class="sd">        https://docs.scipy.org/doc/scipy/reference/generated/scipy.ndimage.gaussian_filter.html</span>
 
-<span class="sd">    Args:</span>
-<span class="sd">        x: array_like, shape (N,)</span>
-<span class="sd">            An array containing the x coordinates of the points to be</span>
-<span class="sd">            histogrammed.</span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    x: array_like, shape (N,)</span>
+<span class="sd">        An array containing the x coordinates of the points to be</span>
+<span class="sd">        histogrammed.</span>
 
-<span class="sd">        y: array_like, shape (N,)</span>
-<span class="sd">            An array containing the y coordinates of the points to be</span>
-<span class="sd">            histogrammed.</span>
+<span class="sd">    y: array_like, shape (N,)</span>
+<span class="sd">        An array containing the y coordinates of the points to be</span>
+<span class="sd">        histogrammed.</span>
 
-<span class="sd">        bins: int or array_like or [int, int], optional, default: (50, 50)</span>
+<span class="sd">    bins: int or array_like or [int, int], optional, default: (50, 50)</span>
 
-<span class="sd">        sigma: scalar, optional, default: 2</span>
-<span class="sd">            Standard deviation for Gaussian kernel.</span>
+<span class="sd">    sigma: scalar, optional, default: 2</span>
+<span class="sd">        Standard deviation for Gaussian kernel.</span>
 
-<span class="sd">        weights : array_like, shape(N,), optional, default: None</span>
-<span class="sd">            An array of values ``w_i`` weighing each sample ``(x_i, y_i)``.</span>
-<span class="sd">            Weights are normalized to 1 if `normed` is True. If `normed` is</span>
-<span class="sd">            False, the values of the returned histogram are equal to the sum of</span>
-<span class="sd">            the weights belonging to the samples falling into each bin.</span>
+<span class="sd">    weights : array_like, shape(N,), optional, default: None</span>
+<span class="sd">        An array of values ``w_i`` weighing each sample ``(x_i, y_i)``.</span>
+<span class="sd">        Weights are normalized to 1 if `normed` is True. If `normed` is</span>
+<span class="sd">        False, the values of the returned histogram are equal to the sum of</span>
+<span class="sd">        the weights belonging to the samples falling into each bin.</span>
 
-<span class="sd">    Returns:</span>
-<span class="sd">        heatmap: ndarray</span>
-<span class="sd">            Returned array of same shape as input. We return the transpose of</span>
-<span class="sd">            the array in order to preserve the view.</span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    heatmap: ndarray</span>
+<span class="sd">        Returned array of same shape as input. We return the transpose of</span>
+<span class="sd">        the array in order to preserve the view.</span>
 
-<span class="sd">        extent: scalars (left, right, bottom, top)</span>
-<span class="sd">            The bounding box in data coordinates that the image will fill. The</span>
-<span class="sd">            image is stretched individually along x and y to fill the box.</span>
-<span class="sd">            Source: https://matplotlib.org/api/_as_gen/matplotlib.pyplot.imshow.html</span>
+<span class="sd">    extent: scalars (left, right, bottom, top)</span>
+<span class="sd">        The bounding box in data coordinates that the image will fill. The</span>
+<span class="sd">        image is stretched individually along x and y to fill the box.</span>
+<span class="sd">        Source: https://matplotlib.org/api/_as_gen/matplotlib.pyplot.imshow.html</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">y</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;x and y are not of equal length!&quot;</span><span class="p">)</span>
@@ -129,46 +131,47 @@
 <span class="sd">    Wrapper function for matplotlib and generate_heatmap that plots the actual</span>
 <span class="sd">    generated heatmap.</span>
 
-<span class="sd">    Args:</span>
-<span class="sd">        x: array_like, shape (N,)</span>
-<span class="sd">            An array containing the x coordinates of the points to be</span>
-<span class="sd">            histogrammed.</span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    x: array_like, shape (N,)</span>
+<span class="sd">        An array containing the x coordinates of the points to be</span>
+<span class="sd">        histogrammed.</span>
 
-<span class="sd">        y: array_like, shape (N,)</span>
-<span class="sd">            An array containing the y coordinates of the points to be</span>
-<span class="sd">            histogrammed.</span>
+<span class="sd">    y: array_like, shape (N,)</span>
+<span class="sd">        An array containing the y coordinates of the points to be</span>
+<span class="sd">        histogrammed.</span>
 
-<span class="sd">        bins: int or array_like or [int, int], optional, default: (50, 50)</span>
+<span class="sd">    bins: int or array_like or [int, int], optional, default: (50, 50)</span>
 
-<span class="sd">        sigma: scalar, optional; default: 2</span>
-<span class="sd">            Standard deviation for Gaussian kernel.</span>
+<span class="sd">    sigma: scalar, optional; default: 2</span>
+<span class="sd">        Standard deviation for Gaussian kernel.</span>
 
-<span class="sd">        weights: array_like, shape(N,), optional, default: None</span>
-<span class="sd">            An array of values ``w_i`` weighing each sample ``(x_i, y_i)``.</span>
-<span class="sd">            Weights are normalized to 1 if `normed` is True. If `normed` is</span>
-<span class="sd">            False, the values of the returned histogram are equal to the sum of</span>
-<span class="sd">            the weights belonging to the samples falling into each bin.</span>
+<span class="sd">    weights: array_like, shape(N,), optional, default: None</span>
+<span class="sd">        An array of values ``w_i`` weighing each sample ``(x_i, y_i)``.</span>
+<span class="sd">        Weights are normalized to 1 if `normed` is True. If `normed` is</span>
+<span class="sd">        False, the values of the returned histogram are equal to the sum of</span>
+<span class="sd">        the weights belonging to the samples falling into each bin.</span>
 
-<span class="sd">        cmap: matplotlib.colors.LinearSegmentedColormap, optional, default: plt.cm.jet</span>
-<span class="sd">            The colormap to use for plotting the heatmap.</span>
+<span class="sd">    cmap: matplotlib.colors.LinearSegmentedColormap, optional, default: plt.cm.jet</span>
+<span class="sd">        The colormap to use for plotting the heatmap.</span>
 
-<span class="sd">        figsize: tuple, optional, default: (10, 10)</span>
-<span class="sd">            The size of the heatmap plot.</span>
+<span class="sd">    figsize: tuple, optional, default: (10, 10)</span>
+<span class="sd">        The size of the heatmap plot.</span>
 
-<span class="sd">        title: str, optional, default: &#39;Title Goes Here&#39;</span>
-<span class="sd">            The title of the heatmap plot.</span>
-<span class="sd">            Note: If title is provided, title will be used as the name of</span>
-<span class="sd">            the file when the figure is saved.</span>
+<span class="sd">    title: str, optional, default: &#39;Title Goes Here&#39;</span>
+<span class="sd">        The title of the heatmap plot.</span>
+<span class="sd">        Note: If title is provided, title will be used as the name of</span>
+<span class="sd">        the file when the figure is saved.</span>
 
-<span class="sd">        dpi: int, optional, default: 600</span>
-<span class="sd">            The amount of dots per inch to use when saving the figure. In</span>
-<span class="sd">            accordance with Nature&#39;s guidelines, the default is 600.</span>
-<span class="sd">            Source: https://www.nature.com/nature/for-authors/final-submission</span>
+<span class="sd">    dpi: int, optional, default: 600</span>
+<span class="sd">        The amount of dots per inch to use when saving the figure. In</span>
+<span class="sd">        accordance with Nature&#39;s guidelines, the default is 600.</span>
+<span class="sd">        Source: https://www.nature.com/nature/for-authors/final-submission</span>
 
-<span class="sd">        savefig: bool, optional, default: False</span>
-<span class="sd">            When True, the plotted heatmap will be saved to the current working</span>
-<span class="sd">            directory in pdf (IAW Nature&#39;s guidelines) format.</span>
-<span class="sd">            Source: https://www.nature.com/nature/for-authors/final-submission</span>
+<span class="sd">    savefig: bool, optional, default: False</span>
+<span class="sd">        When True, the plotted heatmap will be saved to the current working</span>
+<span class="sd">        directory in pdf (IAW Nature&#39;s guidelines) format.</span>
+<span class="sd">        Source: https://www.nature.com/nature/for-authors/final-submission</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">y</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;x and y are not of equal length!&quot;</span><span class="p">)</span>
@@ -203,15 +206,16 @@
 
 <span class="sd">    The slices will be ordered and plotted counter-clockwise.</span>
 
-<span class="sd">    Args:</span>
-<span class="sd">        sizes: list</span>
-<span class="sd">            A list of the sizes of each category.</span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    sizes: list</span>
+<span class="sd">        A list of the sizes of each category.</span>
 
-<span class="sd">        labels: str, variable number of args</span>
-<span class="sd">            The label for each corresponding slice size.</span>
+<span class="sd">    labels: str, variable number of args</span>
+<span class="sd">        The label for each corresponding slice size.</span>
 
-<span class="sd">        figsize: tuple, optional, default: (5, 5)</span>
-<span class="sd">            The size of the figure to be plotted.</span>
+<span class="sd">    figsize: tuple, optional, default: (5, 5)</span>
+<span class="sd">        The size of the figure to be plotted.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">labels</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">sizes</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Length of sizes and amount of labels must be equal.&quot;</span><span class="p">)</span>
@@ -230,27 +234,28 @@
 <span class="sd">    A wrapper function for seaborn to quickly plot a</span>
 <span class="sd">    correlation heatmap with a lower triangle, only.</span>
 
-<span class="sd">    Args:</span>
-<span class="sd">        dataframe: DataFrame</span>
-<span class="sd">            A Pandas dataframe to be plotted in the correlation heatmap.</span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    dataframe: DataFrame</span>
+<span class="sd">        A Pandas dataframe to be plotted in the correlation heatmap.</span>
 
-<span class="sd">        figsize: tuple, optional, default: (16, 16)</span>
-<span class="sd">            The size of the heatmap to be plotted.</span>
+<span class="sd">    figsize: tuple, optional, default: (16, 16)</span>
+<span class="sd">        The size of the heatmap to be plotted.</span>
 
-<span class="sd">        title: str, optional, default: None</span>
-<span class="sd">            The title of the heatmap plot.</span>
-<span class="sd">            Note: If title is provided, title will be used as the name of</span>
-<span class="sd">            the file when the figure is saved.</span>
+<span class="sd">    title: str, optional, default: None</span>
+<span class="sd">        The title of the heatmap plot.</span>
+<span class="sd">        Note: If title is provided, title will be used as the name of</span>
+<span class="sd">        the file when the figure is saved.</span>
 
-<span class="sd">        dpi: int, optional, default: 600</span>
-<span class="sd">            The amount of dots per inch to use when saving the figure. In</span>
-<span class="sd">            accordance with Nature&#39;s guidelines, the default is 600.</span>
-<span class="sd">            Source: https://www.nature.com/nature/for-authors/final-submission</span>
+<span class="sd">    dpi: int, optional, default: 600</span>
+<span class="sd">        The amount of dots per inch to use when saving the figure. In</span>
+<span class="sd">        accordance with Nature&#39;s guidelines, the default is 600.</span>
+<span class="sd">        Source: https://www.nature.com/nature/for-authors/final-submission</span>
 
-<span class="sd">        savefig: bool, optional, default: False</span>
-<span class="sd">            When True, the plotted heatmap will be saved to the current working</span>
-<span class="sd">            directory in pdf (IAW Nature&#39;s guidelines) format.</span>
-<span class="sd">            Source: https://www.nature.com/nature/for-authors/final-submission</span>
+<span class="sd">    savefig: bool, optional, default: False</span>
+<span class="sd">        When True, the plotted heatmap will be saved to the current working</span>
+<span class="sd">        directory in pdf (IAW Nature&#39;s guidelines) format.</span>
+<span class="sd">        Source: https://www.nature.com/nature/for-authors/final-submission</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">title</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;title&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
 
@@ -288,33 +293,34 @@
 <span class="sd">    A wrapper function for seaborn to quickly plot a clustermap using the</span>
 <span class="sd">    &quot;centroid&quot; method to find clusters.</span>
 
-<span class="sd">    Args:</span>
-<span class="sd">        dataframe: DataFrame</span>
-<span class="sd">            The Pandas dataframe to be plotted in the clustermap.</span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    dataframe: DataFrame</span>
+<span class="sd">        The Pandas dataframe to be plotted in the clustermap.</span>
 
-<span class="sd">        figsize: tuple, optional, default: (15, 15)</span>
-<span class="sd">            The size of the clustermap to be plotted.</span>
+<span class="sd">    figsize: tuple, optional, default: (15, 15)</span>
+<span class="sd">        The size of the clustermap to be plotted.</span>
 
-<span class="sd">        dendrograms: bool, optional, default: True</span>
-<span class="sd">            If set to False, the dendrograms (row &amp; col) will NOT be plotted.</span>
+<span class="sd">    dendrograms: bool, optional, default: True</span>
+<span class="sd">        If set to False, the dendrograms (row &amp; col) will NOT be plotted.</span>
 
-<span class="sd">        cmap: str, optional, default: &quot;vlag&quot;</span>
-<span class="sd">            The colormap to use for plotting the clustermap.</span>
+<span class="sd">    cmap: str, optional, default: &quot;vlag&quot;</span>
+<span class="sd">        The colormap to use for plotting the clustermap.</span>
 
-<span class="sd">        title: str, optional, default: None</span>
-<span class="sd">            The title of the heatmap plot.</span>
-<span class="sd">            Note: If title is provided, title will be used as the name of</span>
-<span class="sd">            the file when the figure is saved.</span>
+<span class="sd">    title: str, optional, default: None</span>
+<span class="sd">        The title of the heatmap plot.</span>
+<span class="sd">        Note: If title is provided, title will be used as the name of</span>
+<span class="sd">        the file when the figure is saved.</span>
 
-<span class="sd">        dpi: int, optional, default: 600</span>
-<span class="sd">            The amount of dots per inch to use when saving the figure. In</span>
-<span class="sd">            accordance with Nature&#39;s guidelines, the default is 600.</span>
-<span class="sd">            Source: https://www.nature.com/nature/for-authors/final-submission</span>
+<span class="sd">    dpi: int, optional, default: 600</span>
+<span class="sd">        The amount of dots per inch to use when saving the figure. In</span>
+<span class="sd">        accordance with Nature&#39;s guidelines, the default is 600.</span>
+<span class="sd">        Source: https://www.nature.com/nature/for-authors/final-submission</span>
 
-<span class="sd">        savefig: bool, optional, default: False</span>
-<span class="sd">            When True, the plotted heatmap will be saved to the current working</span>
-<span class="sd">            directory in pdf (IAW Nature&#39;s guidelines) format.</span>
-<span class="sd">            Source: https://www.nature.com/nature/for-authors/final-submission</span>
+<span class="sd">    savefig: bool, optional, default: False</span>
+<span class="sd">        When True, the plotted heatmap will be saved to the current working</span>
+<span class="sd">        directory in pdf (IAW Nature&#39;s guidelines) format.</span>
+<span class="sd">        Source: https://www.nature.com/nature/for-authors/final-submission</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">cmap</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;cmap&quot;</span><span class="p">,</span> <span class="s2">&quot;vlag&quot;</span><span class="p">)</span>
     <span class="n">figsize</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;figsize&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">15</span><span class="p">,</span> <span class="mi">15</span><span class="p">))</span>

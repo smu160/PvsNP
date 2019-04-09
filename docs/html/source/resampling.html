@@ -53,27 +53,26 @@ permutation resampling, and in order to carry out permutation tests.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>dataframe</strong> – DataFrame
-A pandas DataFrame of all the neuron column vectors
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>dataframe</strong> (<em>DataFrame</em>) – A pandas DataFrame of all the neuron column vectors
 for a given animal.</li>
-<li><strong>beh_col_vec</strong> – pandas Series
-A single behavior column vector or two behavior column vectors
+<li><strong>beh_col_vec</strong> (<em>pandas Series</em>) – A single behavior column vector or two behavior column vectors
 used to compute the difference of means rate.
 e.g. “OpenArms” vs. “ClosedArms”.</li>
-<li><strong>frame_rate</strong> – int, optional, default: 10
-The framerate associated with the given data.</li>
+<li><strong>frame_rate</strong> (<em>int</em><em>, </em><em>optional</em><em>, </em><em>default: 10</em>) – The framerate associated with the given data.</li>
 </ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">A numpy array of all the difference of means, D_hat, values, i.e.,
+all of the behavior vectors means subtracted from the corresponding
+means of the non-behavior vectors, all scaled by the frame rate.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">numpy array</p>
 </td>
 </tr>
 </tbody>
 </table>
-<dl class="docutils">
-<dt>Returns: numpy array</dt>
-<dd>A numpy array of all the difference of means, D_hat, values, i.e.,
-all of the behavior vectors means subtracted from the corresponding
-means of the non-behavior vectors, all scaled by the frame rate.</dd>
-</dl>
 </dd></dl>
 
 <dl class="staticmethod">
@@ -85,17 +84,18 @@ means of the non-behavior vectors, all scaled by the frame rate.</dd>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>dataframe</strong> – <p>DataFrame</p>
-<p>A pandas DataFrame that contains at least one neuron’s signal
-data, in column vector form.</p>
-</li>
+<li><strong>dataframe</strong> (<em>DataFrame</em>) – A pandas DataFrame that contains at least one neuron’s signal
+data, in column vector form.</li>
 <li><strong>neuron</strong> – The name of the neuron column vector to get the number
 of events for.</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">The amount of datapoints in a given column vector of nonzero
-value.</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><ul class="simple">
+<li><em>The amount of datapoints in a given column vector of nonzero</em></li>
+<li><em>value.</em></li>
+</ul>
+</p>
 </td>
 </tr>
 </tbody>
@@ -113,22 +113,15 @@ permutation distribution.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>original_statistic</strong> – float
-The original value of the statistic computed on the data.</li>
-<li><strong>permutation_distribution</strong> – DataFrame or Series
-A pandas DataFrame of the permutation distributions.</li>
+<li><strong>original_statistic</strong> (<em>float</em>) – The original value of the statistic computed on the data.</li>
+<li><strong>permutation_distribution</strong> (<em>DataFrame</em><em> or </em><em>Series</em>) – A pandas DataFrame of the permutation distributions.</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><dl class="docutils">
-<dt>float</dt>
-<dd><p class="first last">The p-value that was located/computed.</p>
-</dd>
-</dl>
-</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>p_val</strong> – The p-value that was located/computed.</p>
 </td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">p_val</p>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">float</p>
 </td>
 </tr>
 </tbody>
@@ -151,25 +144,23 @@ function will be run on.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>resamples</strong> – int, optional, default: 10000
-The total amount of permutation resamples desired.</li>
-<li><strong>dataframe</strong> – DataFrame
-The data to be used to randomly draw permutation resamples.</li>
-<li><strong>statistic</strong> – function
-A function that will compute a statistic that measures the size
+<li><strong>resamples</strong> (<em>int</em><em>, </em><em>optional</em><em>, </em><em>default: 10000</em>) – The total amount of permutation resamples desired.</li>
+<li><strong>dataframe</strong> (<em>DataFrame</em>) – The data to be used to randomly draw permutation resamples.</li>
+<li><strong>statistic</strong> (<em>function</em>) – A function that will compute a statistic that measures the size
 of an effect of interest (e.g. difference of means, mutual
 information, and etc.)</li>
-<li><strong>beh_col_vec</strong> – pandas Series
-The columns vectors to be used as the two groups to
+<li><strong>beh_col_vec</strong> (<em>pandas Series</em>) – The columns vectors to be used as the two groups to
 use for permutation resamples.</li>
-<li><strong>flip_roll</strong> – boolean, optional, default: False
-If data should be flipped and then randomly rolled for each
+<li><strong>flip_roll</strong> (<em>boolean</em><em>, </em><em>optional</em><em>, </em><em>default: False</em>) – If data should be flipped and then randomly rolled for each
 resample.</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A (vertically) concatenated pandas DataFrame of all the DataFrames
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">A (vertically) concatenated pandas DataFrame of all the DataFrames
 the shuffle_worker processes produced.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">pandas DataFrame</p>
 </td>
 </tr>
 </tbody>
@@ -187,23 +178,22 @@ normally distributed.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>original_statistic</strong> – float
-The original value of the statistic computed on the data.</li>
-<li><strong>permutation_distribution</strong> – pandas DataFrame
-A DataFrame of the permutation distributions.</li>
-<li><strong>high</strong> – float, optional, default: 95.0
-The cutoff for the upper-tail of the distribution.</li>
-<li><strong>low</strong> – float, optional, default: 5.0
-The cutoff for the lower-tail of the distribution.</li>
+<li><strong>original_statistic</strong> (<em>float</em>) – The original value of the statistic computed on the data.</li>
+<li><strong>permutation_distribution</strong> (<em>pandas DataFrame</em>) – A DataFrame of the permutation distributions.</li>
+<li><strong>high</strong> (<em>float</em><em>, </em><em>optional</em><em>, </em><em>default: 95.0</em>) – The cutoff for the upper-tail of the distribution.</li>
+<li><strong>low</strong> (<em>float</em><em>, </em><em>optional</em><em>, </em><em>default: 5.0</em>) – The cutoff for the lower-tail of the distribution.</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">1 if the original statistic is observed in the upper-tail of the
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">1 if the original statistic is observed in the upper-tail of the
 permutation distribution.
 -1 if the original statistic is observed in the lower-tail of the
 permutation distribution.
 0 if the original statistic is not observed in either tail of the
 permutation distribution.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">int</p>
 </td>
 </tr>
 </tbody>
@@ -219,22 +209,15 @@ permutation distribution.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>original_statistic</strong> – float
-The original value of the statistic computed on the data.</li>
-<li><strong>permutation_distribution</strong> – pandas DataFrame or pandas Series
-The permutation distribution.</li>
+<li><strong>original_statistic</strong> (<em>float</em>) – The original value of the statistic computed on the data.</li>
+<li><strong>permutation_distribution</strong> (<em>pandas DataFrame</em><em> or </em><em>pandas Series</em>) – The permutation distribution.</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><dl class="docutils">
-<dt>float</dt>
-<dd><p class="first last">The z-score that was computed.</p>
-</dd>
-</dl>
-</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>z_score</strong> – The z-score that was computed.</p>
 </td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">z_score</p>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">float</p>
 </td>
 </tr>
 </tbody>

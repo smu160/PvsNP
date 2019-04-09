@@ -78,13 +78,9 @@ mean size of all those cliques.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><dl class="docutils">
-<dt>float</dt>
-<dd>The mean clique size of the network of neurons.</dd>
-</dl>
-</td>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><strong>mean</strong> – The mean clique size of the network of neurons.</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">mean</td>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">float</td>
 </tr>
 </tbody>
 </table>
@@ -146,24 +142,17 @@ the specific correlation coefficient of those two nodes.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>nodes</strong> – list
-A list of all the neurons/nodes in the network/graph.</li>
-<li><strong>edges</strong> – dict {(int, int): scalar, …, (int, int): scalar}
-A dictionary of key-value pairs, where each key is a tuple
+<li><strong>nodes</strong> (<em>list</em>) – A list of all the neurons/nodes in the network/graph.</li>
+<li><strong>edges</strong> (<em>dict {</em><em>(</em><em>int</em><em>, </em><em>int</em><em>)</em><em>: scalar</em><em>, </em><em>..</em><em>, </em><em>(</em><em>int</em><em>, </em><em>int</em><em>)</em><em>: scalar}</em>) – A dictionary of key-value pairs, where each key is a tuple
 representing an edge between two neurons/nodes, and each value
 is a scalar value representing the weight of that edge.</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><dl class="docutils">
-<dt>NetworkX graph</dt>
-<dd><p class="first last">A graph of the neuronal network.</p>
-</dd>
-</dl>
-</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>graph</strong> – A graph of the neuronal network.</p>
 </td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">graph</p>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">NetworkX graph</p>
 </td>
 </tr>
 </tbody>
@@ -192,69 +181,46 @@ spring layout algorithm, or by the positions provided.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>pos</strong> – dict, optional, default: networkx.drawing.layout.spring_layout
-A dictionary of the network’s neurons as keys and their (x, y)
+<li><strong>pos</strong> (<em>dict</em><em>, </em><em>optional</em><em>, </em><em>default: networkx.drawing.layout.spring_layout</em>) – A dictionary of the network’s neurons as keys and their (x, y)
 coordinates as corresponding values.</li>
-<li><strong>nodelist</strong> – list, optional, default: self.neurons
-Draw only specified neurons (nodes).</li>
-<li><strong>node_size</strong> – int or list, optional, default: 300
-The size of the plotted neurons in the network.</li>
-<li><strong>node_color</strong> – (color string, or array of floats), optional, default: ‘r’
-Can either be a single color format string (default=’r’), or a
+<li><strong>nodelist</strong> (<em>list</em><em>, </em><em>optional</em><em>, </em><em>default: self.neurons</em>) – Draw only specified neurons (nodes).</li>
+<li><strong>node_size</strong> (<em>int</em><em> or </em><em>list</em><em>, </em><em>optional</em><em>, </em><em>default: 300</em>) – The size of the plotted neurons in the network.</li>
+<li><strong>node_color</strong> (<em>(</em><em>color string</em><em>, or </em><em>array of floats</em><em>)</em><em>, </em><em>optional</em><em>, </em><em>default: 'r'</em>) – Can either be a single color format string (default=’r’), or a
 sequence of colors with the same length as nodelist. If numeric
 values are specified they will be mapped to colors using the
 cmap and vmin, vmax parameters. See matplotlib.scatter for more
 details.</li>
-<li><strong>cmap</strong> – Matplotlib colormap, optional, default: None
-Colormap for mapping intensities of nodes.</li>
-<li><strong>alpha</strong> – float, optional, default: 1.0
-The transparency of the nodes.</li>
-<li><strong>node_borders</strong> – (None, scalar, or sequence), optional, default: ‘black’
-The color(s) of the node borders.</li>
-<li><strong>edgelist</strong> – (collection of edge tuples), optional, default: self.connections
-Draw only specified edges. By default, the edges between all
+<li><strong>cmap</strong> (<em>Matplotlib colormap</em><em>, </em><em>optional</em><em>, </em><em>default: None</em>) – Colormap for mapping intensities of nodes.</li>
+<li><strong>alpha</strong> (<em>float</em><em>, </em><em>optional</em><em>, </em><em>default: 1.0</em>) – The transparency of the nodes.</li>
+<li><strong>node_borders</strong> (<em>(</em><em>None</em><em>, </em><em>scalar</em><em>, or </em><em>sequence</em><em>)</em><em>, </em><em>optional</em><em>, </em><em>default: 'black'</em>) – The color(s) of the node borders.</li>
+<li><strong>edgelist</strong> (<em>(</em><em>collection of edge tuples</em><em>)</em><em>, </em><em>optional</em><em>, </em><em>default: self.connections</em>) – Draw only specified edges. By default, the edges between all
 nodes will be drawn. If <cite>[]</cite> (i.e. empty list), then the edges
 between all nodes will be omitted from the figure.</li>
-<li><strong>edge_alpha</strong> – float, optional, default is 1.0
-The transparency of the edges.</li>
-<li><strong>edge_color</strong> – (color string, or array of floats), default: ‘r’
-Can either be a single color format string, or a sequence of
+<li><strong>edge_alpha</strong> (<em>float</em><em>, </em><em>optional</em><em>, </em><em>default is 1.0</em>) – The transparency of the edges.</li>
+<li><strong>edge_color</strong> (<em>(</em><em>color string</em><em>, or </em><em>array of floats</em><em>)</em><em>, </em><em>default: 'r'</em>) – Can either be a single color format string, or a sequence of
 colors with the same length as edgelist. If numeric values are
 specified they will be mapped to colors using the edge_cmap and
 edge_vmin, edge_vmax parameters.</li>
-<li><strong>edge_cmap</strong> – Matplotlib colormap, optional, default: None
-Colormap for mapping intensities of edges.</li>
-<li><strong>width</strong> – float, optional, default: 1.0
-The width of the edges.</li>
-<li><strong>labels</strong> – bool, optional, default: True
-If False, then omit node labels and edge labels.</li>
-<li><strong>font_size</strong> – int, optional, default: 10
-The size of the font for text labels.</li>
-<li><strong>figsize</strong> – tuple, optional, default: (20, 20)
-The size of the network figure to be plotted.</li>
-<li><strong>savefig</strong> – bool, optional, default: False
-When True, the plotted figure will be saved to the current
+<li><strong>edge_cmap</strong> (<em>Matplotlib colormap</em><em>, </em><em>optional</em><em>, </em><em>default: None</em>) – Colormap for mapping intensities of edges.</li>
+<li><strong>width</strong> (<em>float</em><em>, </em><em>optional</em><em>, </em><em>default: 1.0</em>) – The width of the edges.</li>
+<li><strong>labels</strong> (<em>bool</em><em>, </em><em>optional</em><em>, </em><em>default: True</em>) – If False, then omit node labels and edge labels.</li>
+<li><strong>font_size</strong> (<em>int</em><em>, </em><em>optional</em><em>, </em><em>default: 10</em>) – The size of the font for text labels.</li>
+<li><strong>figsize</strong> (<em>tuple</em><em>, </em><em>optional</em><em>, </em><em>default:</em><em> (</em><em>20</em><em>, </em><em>20</em><em>)</em>) – The size of the network figure to be plotted.</li>
+<li><strong>savefig</strong> (<em>bool</em><em>, </em><em>optional</em><em>, </em><em>default: False</em>) – When True, the plotted figure will be saved to the current
 working directory, in PDF format, at the default (or specified)
 DPI.</li>
-<li><strong>dpi</strong> – int, optional, default: 600
-The amount of dots per inch to use when saving the figure. In
+<li><strong>dpi</strong> (<em>int</em><em>, </em><em>optional</em><em>, </em><em>default: 600</em>) – The amount of dots per inch to use when saving the figure. In
 accordance with Nature’s guidelines, the default is 600.
 Source: <a class="reference external" href="https://www.nature.com/nature/for-authors/final-submission">https://www.nature.com/nature/for-authors/final-submission</a></li>
-<li><strong>title</strong> – str, optional, default: None
-The title of the plotted graph/network.</li>
+<li><strong>title</strong> (<em>str</em><em>, </em><em>optional</em><em>, </em><em>default: None</em>) – The title of the plotted graph/network.</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><dl class="docutils">
-<dt>dict</dt>
-<dd><p class="first last">A dictionary of the network’s neurons as keys and their (x, y)
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>pos</strong> – A dictionary of the network’s neurons as keys and their (x, y)
 coordinates as corresponding values.</p>
-</dd>
-</dl>
-</p>
 </td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">pos</p>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">dict</p>
 </td>
 </tr>
 </tbody>
@@ -270,16 +236,12 @@ coordinates as corresponding values.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>weight</strong> – str, optional, default: ‘weight’</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>weight</strong> (<em>str</em><em>, </em><em>optional</em><em>, </em><em>default: 'weight'</em>) – </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="docutils">
-<dt>float</dt>
-<dd>The clustering coefficient divided by the average shortest path
-length of the neuron network.</dd>
-</dl>
-</td>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><strong>small_worldness</strong> – The clustering coefficient divided by the average shortest path
+length of the neuron network.</td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">small_worldness</td>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">float</td>
 </tr>
 </tbody>
 </table>

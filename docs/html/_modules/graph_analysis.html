@@ -93,18 +93,20 @@
 <span class="sd">        will be connected by an edge, where the edge will receive a weight of</span>
 <span class="sd">        the specific correlation coefficient of those two nodes.</span>
 
-<span class="sd">        Args:</span>
-<span class="sd">            nodes: list</span>
-<span class="sd">                A list of all the neurons/nodes in the network/graph.</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        nodes: list</span>
+<span class="sd">            A list of all the neurons/nodes in the network/graph.</span>
 
-<span class="sd">            edges: dict {(int, int): scalar, ..., (int, int): scalar}</span>
-<span class="sd">                A dictionary of key-value pairs, where each key is a tuple</span>
-<span class="sd">                representing an edge between two neurons/nodes, and each value</span>
-<span class="sd">                is a scalar value representing the weight of that edge.</span>
+<span class="sd">        edges: dict {(int, int): scalar, ..., (int, int): scalar}</span>
+<span class="sd">            A dictionary of key-value pairs, where each key is a tuple</span>
+<span class="sd">            representing an edge between two neurons/nodes, and each value</span>
+<span class="sd">            is a scalar value representing the weight of that edge.</span>
 
-<span class="sd">        Returns:</span>
-<span class="sd">            graph: NetworkX graph</span>
-<span class="sd">                A graph of the neuronal network.</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        graph: NetworkX graph</span>
+<span class="sd">            A graph of the neuronal network.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">graph</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">Graph</span><span class="p">()</span>
         <span class="n">graph</span><span class="o">.</span><span class="n">add_nodes_from</span><span class="p">(</span><span class="n">nodes</span><span class="p">)</span>
@@ -120,79 +122,81 @@
 <span class="sd">        This function will draw a provided NetworkX graph using either the</span>
 <span class="sd">        spring layout algorithm, or by the positions provided.</span>
 
-<span class="sd">        Args:</span>
-<span class="sd">            pos: dict, optional, default: networkx.drawing.layout.spring_layout</span>
-<span class="sd">                A dictionary of the network&#39;s neurons as keys and their (x, y)</span>
-<span class="sd">                coordinates as corresponding values.</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        pos: dict, optional, default: networkx.drawing.layout.spring_layout</span>
+<span class="sd">            A dictionary of the network&#39;s neurons as keys and their (x, y)</span>
+<span class="sd">            coordinates as corresponding values.</span>
 
-<span class="sd">            nodelist: list, optional, default: self.neurons</span>
-<span class="sd">                Draw only specified neurons (nodes).</span>
+<span class="sd">        nodelist: list, optional, default: self.neurons</span>
+<span class="sd">            Draw only specified neurons (nodes).</span>
 
-<span class="sd">            node_size: int or list, optional, default: 300</span>
-<span class="sd">                The size of the plotted neurons in the network.</span>
+<span class="sd">        node_size: int or list, optional, default: 300</span>
+<span class="sd">            The size of the plotted neurons in the network.</span>
 
-<span class="sd">            node_color: (color string, or array of floats), optional, default: &#39;r&#39;</span>
-<span class="sd">                Can either be a single color format string (default=’r’), or a</span>
-<span class="sd">                sequence of colors with the same length as nodelist. If numeric</span>
-<span class="sd">                values are specified they will be mapped to colors using the</span>
-<span class="sd">                cmap and vmin, vmax parameters. See matplotlib.scatter for more</span>
-<span class="sd">                details.</span>
+<span class="sd">        node_color: (color string, or array of floats), optional, default: &#39;r&#39;</span>
+<span class="sd">            Can either be a single color format string (default=’r’), or a</span>
+<span class="sd">            sequence of colors with the same length as nodelist. If numeric</span>
+<span class="sd">            values are specified they will be mapped to colors using the</span>
+<span class="sd">            cmap and vmin, vmax parameters. See matplotlib.scatter for more</span>
+<span class="sd">            details.</span>
 
-<span class="sd">            cmap: Matplotlib colormap, optional, default: None</span>
-<span class="sd">                Colormap for mapping intensities of nodes.</span>
+<span class="sd">        cmap: Matplotlib colormap, optional, default: None</span>
+<span class="sd">            Colormap for mapping intensities of nodes.</span>
 
-<span class="sd">            alpha: float, optional, default: 1.0</span>
-<span class="sd">                The transparency of the nodes.</span>
+<span class="sd">        alpha: float, optional, default: 1.0</span>
+<span class="sd">            The transparency of the nodes.</span>
 
-<span class="sd">            node_borders: (None, scalar, or sequence), optional, default: &#39;black&#39;</span>
-<span class="sd">                The color(s) of the node borders.</span>
+<span class="sd">        node_borders: (None, scalar, or sequence), optional, default: &#39;black&#39;</span>
+<span class="sd">            The color(s) of the node borders.</span>
 
-<span class="sd">            edgelist: (collection of edge tuples), optional, default: self.connections</span>
-<span class="sd">                Draw only specified edges. By default, the edges between all</span>
-<span class="sd">                nodes will be drawn. If `[]` (i.e. empty list), then the edges</span>
-<span class="sd">                between all nodes will be omitted from the figure.</span>
+<span class="sd">        edgelist: (collection of edge tuples), optional, default: self.connections</span>
+<span class="sd">            Draw only specified edges. By default, the edges between all</span>
+<span class="sd">            nodes will be drawn. If `[]` (i.e. empty list), then the edges</span>
+<span class="sd">            between all nodes will be omitted from the figure.</span>
 
-<span class="sd">            edge_alpha: float, optional, default is 1.0</span>
-<span class="sd">                The transparency of the edges.</span>
+<span class="sd">        edge_alpha: float, optional, default is 1.0</span>
+<span class="sd">            The transparency of the edges.</span>
 
-<span class="sd">            edge_color: (color string, or array of floats), default: &#39;r&#39;</span>
-<span class="sd">                Can either be a single color format string, or a sequence of</span>
-<span class="sd">                colors with the same length as edgelist. If numeric values are</span>
-<span class="sd">                specified they will be mapped to colors using the edge_cmap and</span>
-<span class="sd">                edge_vmin, edge_vmax parameters.</span>
+<span class="sd">        edge_color: (color string, or array of floats), default: &#39;r&#39;</span>
+<span class="sd">            Can either be a single color format string, or a sequence of</span>
+<span class="sd">            colors with the same length as edgelist. If numeric values are</span>
+<span class="sd">            specified they will be mapped to colors using the edge_cmap and</span>
+<span class="sd">            edge_vmin, edge_vmax parameters.</span>
 
-<span class="sd">            edge_cmap : Matplotlib colormap, optional, default: None</span>
-<span class="sd">                Colormap for mapping intensities of edges.</span>
+<span class="sd">        edge_cmap : Matplotlib colormap, optional, default: None</span>
+<span class="sd">            Colormap for mapping intensities of edges.</span>
 
-<span class="sd">            width: float, optional, default: 1.0</span>
-<span class="sd">                The width of the edges.</span>
+<span class="sd">        width: float, optional, default: 1.0</span>
+<span class="sd">            The width of the edges.</span>
 
-<span class="sd">            labels: bool, optional, default: True</span>
-<span class="sd">                If False, then omit node labels and edge labels.</span>
+<span class="sd">        labels: bool, optional, default: True</span>
+<span class="sd">            If False, then omit node labels and edge labels.</span>
 
-<span class="sd">            font_size: int, optional, default: 10</span>
-<span class="sd">                The size of the font for text labels.</span>
+<span class="sd">        font_size: int, optional, default: 10</span>
+<span class="sd">            The size of the font for text labels.</span>
 
-<span class="sd">            figsize: tuple, optional, default: (20, 20)</span>
-<span class="sd">                The size of the network figure to be plotted.</span>
+<span class="sd">        figsize: tuple, optional, default: (20, 20)</span>
+<span class="sd">            The size of the network figure to be plotted.</span>
 
-<span class="sd">            savefig: bool, optional, default: False</span>
-<span class="sd">                When True, the plotted figure will be saved to the current</span>
-<span class="sd">                working directory, in PDF format, at the default (or specified)</span>
-<span class="sd">                DPI.</span>
+<span class="sd">        savefig: bool, optional, default: False</span>
+<span class="sd">            When True, the plotted figure will be saved to the current</span>
+<span class="sd">            working directory, in PDF format, at the default (or specified)</span>
+<span class="sd">            DPI.</span>
 
-<span class="sd">            dpi: int, optional, default: 600</span>
-<span class="sd">                The amount of dots per inch to use when saving the figure. In</span>
-<span class="sd">                accordance with Nature&#39;s guidelines, the default is 600.</span>
-<span class="sd">                Source: https://www.nature.com/nature/for-authors/final-submission</span>
+<span class="sd">        dpi: int, optional, default: 600</span>
+<span class="sd">            The amount of dots per inch to use when saving the figure. In</span>
+<span class="sd">            accordance with Nature&#39;s guidelines, the default is 600.</span>
+<span class="sd">            Source: https://www.nature.com/nature/for-authors/final-submission</span>
 
-<span class="sd">            title: str, optional, default: None</span>
-<span class="sd">                The title of the plotted graph/network.</span>
+<span class="sd">        title: str, optional, default: None</span>
+<span class="sd">            The title of the plotted graph/network.</span>
 
-<span class="sd">        Returns:</span>
-<span class="sd">            pos: dict</span>
-<span class="sd">                A dictionary of the network&#39;s neurons as keys and their (x, y)</span>
-<span class="sd">                coordinates as corresponding values.</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        pos: dict</span>
+<span class="sd">            A dictionary of the network&#39;s neurons as keys and their (x, y)</span>
+<span class="sd">            coordinates as corresponding values.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="c1"># Get positions for all nodes</span>
@@ -329,9 +333,10 @@
 <span class="sd">        Finds all cliques in an undirected graph (network), and computes the</span>
 <span class="sd">        mean size of all those cliques.</span>
 
-<span class="sd">        Returns:</span>
-<span class="sd">            mean: float</span>
-<span class="sd">                The mean clique size of the network of neurons.</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        mean: float</span>
+<span class="sd">            The mean clique size of the network of neurons.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">all_cliques</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">enumerate_all_cliques</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">network</span><span class="p">)</span>
 
@@ -350,13 +355,15 @@
 
 <span class="sd">        Source: https://www.nature.com/articles/srep22057</span>
 
-<span class="sd">        Args:</span>
-<span class="sd">            weight: str, optional, default: &#39;weight&#39;</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        weight: str, optional, default: &#39;weight&#39;</span>
 
-<span class="sd">        Returns:</span>
-<span class="sd">            small_worldness: float</span>
-<span class="sd">                The clustering coefficient divided by the average shortest path</span>
-<span class="sd">                length of the neuron network.</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        small_worldness: float</span>
+<span class="sd">            The clustering coefficient divided by the average shortest path</span>
+<span class="sd">            length of the neuron network.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;Patience is a virtue.&quot;</span><span class="p">)</span></div></div>
 </pre></div>

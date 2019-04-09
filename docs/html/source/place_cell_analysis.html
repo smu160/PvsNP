@@ -49,25 +49,18 @@ and filtering.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>x_coords</strong> – list
-A list of natural numbers, such that the value at each index,
+<li><strong>x_coords</strong> (<em>list</em>) – A list of natural numbers, such that the value at each index,
 corresponds to the value at each index in y_coords.</li>
-<li><strong>y</strong> – coords: list
-A list of natural numbers, such that the value at each index,
+<li><strong>y</strong> (<em>coords: list</em>) – A list of natural numbers, such that the value at each index,
 corresponds to the value at each index in x_coords.</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><dl class="docutils">
-<dt>list</dt>
-<dd><p class="first last">The resulting list from applying the cantor pairing function to each
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>z_coords</strong> – The resulting list from applying the cantor pairing function to each
 corresponding pair of natural numbers, i.e., (x_i, y_i).</p>
-</dd>
-</dl>
-</p>
 </td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">z_coords</p>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">list</p>
 </td>
 </tr>
 </tbody>
@@ -83,29 +76,20 @@ corresponding pair of natural numbers, i.e., (x_i, y_i).</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>mouse</strong> – Mouse
-The mouse object whose spikes_and_beh dataframe contains an <cite>X</cite> and
+<li><strong>mouse</strong> (<a class="reference internal" href="analysis_utils.html#analysis_utils.Mouse" title="analysis_utils.Mouse"><em>Mouse</em></a>) – The mouse object whose spikes_and_beh dataframe contains an <cite>X</cite> and
 a <cite>Y</cite> column to bin by the provided bin size.</li>
-<li><strong>bin_size</strong> – int, optional, default: 5
-(i.e., bin_factor=5 ==&gt; 5 x 5 bins)</li>
-<li><strong>x_col</strong> – str, optional, default: ‘X_center’
-The name of the column that contains the <cite>X</cite> coordinates in the
+<li><strong>bin_size</strong> (<em>int</em><em>, </em><em>optional</em><em>, </em><em>default: 5</em>) – (i.e., bin_factor=5 ==&gt; 5 x 5 bins)</li>
+<li><strong>x_col</strong> (<em>str</em><em>, </em><em>optional</em><em>, </em><em>default: 'X_center'</em>) – The name of the column that contains the <cite>X</cite> coordinates in the
 spikes_and_beh dataframe.</li>
-<li><strong>y_col</strong> – str, optional, default: ‘Y_center’
-The name of the column that contains the <cite>Y</cite> coordinates in the
+<li><strong>y_col</strong> (<em>str</em><em>, </em><em>optional</em><em>, </em><em>default: 'Y_center'</em>) – The name of the column that contains the <cite>Y</cite> coordinates in the
 spikes_and_beh dataframe.</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><dl class="docutils">
-<dt>tuple</dt>
-<dd><p class="first last">The binned x coordinates and the binned y coordinates in a tuple.</p>
-</dd>
-</dl>
-</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>x_coords, y_coords</strong> – The binned x coordinates and the binned y coordinates in a tuple.</p>
 </td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">x_coords, y_coords</p>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">tuple</p>
 </td>
 </tr>
 </tbody>
@@ -121,17 +105,12 @@ spikes_and_beh dataframe.</li>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>z</strong> – int
-A natural number that is comprised of two unique natural numbers.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>z</strong> (<em>int</em>) – A natural number that is comprised of two unique natural numbers.</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="docutils">
-<dt>tuple</dt>
-<dd>The two unique natural numbers, x, y, that comprise the unqique
-encoding of z.</dd>
-</dl>
-</td>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><strong>x, y</strong> – The two unique natural numbers, x, y, that comprise the unqique
+encoding of z.</td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">x, y</td>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">tuple</td>
 </tr>
 </tbody>
 </table>
@@ -151,23 +130,16 @@ pi: mathbb{N} times mathbb{N} rightarrow mathbb(N)</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>x</strong> – int
-One of the natural numbers to encode into a single natural number.</li>
-<li><strong>y</strong> – int
-One of the natural numbers to encode into a single natural number.</li>
+<li><strong>x</strong> (<em>int</em>) – One of the natural numbers to encode into a single natural number.</li>
+<li><strong>y</strong> (<em>int</em>) – One of the natural numbers to encode into a single natural number.</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><dl class="docutils">
-<dt>int</dt>
-<dd><p class="first last">The single natural number uniquely encoded from the the provided
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>z</strong> – The single natural number uniquely encoded from the the provided
 natural numbers, x and y.</p>
-</dd>
-</dl>
-</p>
 </td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">z</p>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">int</p>
 </td>
 </tr>
 </tbody>
@@ -182,12 +154,14 @@ natural numbers, x and y.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>mouse</strong> – Mouse object</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>mouse</strong> (<em>Mouse object</em>) – </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">mobile_c:<p>mobile_beh:</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><ul class="simple">
+<li><em>mobile_s</em></li>
+<li><em>mobile_c</em></li>
+<li><em>mobile_beh</em></li>
+</ul>
 </td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">mobile_s</td>
 </tr>
 </tbody>
 </table>
@@ -202,25 +176,19 @@ natural numbers, x and y.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>mouse</strong> – Mouse</li>
-<li><strong>x_bin</strong> – pandas Series
-Binned x coordinates</li>
-<li><strong>y_bin</strong> – pandas Series
-Binned y coordinates</li>
+<li><strong>mouse</strong> (<a class="reference internal" href="analysis_utils.html#analysis_utils.Mouse" title="analysis_utils.Mouse"><em>Mouse</em></a>) – </li>
+<li><strong>x_bin</strong> (<em>pandas Series</em>) – Binned x coordinates</li>
+<li><strong>y_bin</strong> (<em>pandas Series</em>) – Binned y coordinates</li>
 <li><strong>min_occupancy</strong> – minimum number of time bins for a spatial bin to be included</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><p>filtered_binned_c:</p>
-<dl class="docutils">
-<dt>filtered_binned_beh:</dt>
-<dd><p class="first last">Low-occupancy spatial bins removed, and the new columns</p>
-</dd>
-</dl>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><ul class="simple">
+<li><em>filtered_binned_s</em></li>
+<li><em>filtered_binned_c</em></li>
+<li><em>filtered_binned_beh</em> – Low-occupancy spatial bins removed, and the new columns</li>
+</ul>
 </p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">filtered_binned_s</p>
 </td>
 </tr>
 </tbody>

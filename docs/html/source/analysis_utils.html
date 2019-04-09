@@ -59,29 +59,20 @@ neuron, given some set of behaviors.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>spikes_and_beh</strong> – DataFrame
-A concatenated pandas DataFrame of the neuron activity and
+<li><strong>spikes_and_beh</strong> (<em>DataFrame</em>) – A concatenated pandas DataFrame of the neuron activity and
 the corresponding behavior, for a given animal.</li>
-<li><strong>neuron_names</strong> – list
-The names of the neurons whose rates are to be computed.</li>
-<li><strong>behaviors</strong> – arbitrary argument list
-The behaviors for which to compute the activity rates.
+<li><strong>neuron_names</strong> (<em>list</em>) – The names of the neurons whose rates are to be computed.</li>
+<li><strong>behaviors</strong> (<em>arbitrary argument list</em>) – The behaviors for which to compute the activity rates.
 NOTE: If no behaviors are provided, then the average rate over the
 entire session.</li>
-<li><strong>frame_rate</strong> – int, optional, default: 10
-The framerate by which to multiply the activity rate.</li>
+<li><strong>frame_rate</strong> (<em>int</em><em>, </em><em>optional</em><em>, </em><em>default: 10</em>) – The framerate by which to multiply the activity rate.</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><dl class="docutils">
-<dt>DataFrame</dt>
-<dd><p class="first last">A pandas DataFrame of the neuron activity rates.</p>
-</dd>
-</dl>
-</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>activity_df</strong> – A pandas DataFrame of the neuron activity rates.</p>
 </td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">activity_df</p>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">DataFrame</p>
 </td>
 </tr>
 </tbody>
@@ -97,22 +88,15 @@ The framerate by which to multiply the activity rate.</li>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>dist_moved</strong> – pandas Series
-A one-dimensional ndarray containing distance moved.</li>
-<li><strong>framerate</strong> – int, optional, default: 10
-The frame rate corresponding to the dist_moved Series.</li>
+<li><strong>dist_moved</strong> (<em>pandas Series</em>) – A one-dimensional ndarray containing distance moved.</li>
+<li><strong>framerate</strong> (<em>int</em><em>, </em><em>optional</em><em>, </em><em>default: 10</em>) – The frame rate corresponding to the dist_moved Series.</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><dl class="docutils">
-<dt>pandas Series</dt>
-<dd><p class="first last">A one-dimensional ndarray containing velocity.</p>
-</dd>
-</dl>
-</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>velocity</strong> – A one-dimensional ndarray containing velocity.</p>
 </td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">velocity</p>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">pandas Series</p>
 </td>
 </tr>
 </tbody>
@@ -132,33 +116,23 @@ Stefanini…Fusi et al. 2018 (<a class="reference external" href="https://doi.or
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>velocity</strong> – pandas Series
-A one-dimensional ndarray of the velocity data.</li>
-<li><strong>min_dur</strong> – int, optional, default: 1
-The minimum length of time in seconds in which velocity must be low.</li>
-<li><strong>min_vel</strong> – int, optional, default: 2
-The minimum velocity in cm/s for which the mouse can be considered
+<li><strong>velocity</strong> (<em>pandas Series</em>) – A one-dimensional ndarray of the velocity data.</li>
+<li><strong>min_dur</strong> (<em>int</em><em>, </em><em>optional</em><em>, </em><em>default: 1</em>) – The minimum length of time in seconds in which velocity must be low.</li>
+<li><strong>min_vel</strong> (<em>int</em><em>, </em><em>optional</em><em>, </em><em>default: 2</em>) – The minimum velocity in cm/s for which the mouse can be considered
 mobile.</li>
-<li><strong>framerate</strong> – int, optional, default: 10
-The frame rate of the velocity Series. Default is 10 fps.</li>
-<li><strong>min_periods</strong> – int, optional, default: 1
-Minimum number of datapoints needed to determine immobility. This
+<li><strong>framerate</strong> (<em>int</em><em>, </em><em>optional</em><em>, </em><em>default: 10</em>) – The frame rate of the velocity Series. Default is 10 fps.</li>
+<li><strong>min_periods</strong> (<em>int</em><em>, </em><em>optional</em><em>, </em><em>default: 1</em>) – Minimum number of datapoints needed to determine immobility. This
 value is needed to define immobile time bins at the beginning of the
 session. If min_periods=8, then the first 8 time bins will be be
 considered immobile, regardless of velocity.</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><dl class="docutils">
-<dt>pandas Series</dt>
-<dd><p class="first last">A one-dimensional ndarray of 0’s and 1’s, where 1 signifies immobile
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>mobile_immobile</strong> – A one-dimensional ndarray of 0’s and 1’s, where 1 signifies immobile
 times and 0 signifies mobile times.</p>
-</dd>
-</dl>
-</p>
 </td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">mobile_immobile</p>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">pandas Series</p>
 </td>
 </tr>
 </tbody>
@@ -174,21 +148,15 @@ times and 0 signifies mobile times.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>x_coords</strong> – pandas Series
-A one-dimensional ndarray of x coordinates, over time.</li>
+<li><strong>x_coords</strong> (<em>pandas Series</em>) – A one-dimensional ndarray of x coordinates, over time.</li>
 <li><strong>y_coords</strong> – A one-dimensional ndarray of y coordinates, over time.</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><dl class="docutils">
-<dt>pandas Series</dt>
-<dd><p class="first last">A series with the distance moved per corresponding frame.</p>
-</dd>
-</dl>
-</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>dist_moved</strong> – A series with the distance moved per corresponding frame.</p>
 </td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">dist_moved</p>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">pandas Series</p>
 </td>
 </tr>
 </tbody>
@@ -204,24 +172,17 @@ A one-dimensional ndarray of x coordinates, over time.</li>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>dataframe</strong> – DataFrame
-The pandas DataFrame to be downsampled.</li>
-<li><strong>row_multiple</strong> – int
-The row multiple is the rows to be removed,
+<li><strong>dataframe</strong> (<em>DataFrame</em>) – The pandas DataFrame to be downsampled.</li>
+<li><strong>row_multiple</strong> (<em>int</em>) – The row multiple is the rows to be removed,
 e.g., a row_multiple of 3 would remove every 3rd row from the
 provided dataframe</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><dl class="docutils">
-<dt>DataFrame</dt>
-<dd><p class="first last">The downsampled pandas DataFrame.</p>
-</dd>
-</dl>
-</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>dataframe</strong> – The downsampled pandas DataFrame.</p>
 </td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">dataframe</p>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">DataFrame</p>
 </td>
 </tr>
 </tbody>
@@ -237,28 +198,21 @@ provided dataframe</li>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>mouse</strong> – Mouse
-An instance of the Mouse class that has a <cite>spikes_and_beh</cite>
+<li><strong>mouse</strong> (<a class="reference internal" href="#analysis_utils.Mouse" title="analysis_utils.Mouse"><em>Mouse</em></a>) – An instance of the Mouse class that has a <cite>spikes_and_beh</cite>
 pandas DataFrame, where <cite>spikes_and_beh</cite> has neural activity
 and corresponding behavior concatenated.</li>
-<li><strong>behavior</strong> – str
-The name of the behavior to use when extracting continuous time
+<li><strong>behavior</strong> (<em>str</em>) – The name of the behavior to use when extracting continuous time
 periods/events.</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><dl class="docutils">
-<dt>pandas Series</dt>
-<dd><p class="first last">A Series that has hierarchical indices, where “behavior” is the
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>epochs</strong> – A Series that has hierarchical indices, where “behavior” is the
 outermost index, followed by “interval”. Each interval contains
 an ndarray of timepoints in which the corresponding behavior was
 observed, continuously.</p>
-</dd>
-</dl>
-</p>
 </td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">epochs</p>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">pandas Series</p>
 </td>
 </tr>
 </tbody>
@@ -274,27 +228,24 @@ observed, continuously.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>interval_series</strong> – pandas Series
-A Series with an ndarray of continous behavior timepoints, for each
+<li><strong>interval_series</strong> (<em>pandas Series</em>) – A Series with an ndarray of continous behavior timepoints, for each
 index.</li>
-<li><strong>framerate</strong> – int, optional, default: 10
-The framerate that corresponds to the session from which the
+<li><strong>framerate</strong> (<em>int</em><em>, </em><em>optional</em><em>, </em><em>default: 10</em>) – The framerate that corresponds to the session from which the
 intervals were extracted.</li>
-<li><strong>seconds</strong> – int, optional, default: 1
-The amount of seconds.</li>
+<li><strong>seconds</strong> (<em>int</em><em>, </em><em>optional</em><em>, </em><em>default: 1</em>) – The amount of seconds.</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><dl class="docutils">
-<dt>list</dt>
-<dd><p class="first last">A list of all the intervals that are at least as long as the
-provided framerate multiplied by the provided seconds.</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><p><strong>intervals</strong> –</p>
+<dl class="docutils">
+<dt>A list of all the intervals that are at least as long as the</dt>
+<dd><p class="first last">provided framerate multiplied by the provided seconds.</p>
 </dd>
 </dl>
 </p>
 </td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">intervals</p>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">list</p>
 </td>
 </tr>
 </tbody>
@@ -310,23 +261,16 @@ provided framerate multiplied by the provided seconds.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>root_directory</strong> – str
-The name of the first or top-most directory (folder)
+<li><strong>root_directory</strong> (<em>str</em>) – The name of the first or top-most directory (folder)
 to search for the target file (e.g. “Hen_Lab/Mice”).</li>
-<li><strong>target_file</strong> – str
-The full name of the file to be found (e.g. “mouse1_spikes.csv”).</li>
+<li><strong>target_file</strong> (<em>str</em>) – The full name of the file to be found (e.g. “mouse1_spikes.csv”).</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><dl class="docutils">
-<dt>str</dt>
-<dd><p class="first last">The full path to the target file.</p>
-</dd>
-</dl>
-</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>file_path</strong> – The full path to the target file.</p>
 </td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">file_path</p>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">str</p>
 </td>
 </tr>
 </tbody>
@@ -342,16 +286,11 @@ The full name of the file to be found (e.g. “mouse1_spikes.csv”).</li>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>x_coords</strong> – pandas Series
-A one-dimensional ndarray of x coordinates, over time.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>x_coords</strong> (<em>pandas Series</em>) – A one-dimensional ndarray of x coordinates, over time.</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="docutils">
-<dt>pandas Series</dt>
-<dd>A series containing all the values x[i] - x[i-1]</dd>
-</dl>
-</td>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><strong>dx</strong> – A series containing all the values x[i] - x[i-1]</td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">dx</td>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">pandas Series</td>
 </tr>
 </tbody>
 </table>
@@ -366,25 +305,18 @@ A one-dimensional ndarray of x coordinates, over time.</td>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>data</strong> – DataFrame
-Ca2 transient data in T x N format, where N is the # of neuron
+<li><strong>data</strong> (<em>DataFrame</em>) – Ca2 transient data in T x N format, where N is the # of neuron
 column vectors, and T is the number of observations (rows),
 all in raw format.</li>
-<li><strong>mew</strong> – int, optional, default: None
-The mean value for the baseline of the data.
+<li><strong>mew</strong> (<em>int</em><em>, </em><em>optional</em><em>, </em><em>default: None</em>) – The mean value for the baseline of the data.
 Note: if the raw data comes from CNMF_E, use 0 for the baseline.</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><dl class="docutils">
-<dt>DataFrame</dt>
-<dd><p class="first last">The z scored raw cell data in T x N format.</p>
-</dd>
-</dl>
-</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>z_scored_data</strong> – The z scored raw cell data in T x N format.</p>
 </td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">z_scored_data</p>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">DataFrame</p>
 </td>
 </tr>
 </tbody>
