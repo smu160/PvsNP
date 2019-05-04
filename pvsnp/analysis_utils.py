@@ -66,7 +66,8 @@ class Mouse:
 def z_score_data(data, mew=None):
     """This function simply z scores all the given neural signal data.
 
-    Args:
+    Parameters
+    ----------
         data: DataFrame
             Ca2 transient data in T x N format, where N is the # of neuron
             column vectors, and T is the number of observations (rows),
@@ -76,9 +77,10 @@ def z_score_data(data, mew=None):
             The mean value for the baseline of the data.
             Note: if the raw data comes from CNMF_E, use 0 for the baseline.
 
-    Returns:
-        z_scored_data: DataFrame
-            The z scored raw cell data in T x N format.
+    Returns
+    -------
+    z_scored_data: DataFrame
+        The z scored raw cell data in T x N format.
     """
     pop_offset = np.percentile(data.values, 50)
     sigma = np.std(data.values, axis=0)
@@ -97,13 +99,16 @@ def pairwise_dist(x_coords):
 
     NOTE: This is a helper function for distance_moved.
 
-    Args:
-        x_coords: pandas Series
-            A one-dimensional ndarray of x coordinates, over time.
 
-    Returns:
-        dx: pandas Series
-            A series containing all the values x[i] - x[i-1]
+    Parameters
+    ----------
+    x_coords: pandas Series
+        A one-dimensional ndarray of x coordinates, over time.
+
+    Returns
+    -------
+    dx: pandas Series
+        A series containing all the values x[i] - x[i-1]
     """
     x_coords = x_coords.astype(float)
     delta_x = (np.roll(x_coords, -1) - x_coords).shift(1)
@@ -113,16 +118,18 @@ def pairwise_dist(x_coords):
 def distance_moved(x_coords, y_coords):
     """Computes the distance moved per frame
 
-    Args:
-        x_coords: pandas Series
-            A one-dimensional ndarray of x coordinates, over time.
+    Parameters
+    ----------
+    x_coords: pandas Series
+        A one-dimensional ndarray of x coordinates, over time.
 
-        y_coords:
-            A one-dimensional ndarray of y coordinates, over time.
+    y_coords:
+        A one-dimensional ndarray of y coordinates, over time.
 
-    Returns:
-        dist_moved: pandas Series
-            A series with the distance moved per corresponding frame.
+    Returns
+    -------
+    dist_moved: pandas Series
+        A series with the distance moved per corresponding frame.
     """
     if len(x_coords) != len(y_coords):
         raise ValueError("x_coords and y_coords are not of equal length!")
@@ -137,16 +144,19 @@ def distance_moved(x_coords, y_coords):
 
 def compute_velocity(dist_moved, framerate=10):
     """Computes the velocity.
-    Args:
-        dist_moved: pandas Series
-            A one-dimensional ndarray containing distance moved.
 
-        framerate: int, optional, default: 10
-            The frame rate corresponding to the dist_moved Series.
+    Parameters
+    ----------
+    dist_moved: pandas Series
+        A one-dimensional ndarray containing distance moved.
 
-    Returns:
-        velocity: pandas Series
-            A one-dimensional ndarray containing velocity.
+    framerate: int, optional, default: 10
+        The frame rate corresponding to the dist_moved Series.
+
+    Returns
+    -------
+    velocity: pandas Series
+        A one-dimensional ndarray containing velocity.
     """
     velocity = dist_moved.apply(lambda x: x * framerate)
     return velocity
@@ -161,30 +171,32 @@ def define_immobility(velocity, min_dur=1, min_vel=2, framerate=10, min_periods=
     Default values for min_dur and min_vel are taken from:
     Stefanini...Fusi et al. 2018 (https://doi.org/10.1101/292953)
 
-    Args:
-        velocity: pandas Series
-            A one-dimensional ndarray of the velocity data.
+    Parameters
+    ----------
+    velocity: pandas Series
+        A one-dimensional ndarray of the velocity data.
 
-        min_dur: int, optional, default: 1
-            The minimum length of time in seconds in which velocity must be low.
+    min_dur: int, optional, default: 1
+        The minimum length of time in seconds in which velocity must be low.
 
-        min_vel: int, optional, default: 2
-            The minimum velocity in cm/s for which the mouse can be considered
-            mobile.
+    min_vel: int, optional, default: 2
+        The minimum velocity in cm/s for which the mouse can be considered
+        mobile.
 
-        framerate: int, optional, default: 10
-            The frame rate of the velocity Series. Default is 10 fps.
+    framerate: int, optional, default: 10
+        The frame rate of the velocity Series. Default is 10 fps.
 
-        min_periods: int, optional, default: 1
-            Minimum number of datapoints needed to determine immobility. This
-            value is needed to define immobile time bins at the beginning of the
-            session. If min_periods=8, then the first 8 time bins will be be
-            considered immobile, regardless of velocity.
+    min_periods: int, optional, default: 1
+        Minimum number of datapoints needed to determine immobility. This
+        value is needed to define immobile time bins at the beginning of the
+        session. If min_periods=8, then the first 8 time bins will be be
+        considered immobile, regardless of velocity.
 
-    Returns:
-        mobile_immobile: pandas Series
-            A one-dimensional ndarray of 0's and 1's, where 1 signifies immobile
-            times and 0 signifies mobile times.
+    Returns
+    -------
+    mobile_immobile: pandas Series
+        A one-dimensional ndarray of 0's and 1's, where 1 signifies immobile
+        times and 0 signifies mobile times.
     """
     window_size = framerate * min_dur
     rolling_max_vel = velocity.rolling(window_size, min_periods=min_periods).max()
@@ -195,17 +207,19 @@ def define_immobility(velocity, min_dur=1, min_vel=2, framerate=10, min_periods=
 def find_file(root_directory, target_file):
     """Finds a file in a given root directory (folder).
 
-    Args:
-        root_directory: str
-            The name of the first or top-most directory (folder)
-            to search for the target file (e.g. "Hen_Lab/Mice").
+    Parameters
+    ----------
+    root_directory: str
+        The name of the first or top-most directory (folder)
+        to search for the target file (e.g. "Hen_Lab/Mice").
 
-        target_file: str
-            The full name of the file to be found (e.g. "mouse1_spikes.csv").
+    target_file: str
+        The full name of the file to be found (e.g. "mouse1_spikes.csv").
 
-    Returns:
-        file_path: str
-            The full path to the target file.
+    Returns
+    -------
+    file_path: str
+        The full path to the target file.
     """
     root_directory = os.path.join(os.path.expanduser("~"), root_directory)
 
@@ -226,22 +240,24 @@ def find_file(root_directory, target_file):
 def extract_epochs(mouse, behavior):
     """Extract all epochs of a continuous behavior/event.
 
-    Args:
-        mouse: Mouse
-            An instance of the Mouse class that has a `spikes_and_beh`
-            pandas DataFrame, where `spikes_and_beh` has neural activity
-            and corresponding behavior concatenated.
+    Parameters
+    ----------
+    mouse: Mouse
+        An instance of the Mouse class that has a `spikes_and_beh`
+        pandas DataFrame, where `spikes_and_beh` has neural activity
+        and corresponding behavior concatenated.
 
-        behavior: str
-            The name of the behavior to use when extracting continuous time
-            periods/events.
+    behavior: str
+        The name of the behavior to use when extracting continuous time
+        periods/events.
 
-    Returns:
-        epochs: pandas Series
-            A Series that has hierarchical indices, where "behavior" is the
-            outermost index, followed by "interval". Each interval contains
-            an ndarray of timepoints in which the corresponding behavior was
-            observed, continuously.
+    Returns
+    -------
+    epochs: pandas Series
+        A Series that has hierarchical indices, where "behavior" is the
+        outermost index, followed by "interval". Each interval contains
+        an ndarray of timepoints in which the corresponding behavior was
+        observed, continuously.
     """
     if behavior not in mouse.spikes_and_beh.columns:
         raise ValueError("'{}' is not a column (i.e. behavior) in the mouse's dataframe".format(behavior))
@@ -264,21 +280,23 @@ def extract_epochs(mouse, behavior):
 def filter_epochs(interval_series, framerate=10, seconds=1):
     """Helper function for extract_epochs.
 
-    Args:
-        interval_series: pandas Series
-            A Series with an ndarray of continous behavior timepoints, for each
-            index.
+    Parameters
+    ----------
+    interval_series: pandas Series
+        A Series with an ndarray of continous behavior timepoints, for each
+        index.
 
-        framerate: int, optional, default: 10
-            The framerate that corresponds to the session from which the
-            intervals were extracted.
+    framerate: int, optional, default: 10
+        The framerate that corresponds to the session from which the
+        intervals were extracted.
 
-        seconds: int, optional, default: 1
-            The amount of seconds.
+    seconds: int, optional, default: 1
+        The amount of seconds.
 
-    Returns:
-        intervals: list
-            A list of all the intervals that are at least as long as the
+    Returns
+    -------
+    intervals: list
+        A list of all the intervals that are at least as long as the
             provided framerate multiplied by the provided seconds.
     """
     intervals = [interval for interval in interval_series if len(interval) >= framerate*seconds]
@@ -288,7 +306,8 @@ def filter_epochs(interval_series, framerate=10, seconds=1):
 def downsample_dataframe(dataframe, row_multiple):
     """Downsample a given pandas DataFrame
 
-    Args:
+    Parameters
+    ----------
         dataframe: DataFrame
             The pandas DataFrame to be downsampled.
 
@@ -297,9 +316,10 @@ def downsample_dataframe(dataframe, row_multiple):
             e.g., a row_multiple of 3 would remove every 3rd row from the
             provided dataframe
 
-    Returns:
-        dataframe: DataFrame
-            The downsampled pandas DataFrame.
+    Returns
+    -------
+    dataframe: DataFrame
+        The downsampled pandas DataFrame.
     """
 
     # Drop every nth (row multiple) row
@@ -317,25 +337,27 @@ def activity_by_neurons(spikes_and_beh, neuron_names, *behaviors, **kwargs):
     This function computes the rates for a given animal's activity and
     neuron, given some set of behaviors.
 
-    Args:
-        spikes_and_beh: DataFrame
-            A concatenated pandas DataFrame of the neuron activity and
-            the corresponding behavior, for a given animal.
+    Parameters
+    ----------
+    spikes_and_beh: DataFrame
+        A concatenated pandas DataFrame of the neuron activity and
+        the corresponding behavior, for a given animal.
 
-        neuron_names: list
-            The names of the neurons whose rates are to be computed.
+    neuron_names: list
+        The names of the neurons whose rates are to be computed.
 
-        behaviors: arbitrary argument list
-            The behaviors for which to compute the activity rates.
-            NOTE: If no behaviors are provided, then the average rate over the
-            entire session.
+    behaviors: arbitrary argument list
+        The behaviors for which to compute the activity rates.
+        NOTE: If no behaviors are provided, then the average rate over the
+        entire session.
 
-        frame_rate: int, optional, default: 10
-            The framerate by which to multiply the activity rate.
+    frame_rate: int, optional, default: 10
+        The framerate by which to multiply the activity rate.
 
-    Returns:
-        activity_df: DataFrame
-            A pandas DataFrame of the neuron activity rates.
+    Returns
+    -------
+    activity_df: DataFrame
+        A pandas DataFrame of the neuron activity rates.
     """
     if set(neuron_names).issubset(spikes_and_beh.columns) is False:
         raise ValueError("neuron_names is NOT a subset of the columns in spikes_and_beh!")

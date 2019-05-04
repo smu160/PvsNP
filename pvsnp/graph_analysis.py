@@ -54,18 +54,20 @@ class NeuronNetwork:
         will be connected by an edge, where the edge will receive a weight of
         the specific correlation coefficient of those two nodes.
 
-        Args:
-            nodes: list
-                A list of all the neurons/nodes in the network/graph.
+        Parameters
+        ----------
+        nodes: list
+            A list of all the neurons/nodes in the network/graph.
 
-            edges: dict {(int, int): scalar, ..., (int, int): scalar}
-                A dictionary of key-value pairs, where each key is a tuple
-                representing an edge between two neurons/nodes, and each value
-                is a scalar value representing the weight of that edge.
+        edges: dict {(int, int): scalar, ..., (int, int): scalar}
+            A dictionary of key-value pairs, where each key is a tuple
+            representing an edge between two neurons/nodes, and each value
+            is a scalar value representing the weight of that edge.
 
-        Returns:
-            graph: NetworkX graph
-                A graph of the neuronal network.
+        Returns
+        -------
+        graph: NetworkX graph
+            A graph of the neuronal network.
         """
         graph = nx.Graph()
         graph.add_nodes_from(nodes)
@@ -81,79 +83,81 @@ class NeuronNetwork:
         This function will draw a provided NetworkX graph using either the
         spring layout algorithm, or by the positions provided.
 
-        Args:
-            pos: dict, optional, default: networkx.drawing.layout.spring_layout
-                A dictionary of the network's neurons as keys and their (x, y)
-                coordinates as corresponding values.
+        Parameters
+        ----------
+        pos: dict, optional, default: networkx.drawing.layout.spring_layout
+            A dictionary of the network's neurons as keys and their (x, y)
+            coordinates as corresponding values.
 
-            nodelist: list, optional, default: self.neurons
-                Draw only specified neurons (nodes).
+        nodelist: list, optional, default: self.neurons
+            Draw only specified neurons (nodes).
 
-            node_size: int or list, optional, default: 300
-                The size of the plotted neurons in the network.
+        node_size: int or list, optional, default: 300
+            The size of the plotted neurons in the network.
 
-            node_color: (color string, or array of floats), optional, default: 'r'
-                Can either be a single color format string (default=’r’), or a
-                sequence of colors with the same length as nodelist. If numeric
-                values are specified they will be mapped to colors using the
-                cmap and vmin, vmax parameters. See matplotlib.scatter for more
-                details.
+        node_color: (color string, or array of floats), optional, default: 'r'
+            Can either be a single color format string (default=’r’), or a
+            sequence of colors with the same length as nodelist. If numeric
+            values are specified they will be mapped to colors using the
+            cmap and vmin, vmax parameters. See matplotlib.scatter for more
+            details.
 
-            cmap: Matplotlib colormap, optional, default: None
-                Colormap for mapping intensities of nodes.
+        cmap: Matplotlib colormap, optional, default: None
+            Colormap for mapping intensities of nodes.
 
-            alpha: float, optional, default: 1.0
-                The transparency of the nodes.
+        alpha: float, optional, default: 1.0
+            The transparency of the nodes.
 
-            node_borders: (None, scalar, or sequence), optional, default: 'black'
-                The color(s) of the node borders.
+        node_borders: (None, scalar, or sequence), optional, default: 'black'
+            The color(s) of the node borders.
 
-            edgelist: (collection of edge tuples), optional, default: self.connections
-                Draw only specified edges. By default, the edges between all
-                nodes will be drawn. If `[]` (i.e. empty list), then the edges
-                between all nodes will be omitted from the figure.
+        edgelist: (collection of edge tuples), optional, default: self.connections
+            Draw only specified edges. By default, the edges between all
+            nodes will be drawn. If `[]` (i.e. empty list), then the edges
+            between all nodes will be omitted from the figure.
 
-            edge_alpha: float, optional, default is 1.0
-                The transparency of the edges.
+        edge_alpha: float, optional, default is 1.0
+            The transparency of the edges.
 
-            edge_color: (color string, or array of floats), default: 'r'
-                Can either be a single color format string, or a sequence of
-                colors with the same length as edgelist. If numeric values are
-                specified they will be mapped to colors using the edge_cmap and
-                edge_vmin, edge_vmax parameters.
+        edge_color: (color string, or array of floats), default: 'r'
+            Can either be a single color format string, or a sequence of
+            colors with the same length as edgelist. If numeric values are
+            specified they will be mapped to colors using the edge_cmap and
+            edge_vmin, edge_vmax parameters.
 
-            edge_cmap : Matplotlib colormap, optional, default: None
-                Colormap for mapping intensities of edges.
+        edge_cmap : Matplotlib colormap, optional, default: None
+            Colormap for mapping intensities of edges.
 
-            width: float, optional, default: 1.0
-                The width of the edges.
+        width: float, optional, default: 1.0
+            The width of the edges.
 
-            labels: bool, optional, default: True
-                If False, then omit node labels and edge labels.
+        labels: bool, optional, default: True
+            If False, then omit node labels and edge labels.
 
-            font_size: int, optional, default: 10
-                The size of the font for text labels.
+        font_size: int, optional, default: 10
+            The size of the font for text labels.
 
-            figsize: tuple, optional, default: (20, 20)
-                The size of the network figure to be plotted.
+        figsize: tuple, optional, default: (20, 20)
+            The size of the network figure to be plotted.
 
-            savefig: bool, optional, default: False
-                When True, the plotted figure will be saved to the current
-                working directory, in PDF format, at the default (or specified)
-                DPI.
+        savefig: bool, optional, default: False
+            When True, the plotted figure will be saved to the current
+            working directory, in PDF format, at the default (or specified)
+            DPI.
 
-            dpi: int, optional, default: 600
-                The amount of dots per inch to use when saving the figure. In
-                accordance with Nature's guidelines, the default is 600.
-                Source: https://www.nature.com/nature/for-authors/final-submission
+        dpi: int, optional, default: 600
+            The amount of dots per inch to use when saving the figure. In
+            accordance with Nature's guidelines, the default is 600.
+            Source: https://www.nature.com/nature/for-authors/final-submission
 
-            title: str, optional, default: None
-                The title of the plotted graph/network.
+        title: str, optional, default: None
+            The title of the plotted graph/network.
 
-        Returns:
-            pos: dict
-                A dictionary of the network's neurons as keys and their (x, y)
-                coordinates as corresponding values.
+        Returns
+        -------
+        pos: dict
+            A dictionary of the network's neurons as keys and their (x, y)
+            coordinates as corresponding values.
         """
 
         # Get positions for all nodes
@@ -290,20 +294,16 @@ class NeuronNetwork:
         Finds all cliques in an undirected graph (network), and computes the
         mean size of all those cliques.
 
-        Returns:
-            mean: float
-                The mean clique size of the network of neurons.
+        Returns
+        -------
+        avg_clique_size: float
+            The mean clique size of the network.
         """
-        all_cliques = nx.enumerate_all_cliques(self.network)
+        all_cliques = list(nx.enumerate_all_cliques(self.network))
+        clique_sizes = [len(clique_i) for clique_i in all_cliques]
+        avg_clique_size = np.mean(clique_sizes)
 
-        size = 0
-        running_sum = 0
-        for cliq in all_cliques:
-            size += 1
-            running_sum += len(cliq)
-
-        mean = running_sum / size
-        return mean
+        return avg_clique_sizes
 
     # TODO: Implement & document!!
     def small_world_propensity(self, weight="weight"):
@@ -311,12 +311,14 @@ class NeuronNetwork:
 
         Source: https://www.nature.com/articles/srep22057
 
-        Args:
-            weight: str, optional, default: 'weight'
+        Parameters
+        ----------
+        weight: str, optional, default: 'weight'
 
-        Returns:
-            small_worldness: float
-                The clustering coefficient divided by the average shortest path
-                length of the neuron network.
+        Returns
+        -------
+        small_worldness: float
+            The clustering coefficient divided by the average shortest path
+            length of the neuron network.
         """
-        raise NotImplementedError("Patience is a virtue.")
+        raise NotImplementedError("To be implemented...")

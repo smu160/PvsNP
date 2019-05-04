@@ -74,23 +74,3 @@ bash create_env.sh
 ## Dependencies
 
 A list of dependencies can be found in the [environment file](https://github.com/smu160/PvsNP/blob/master/environment.yml)
-
-## How to cite
-
-```
-@misc{pvsnp2019,
-title = {{PvsNP: a Python toolbox for reproducible analysis and visualization of NeuroPhysiological data}},
-author = {Saveliy Yusufov and Jack Berry and Grace Paquelet and René Hen},
-howpublished = {\url{https://doi.org/10.5281/zenodo.2605509}},
-year = {2019},
-url = {https://doi.org/10.5281/zenodo.2605509}
-}
-```
-
-Please remember to cite all dependencies listed here: [environment file](https://github.com/smu160/PvsNP/blob/master/environment.yml)
-
-## Why Python?
-- [Eight Advantages of Python Over Matlab](http://phillipmfeldman.org/Python/Advantages_of_Python_Over_Matlab.html)
-- [Interactive notebooks: Sharing the code](https://www.nature.com/news/interactive-notebooks-sharing-the-code-1.16261)
-- [A gallery of interesting Jupyter Notebooks](https://github.com/jupyter/jupyter/wiki/A-gallery-of-interesting-Jupyter-Notebooks)
-- [Food for Thought](https://www.theatlantic.com/science/archive/2018/04/the-scientific-paper-is-obsolete/556676/)

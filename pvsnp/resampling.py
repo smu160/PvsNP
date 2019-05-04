@@ -46,19 +46,21 @@ class Resampler:
     def get_num_of_events(dataframe, neuron):
         """Get the number of signal spikes for a given column vector
 
-        Args:
-            dataframe: DataFrame
+        Parameters
+        ----------
+        dataframe: DataFrame
 
-                A pandas DataFrame that contains at least one neuron's signal
-                data, in column vector form.
+            A pandas DataFrame that contains at least one neuron's signal
+            data, in column vector form.
 
-            neuron:
-                The name of the neuron column vector to get the number
-                of events for.
+        neuron:
+            The name of the neuron column vector to get the number
+            of events for.
 
-        Returns:
-            The amount of datapoints in a given column vector of nonzero
-            value.
+        Returns
+        -------
+        The amount of datapoints in a given column vector of nonzero
+        value.
         """
         return len(dataframe.loc[:, neuron][dataframe[neuron] != 0])
 
@@ -66,20 +68,23 @@ class Resampler:
     def diff_of_mean_rate(dataframe, *beh_col_vec, frame_rate=10):
         """Compute difference of means between the rates of two behaviors.
 
-        Args:
-            dataframe: DataFrame
-                A pandas DataFrame of all the neuron column vectors
-                for a given animal.
+        Parameters
+        ----------
+        dataframe: DataFrame
+            A pandas DataFrame of all the neuron column vectors
+            for a given animal.
 
-            beh_col_vec: pandas Series
-                A single behavior column vector or two behavior column vectors
-                used to compute the difference of means rate.
-                e.g. "OpenArms" vs. "ClosedArms".
+        beh_col_vec: pandas Series
+            A single behavior column vector or two behavior column vectors
+            used to compute the difference of means rate.
+            e.g. "OpenArms" vs. "ClosedArms".
 
-            frame_rate: int, optional, default: 10
-                The framerate associated with the given data.
+        frame_rate: int, optional, default: 10
+            The framerate associated with the given data.
 
-        Returns: numpy array
+        Returns
+        -------
+        numpy array
             A numpy array of all the difference of means, D_hat, values, i.e.,
             all of the behavior vectors means subtracted from the corresponding
             means of the non-behavior vectors, all scaled by the frame rate.
@@ -108,29 +113,30 @@ class Resampler:
         NOTE: This function is meant to be only be used as a helper function
         for the shuffle() function.
 
-        Args:
-            queue: Queue
-                A thread-safe FIFO data structure to which the resulting
-                dataframe will be added.
+        Parameters
+        ----------
+        queue: Queue
+            A thread-safe FIFO data structure to which the resulting
+            dataframe will be added.
 
-            resamples: int
-                The amount of permutation resamples to draw from the data.
+        resamples: int
+            The amount of permutation resamples to draw from the data.
 
-            dataframe: DataFrame
-                The data to be used to randomly draw permutation resamples.
+        dataframe: DataFrame
+            The data to be used to randomly draw permutation resamples.
 
-            statistic: function
-                A function that will compute a statistic that measures the size
-                of an effect of interest (e.g. difference of means, mutual
-                information, and etc.)
+        statistic: function
+            A function that will compute a statistic that measures the size
+            of an effect of interest (e.g. difference of means, mutual
+            information, and etc.)
 
-            beh_col_vec: pandas Series
-                The columns vectors to be used as the two groups to
-                use for permutation resamples.
+        beh_col_vec: pandas Series
+            The columns vectors to be used as the two groups to
+            use for permutation resamples.
 
-            flip_roll: boolean, optional, default: False
-                If data should be flipped and then randomly rolled for each
-                resample.
+        flip_roll: boolean, optional, default: False
+            If data should be flipped and then randomly rolled for each
+            resample.
         """
         flip_roll = kwargs.get("flip_roll", False)
 
@@ -168,27 +174,30 @@ class Resampler:
         resamples is split evenly amongst all of the CPU's of the machine this
         function will be run on.
 
-        Args:
-            resamples: int, optional, default: 10000
-                The total amount of permutation resamples desired.
+        Parameters
+        ----------
+        resamples: int, optional, default: 10000
+            The total amount of permutation resamples desired.
 
-            dataframe: DataFrame
-                The data to be used to randomly draw permutation resamples.
+        dataframe: DataFrame
+            The data to be used to randomly draw permutation resamples.
 
-            statistic: function
-                A function that will compute a statistic that measures the size
-                of an effect of interest (e.g. difference of means, mutual
-                information, and etc.)
+        statistic: function
+            A function that will compute a statistic that measures the size
+            of an effect of interest (e.g. difference of means, mutual
+            information, and etc.)
 
-            beh_col_vec: pandas Series
-                The columns vectors to be used as the two groups to
-                use for permutation resamples.
+        beh_col_vec: pandas Series
+            The columns vectors to be used as the two groups to
+            use for permutation resamples.
 
-            flip_roll: boolean, optional, default: False
-                If data should be flipped and then randomly rolled for each
-                resample.
+        flip_roll: boolean, optional, default: False
+            If data should be flipped and then randomly rolled for each
+            resample.
 
-        Returns:
+        Returns
+        -------
+        pandas DataFrame
             A (vertically) concatenated pandas DataFrame of all the DataFrames
             the shuffle_worker processes produced.
         """
@@ -223,17 +232,18 @@ class Resampler:
         This function is meant to compute a two-sided p-value on a given
         permutation distribution.
 
-        Args:
-            original_statistic: float
-                The original value of the statistic computed on the data.
+        Parameters
+        ----------
+        original_statistic: float
+            The original value of the statistic computed on the data.
 
-            permutation_distribution: DataFrame or Series
-                A pandas DataFrame of the permutation distributions.
+        permutation_distribution: DataFrame or Series
+            A pandas DataFrame of the permutation distributions.
 
-        Returns:
-            p_val: float
-                The p-value that was located/computed.
-
+        Returns
+        -------
+        p_val: float
+            The p-value that was located/computed.
         """
         D = original_statistic
         D_i = permutation_distribution.abs()
@@ -247,16 +257,18 @@ class Resampler:
         """
         Compute z-score for a given value, and the permutation distribution
 
-        Args:
-            original_statistic: float
-                The original value of the statistic computed on the data.
+        Parameters
+        ----------
+        original_statistic: float
+            The original value of the statistic computed on the data.
 
-            permutation_distribution: pandas DataFrame or pandas Series
-                The permutation distribution.
+        permutation_distribution: pandas DataFrame or pandas Series
+            The permutation distribution.
 
-        Returns:
-            z_score: float
-                The z-score that was computed.
+        Returns
+        -------
+        z_score: float
+            The z-score that was computed.
         """
         mew = permutation_distribution.mean()
         std = permutation_distribution.std()
@@ -271,20 +283,23 @@ class Resampler:
         WARNING: Use this function ONLY if your permutation distribution is
         normally distributed.
 
-        Args:
-            original_statistic: float
-                The original value of the statistic computed on the data.
+        Parameters
+        ----------
+        original_statistic: float
+            The original value of the statistic computed on the data.
 
-            permutation_distribution: pandas DataFrame
-                A DataFrame of the permutation distributions.
+        permutation_distribution: pandas DataFrame
+            A DataFrame of the permutation distributions.
 
-            high: float, optional, default: 95.0
-                The cutoff for the upper-tail of the distribution.
+        high: float, optional, default: 95.0
+            The cutoff for the upper-tail of the distribution.
 
-            low: float, optional, default: 5.0
-                The cutoff for the lower-tail of the distribution.
+        low: float, optional, default: 5.0
+            The cutoff for the lower-tail of the distribution.
 
-        Returns:
+        Returns
+        -------
+        int
             1 if the original statistic is observed in the upper-tail of the
             permutation distribution.
             -1 if the original statistic is observed in the lower-tail of the

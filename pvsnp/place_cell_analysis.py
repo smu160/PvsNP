@@ -42,17 +42,19 @@ def pair(x, y):
 
     Source: https://en.wikipedia.org/wiki/Pairing_function#Cantor_pairing_function
 
-    Args:
-        x: int
-            One of the natural numbers to encode into a single natural number.
+    Parameters
+    ----------
+    x: int
+        One of the natural numbers to encode into a single natural number.
 
-        y: int
-            One of the natural numbers to encode into a single natural number.
+    y: int
+        One of the natural numbers to encode into a single natural number.
 
-    Returns:
-        z: int
-            The single natural number uniquely encoded from the the provided
-            natural numbers, x and y.
+    Returns
+    -------
+    z: int
+        The single natural number uniquely encoded from the the provided
+        natural numbers, x and y.
     """
     if not isinstance(x, int) or not isinstance(y, int):
         raise TypeError("x and y must be members of the natural numbers!")
@@ -68,14 +70,16 @@ def invert(z):
 
     Source: https://en.wikipedia.org/wiki/Pairing_function#Cantor_pairing_function
 
-    Args:
-        z: int
-            A natural number that is comprised of two unique natural numbers.
+    Parameters
+    ----------
+    z: int
+        A natural number that is comprised of two unique natural numbers.
 
-    Returns:
-        x, y: tuple
-            The two unique natural numbers, x, y, that comprise the unqique
-            encoding of z.
+    Returns
+    -------
+    x, y: tuple
+        The two unique natural numbers, x, y, that comprise the unqique
+        encoding of z.
     """
     if not isinstance(z, int):
         raise TypeError("z must be a member of the natural numbers!")
@@ -92,20 +96,21 @@ def invert(z):
 def apply_cantor_pairing(x_coords, y_coords):
     """Reduce dimensionality from 2d to 1d.
 
-    Args:
-        x_coords: list
-            A list of natural numbers, such that the value at each index,
-            corresponds to the value at each index in y_coords.
+    Parameters
+    ----------
+    x_coords: list
+        A list of natural numbers, such that the value at each index,
+        corresponds to the value at each index in y_coords.
 
-        y:coords: list
-            A list of natural numbers, such that the value at each index,
-            corresponds to the value at each index in x_coords.
+    y:coords: list
+        A list of natural numbers, such that the value at each index,
+        corresponds to the value at each index in x_coords.
 
-    Returns:
-        z_coords: list
-            The resulting list from applying the cantor pairing function to each
-            corresponding pair of natural numbers, i.e., (x_i, y_i).
-
+    Returns
+    -------
+    z_coords: list
+        The resulting list from applying the cantor pairing function to each
+        corresponding pair of natural numbers, i.e., (x_i, y_i).
     """
     if len(x_coords) != len(y_coords):
         raise ValueError("x_coords and y_coords must be of equal length!")
@@ -118,25 +123,27 @@ def apply_cantor_pairing(x_coords, y_coords):
 def bin_coordinates(mouse, bin_size=5, x_col="X_center", y_col="Y_center"):
     """Bins the x and y coordinates for place cell analysis.
 
-    Args:
-        mouse: Mouse
-            The mouse object whose spikes_and_beh dataframe contains an `X` and
-            a `Y` column to bin by the provided bin size.
+    Parameters
+    ----------
+    mouse: Mouse
+        The mouse object whose spikes_and_beh dataframe contains an `X` and
+        a `Y` column to bin by the provided bin size.
 
-        bin_size: int, optional, default: 5
-            (i.e., bin_factor=5 ==> 5 x 5 bins)
+    bin_size: int, optional, default: 5
+        (i.e., bin_factor=5 ==> 5 x 5 bins)
 
-        x_col: str, optional, default: 'X_center'
-            The name of the column that contains the `X` coordinates in the
-            spikes_and_beh dataframe.
+    x_col: str, optional, default: 'X_center'
+        The name of the column that contains the `X` coordinates in the
+        spikes_and_beh dataframe.
 
-        y_col: str, optional, default: 'Y_center'
-            The name of the column that contains the `Y` coordinates in the
-            spikes_and_beh dataframe.
+    y_col: str, optional, default: 'Y_center'
+        The name of the column that contains the `Y` coordinates in the
+        spikes_and_beh dataframe.
 
-    Returns:
-        x_coords, y_coords: tuple
-            The binned x coordinates and the binned y coordinates in a tuple.
+    Returns
+    -------
+    x_coords, y_coords: tuple
+        The binned x coordinates and the binned y coordinates in a tuple.
     """
     # Extract the X and Y coordinate column vectors
     x_coords = mouse.spikes_and_beh[x_col].astype(float)
@@ -158,15 +165,17 @@ def bin_coordinates(mouse, bin_size=5, x_col="X_center", y_col="Y_center"):
 def remove_immobile(mouse):
     """Removes immobile time bins from mouse.
 
-    Args:
-        mouse: Mouse object
+    Parameters
+    ----------
+    mouse: Mouse object
 
-    Return:
-        mobile_s:
+    Returns
+    -------
+    mobile_s:
 
-        mobile_c:
+    mobile_c:
 
-        mobile_beh:
+    mobile_beh:
     """
     mobile_s = mouse.spikes[mouse.behavior.immobile == 0]
     mobile_c = mouse.cell_transients[mouse.behavior.immobile == 0]
@@ -179,24 +188,26 @@ def remove_immobile(mouse):
 def remove_low_occupancy(mouse, x_bin, y_bin, min_occupancy=1):
     """Removes spatial bins that had low occupancy
 
-    Args:
-        mouse: Mouse
+    Parameters
+    ----------
+    mouse: Mouse
 
-        x_bin: pandas Series
-            Binned x coordinates
+    x_bin: pandas Series
+        Binned x coordinates
 
-        y_bin: pandas Series
-            Binned y coordinates
+    y_bin: pandas Series
+        Binned y coordinates
 
-        min_occupancy:
-            minimum number of time bins for a spatial bin to be included
+    min_occupancy:
+        minimum number of time bins for a spatial bin to be included
 
-    Returns:
-        filtered_binned_s:
+    Returns
+    -------
+    filtered_binned_s:
 
-        filtered_binned_c:
+    filtered_binned_c:
 
-        filtered_binned_beh:
-            Low-occupancy spatial bins removed, and the new columns
+    filtered_binned_beh:
+        Low-occupancy spatial bins removed, and the new columns
     """
     raise NotImplementedError("Major refactoring in progress.")
