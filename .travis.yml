@@ -1,10 +1,24 @@
 language: python
 
-services:
-  - docker
 
 before_install:
   - git clone https://github.com/smu160/PvsNP.git
+  - sudo apt-get update
+  - sudo apt-get install -y wget bzip2
+  - wget https://repo.continuum.io/miniconda/Miniconda3-4.5.11-Linux-x86_64.sh
+  - bash Miniconda3-4.5.11-Linux-x86_64.sh -b -p $HOME/miniconda
+  - rm Miniconda3-4.5.11-Linux-x86_64.sh
+  - export PATH="$HOME/miniconda/bin:$PATH"
+
+
+install:
   - cd PvsNP
-  - docker build . -t jupyter
-  - docker run -it -p 8888:8888 jupyter
+  - bash create_env.sh
+
+
+script:
+  - python test.py
+
+
+notifications:
+  email: false
