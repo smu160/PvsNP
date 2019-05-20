@@ -1,6 +1,6 @@
 #
 # PvsNP: toolbox for reproducible analysis & visualization of neurophysiological data.
-# Copyright (C) 2019
+# Copyright (C) 2019 Saveliy Yusufov
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -305,3 +305,77 @@ def plot_clustermap(dataframe, **kwargs):
             filename = "my_seaborn_clustermap"
 
         plt.savefig("{}.pdf".format(filename), dpi=kwargs.get("dpi", 600))
+
+
+def ts_plot(dataframe, **kwargs):
+    """Plot all the columns of a given dataframe.
+
+    Parameters
+    ----------
+    dataframe: pandas DataFrame
+        The DataFrame will each time series as a column.
+
+    beh_intervals: list, optional, default: None
+        A nested list of behavior intervals.
+
+    cmap: str, optional, default: 'viridis'
+        The colormap to use for coloring traces.
+
+    hspace: float, optional, default: 0.0
+        The spacing between each time series subplot.
+
+    figsize: tuple, optional, default: (25, 20)
+        The size of the figure to be plotted/saved.
+
+    trace_colors: list, optional, default: [0, 1, ..., n-1]
+        The colors signifying the color in the colormap to apply to each trace.
+
+    bg_colors: list, optional, default: None
+        The colors to use to distinguish behaviors.
+
+    bg_alpha: float, optional, default 0.1:
+        The transparency of the trace background colors.
+
+    title: str, optional, default: None
+        The title of the plot.
+
+    savefig: bool, optional, default: False
+        If True, the figure will be saved.
+
+    dpi: int, optional, default: 600
+        The resolution in dots per inch.
+    """
+    bg_colors = kwargs.get("bg_colors", ["blue", "orange", "red"])
+
+    trace_colors = kwargs.get("trace_colors", [i for i, _ in enumerate(dataframe.columns)])
+
+    if len(trace_colors) != len(dataframe.columns):
+        raise ValueError("Length of trace_colors must equal amount of columns in dataframe!!!")
+
+    hspace = kwargs.get("hspace", 0.0)
+    figsize = kwargs.get("figsize", (25, 20))
+    colormap = kwargs.get("cmap", "viridis")
+    cmap = plt.cm.get_cmap(colormap, len(trace_colors))
+
+    _, axes = plt.subplots(len(dataframe.columns), 1, figsize=figsize)
+
+    for index, col_name in enumerate(dataframe.columns):
+        axes[index].plot(dataframe.index, dataframe[col_name], c=cmap(trace_colors[index]))
+        axes[index].axis("off")
+
+    all_behavior_intervals = kwargs.get("beh_intervals", None)
+
+    if all_behavior_intervals:
+        if len(bg_colors) != len(all_behavior_intervals):
+            raise ValueError("bg_colors and beh_intervals must be of equal length!!!")
+
+        for j, behavior_intervals in enumerate(all_behavior_intervals):
+            [ax.axvspan(intrval[0], intrval[-1], alpha=0.5, facecolor=bg_colors[j]) for ax in axes for intrval in behavior_intervals]
+
+    plt.subplots_adjust(wspace=0, hspace=hspace)
+    plt.title(kwargs.get("title", None))
+
+    if kwargs.get("savefig", False):
+        plt.savefig("plots.pdf", format="pdf", dpi=kwargs.get("dpi", 600))
+
+    plt.show()
